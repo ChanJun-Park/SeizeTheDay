@@ -1,4 +1,4 @@
-package com.jingom.seizetheday.ui.theme
+package com.jingom.seizetheday.presentation.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme

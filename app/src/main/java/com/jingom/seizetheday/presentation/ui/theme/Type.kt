@@ -1,4 +1,4 @@
-package com.jingom.seizetheday.ui.theme
+package com.jingom.seizetheday.presentation.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
