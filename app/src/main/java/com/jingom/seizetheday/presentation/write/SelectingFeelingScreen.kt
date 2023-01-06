@@ -1,7 +1,9 @@
 package com.jingom.seizetheday.presentation.write
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,7 +17,7 @@ import com.jingom.seizetheday.domain.Feeling
 @Composable
 fun SelectFeelingScreen(
 	state: WritingThanksScreenState,
-	onFeelingSelected: (Feeling) -> Unit
+	onFeelingSelected: (Feeling) -> Unit = {}
 ) {
 	ScrollableContainer {
 		Column(
@@ -25,7 +27,12 @@ fun SelectFeelingScreen(
 			horizontalAlignment = Alignment.CenterHorizontally,
 			verticalArrangement = Arrangement.Top
 		) {
+			Spacer(modifier = Modifier.height(30.dp))
+
 			SelectFeelingPromptMessage()
+
+			Spacer(modifier = Modifier.height(30.dp))
+
 			FeelingSelectSection(
 				currentlySelectedFeeling = state.feeling,
 				onFeelingSelected = onFeelingSelected
@@ -36,7 +43,11 @@ fun SelectFeelingScreen(
 
 @Composable
 fun SelectFeelingPromptMessage() {
-	Text(text = "지금 기분이 어떠신가요?")
+	Text(
+		modifier = Modifier.width(200.dp),
+		text = "지금 기분이 어떠신가요?",
+		style = MaterialTheme.typography.h4
+	)
 }
 
 @Preview
@@ -48,24 +59,46 @@ fun SelectFeelingPromptMessagePreview() {
 @Composable
 fun FeelingItem(
 	feeling: Feeling,
-	onItemClick: (Feeling) -> Unit
+	selected: Boolean = false,
+	onItemClick: (Feeling) -> Unit = {}
 ) {
+	var modifier = Modifier
+		.clickable { onItemClick(feeling) }
+		.padding(10.dp)
+
+	if (selected) {
+		modifier = modifier.border(
+			width = 1.dp,
+			color = MaterialTheme.colors.primary,
+			shape = RoundedCornerShape(10.dp)
+		)
+	}
+
 	Box(
-		modifier = Modifier
-			.clickable { onItemClick(feeling) }
-			.padding(10.dp)
+		modifier = modifier
 	) {
 		Text(
+			modifier = Modifier
+				.padding(5.dp),
 			text = feeling.name,
 			style = MaterialTheme.typography.body1
 		)
 	}
 }
 
+@Preview
+@Composable
+fun FeelingItemPreview() {
+	FeelingItem(
+		feeling = Feeling.Thanks,
+		selected = true
+	)
+}
+
 @Composable
 fun FeelingSelectSection(
 	currentlySelectedFeeling: Feeling?,
-	onFeelingSelected: (Feeling) -> Unit
+	onFeelingSelected: (Feeling) -> Unit = {}
 ) {
 	Column(
 		modifier = Modifier
@@ -77,18 +110,24 @@ fun FeelingSelectSection(
 		Row(
 			modifier = Modifier.wrapContentSize()
 		) {
-			FeelingItem(feeling = Feeling.Happy, onItemClick = onFeelingSelected)
-			FeelingItem(feeling = Feeling.Joy, onItemClick = onFeelingSelected)
-			FeelingItem(feeling = Feeling.Hope, onItemClick = onFeelingSelected)
+			FeelingItem(feeling = Feeling.Happy, onItemClick = onFeelingSelected, selected = currentlySelectedFeeling == Feeling.Happy)
+			FeelingItem(feeling = Feeling.Joy, onItemClick = onFeelingSelected, selected = currentlySelectedFeeling == Feeling.Joy)
+			FeelingItem(feeling = Feeling.Hope, onItemClick = onFeelingSelected, selected = currentlySelectedFeeling == Feeling.Hope)
 		}
 		Row(
 			modifier = Modifier.wrapContentSize()
 		) {
-			FeelingItem(feeling = Feeling.Thanks, onItemClick = onFeelingSelected)
-			FeelingItem(feeling = Feeling.Pride, onItemClick = onFeelingSelected)
-			FeelingItem(feeling = Feeling.Serenity, onItemClick = onFeelingSelected)
-			FeelingItem(feeling = Feeling.Awe, onItemClick = onFeelingSelected)
+			FeelingItem(feeling = Feeling.Thanks, onItemClick = onFeelingSelected, selected = currentlySelectedFeeling == Feeling.Thanks)
+			FeelingItem(feeling = Feeling.Pride, onItemClick = onFeelingSelected, selected = currentlySelectedFeeling == Feeling.Pride)
+			FeelingItem(feeling = Feeling.Serenity, onItemClick = onFeelingSelected, selected = currentlySelectedFeeling == Feeling.Serenity)
+			FeelingItem(feeling = Feeling.Awe, onItemClick = onFeelingSelected, selected = currentlySelectedFeeling == Feeling.Awe)
 		}
 	}
 }
 
+@Preview
+@Composable
+fun SelectFeelingScreenPreview() {
+	val state = WritingThanksScreenState(feeling = Feeling.Thanks)
+	SelectFeelingScreen(state)
+}
