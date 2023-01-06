@@ -16,7 +16,6 @@ class WritingThanksViewModel @Inject constructor() : ViewModel() {
 	fun selectFeeling(feeling: Feeling) {
 		writingThanksScreenState = writingThanksScreenState
 			.changeFeeling(feeling)
-			.changeStep(WritingThanksStep.WRITING_THANKS_CONTENT)
 	}
 
 	fun changeThanksContent(content: String) {
