@@ -43,7 +43,8 @@ fun WritingThanksScreen(viewModel: WritingThanksViewModel = hiltViewModel()) {
 		composable(Route.WRITING_THANKS_CONTENT) {
 			WritingThanksContentScreen(
 				state = state,
-				onThanksContentChanged = viewModel::changeThanksContent
+				onThanksContentChanged = viewModel::changeThanksContent,
+				onSaveClick = viewModel::save
 			)
 		}
 	}

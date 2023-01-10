@@ -22,4 +22,8 @@ class WritingThanksViewModel @Inject constructor() : ViewModel() {
 		writingThanksScreenState = writingThanksScreenState
 			.changeContent(content = content)
 	}
+
+	fun save() {
+		// todo
+	}
 }
