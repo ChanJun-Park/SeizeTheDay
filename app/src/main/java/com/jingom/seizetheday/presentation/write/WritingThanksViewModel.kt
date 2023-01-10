@@ -4,12 +4,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.jingom.seizetheday.domain.Feeling
+import androidx.lifecycle.viewModelScope
+import com.jingom.seizetheday.domain.model.Feeling
+import com.jingom.seizetheday.domain.model.ThanksRecord
+import com.jingom.seizetheday.domain.usecase.SaveThanksRecordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class WritingThanksViewModel @Inject constructor() : ViewModel() {
+class WritingThanksViewModel @Inject constructor(
+	private val saveThanksRecordUseCase: SaveThanksRecordUseCase
+) : ViewModel() {
 
 	var writingThanksScreenState by mutableStateOf(WritingThanksScreenState())
 
@@ -24,6 +30,17 @@ class WritingThanksViewModel @Inject constructor() : ViewModel() {
 	}
 
 	fun save() {
-		// todo
+		val selectedFeeling = writingThanksScreenState.feeling ?: return
+		val content = writingThanksScreenState.content
+
+		val thanksRecord = ThanksRecord(
+			id = 0,
+			feeling = selectedFeeling,
+			thanksContent = content
+		)
+
+		viewModelScope.launch {
+			saveThanksRecordUseCase(thanksRecord)
+		}
 	}
 }

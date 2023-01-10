@@ -1,7 +1,7 @@
 package com.jingom.seizetheday.data.converter
 
 import androidx.room.TypeConverter
-import com.jingom.seizetheday.domain.Feeling
+import com.jingom.seizetheday.domain.model.Feeling
 
 class FeelingTypeConverters {
 	@TypeConverter

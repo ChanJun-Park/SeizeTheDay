@@ -3,6 +3,9 @@ package com.jingom.seizetheday.di
 import android.content.Context
 import androidx.room.Room
 import com.jingom.seizetheday.data.SeizeTheDayDatabase
+import com.jingom.seizetheday.data.ThanksRecordRepositoryImpl
+import com.jingom.seizetheday.data.dao.ThanksRecordEntityDao
+import com.jingom.seizetheday.domain.ThanksRecordRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,4 +27,15 @@ class DataModule {
 		).build()
 	}
 
+	@Singleton
+	@Provides
+	fun provideThanksRecordEntityDao(database: SeizeTheDayDatabase): ThanksRecordEntityDao {
+		return database.getThanksRecordEntityDao()
+	}
+
+	@Singleton
+	@Provides
+	fun provideThanksRecordRepository(thanksRecordEntityDao: ThanksRecordEntityDao): ThanksRecordRepository {
+		return ThanksRecordRepositoryImpl(thanksRecordEntityDao)
+	}
 }

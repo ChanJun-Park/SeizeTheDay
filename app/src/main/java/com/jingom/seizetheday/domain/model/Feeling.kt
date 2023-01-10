@@ -1,4 +1,4 @@
-package com.jingom.seizetheday.domain
+package com.jingom.seizetheday.domain.model
 
 sealed class Feeling(
 	val id: Int,

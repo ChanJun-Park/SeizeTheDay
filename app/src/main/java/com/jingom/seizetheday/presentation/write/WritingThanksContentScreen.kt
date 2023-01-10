@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jingom.seizetheday.core.ui.ScrollableContainer
-import com.jingom.seizetheday.domain.Feeling
+import com.jingom.seizetheday.domain.model.Feeling
 
 @Composable
 fun WritingThanksContentScreen(
