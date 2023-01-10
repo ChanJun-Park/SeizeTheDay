@@ -5,8 +5,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.jingom.seizetheday.data.converter.FeelingTypeConverters
 
-@Database(entities = [ThanksRecord::class], version = 1, exportSchema = false)
+@Database(entities = [ThanksRecordEntity::class], version = 1, exportSchema = false)
 @TypeConverters(FeelingTypeConverters::class)
 abstract class SeizeTheDayDatabase: RoomDatabase() {
-	abstract fun getThanksRecordDao(): ThanksRecordDao
+	abstract fun getThanksRecordEntityDao(): ThanksRecordEntityDao
 }

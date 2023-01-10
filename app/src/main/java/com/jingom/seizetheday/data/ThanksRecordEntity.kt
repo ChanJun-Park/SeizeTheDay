@@ -5,8 +5,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.jingom.seizetheday.domain.Feeling
 
-@Entity(tableName = "thanks_record")
-data class ThanksRecord(
+@Entity(tableName = "thanks_record_entity")
+data class ThanksRecordEntity(
 	@PrimaryKey(autoGenerate = true)
 	@ColumnInfo(name = "id")
 	val id: Int,

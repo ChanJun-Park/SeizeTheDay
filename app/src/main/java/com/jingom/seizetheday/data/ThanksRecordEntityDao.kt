@@ -7,14 +7,14 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface ThanksRecordDao {
+interface ThanksRecordEntityDao {
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
-	suspend fun insert(thanksRecord: ThanksRecord)
+	suspend fun insert(thanksRecord: ThanksRecordEntity)
 
 	@Query("""
 		SELECT *
-		FROM thanks_record
+		FROM thanks_record_entity
 	""")
-	suspend fun getThanksRecordsFlow(): Flow<List<ThanksRecord>>
+	fun getThanksRecordEntitiesFlow(): Flow<List<ThanksRecordEntity>>
 }
