@@ -29,6 +29,10 @@ class WritingThanksViewModel @Inject constructor(
 
 	fun save() {
 		viewModelScope.launch {
+			val prevState = writingThanksScreenState.value
+
+			changeWritingThanksStepToSaving()
+
 			val selectedFeeling = writingThanksScreenState.value.feeling ?: return@launch
 			val content = writingThanksScreenState.value.content
 
@@ -40,13 +44,25 @@ class WritingThanksViewModel @Inject constructor(
 
 			saveThanksRecordUseCase(thanksRecord).onSuccess {
 				changeWritingThanksStepToSaved()
+			}.onFailure {
+				restorePrevState(prevState)
 			}
 		}
+	}
+
+	private fun changeWritingThanksStepToSaving() {
+		_writingThanksScreenState.value = writingThanksScreenState.value.copy(
+			step = WritingThanksStep.SAVING
+		)
 	}
 
 	private fun changeWritingThanksStepToSaved() {
 		_writingThanksScreenState.value = writingThanksScreenState.value.copy(
 			step = WritingThanksStep.SAVED
 		)
+	}
+
+	private fun restorePrevState(prevState: WritingThanksScreenState) {
+		_writingThanksScreenState.value = prevState
 	}
 }

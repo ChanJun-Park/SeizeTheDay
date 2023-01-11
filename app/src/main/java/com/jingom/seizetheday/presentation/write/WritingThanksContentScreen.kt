@@ -37,12 +37,15 @@ fun WritingThanksContentScreen(
 
 			ContentForSelectedFeeling(
 				content = state.content,
-				onContentChanged = onThanksContentChanged
+				onContentChanged = onThanksContentChanged,
+				enabled = state.canEdit()
 			)
 
-			SaveButton(
-				onClick = onSaveClick
-			)
+			if (state.canSaveCurrentState()) {
+				SaveButton(
+					onClick = onSaveClick
+				)
+			}
 		}
 	}
 }
@@ -75,9 +78,14 @@ fun WriteThanksContentPromptMessagePreview() {
 @Composable
 fun ContentForSelectedFeeling(
 	content: String,
-	onContentChanged: (String) -> Unit = {}
+	onContentChanged: (String) -> Unit = {},
+	enabled: Boolean = true
 ) {
-	TextField(value = content, onValueChange = onContentChanged)
+	TextField(
+		value = content,
+		onValueChange = onContentChanged,
+		enabled = enabled
+	)
 }
 
 @Composable

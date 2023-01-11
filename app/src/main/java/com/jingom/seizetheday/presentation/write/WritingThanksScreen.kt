@@ -32,6 +32,10 @@ data class WritingThanksScreenState(
 	fun changeContent(content: String): WritingThanksScreenState {
 		return this.copy(content = content)
 	}
+
+	fun canSaveCurrentState() = (step == WritingThanksStep.EDITING)
+
+	fun canEdit() = (step == WritingThanksStep.EDITING)
 }
 
 @Composable
