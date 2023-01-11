@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jingom.seizetheday.domain.model.Feeling
+import com.jingom.seizetheday.presentation.Route
 import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 import kotlinx.coroutines.flow.collectLatest
 

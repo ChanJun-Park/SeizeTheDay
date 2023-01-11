@@ -1,4 +1,4 @@
-package com.jingom.seizetheday.presentation.write
+package com.jingom.seizetheday.presentation
 
 object Route {
 	const val WRITING_THANKS_SCREEN = "writing_thanks_screen"
