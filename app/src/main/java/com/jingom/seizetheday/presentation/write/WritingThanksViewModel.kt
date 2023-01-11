@@ -1,14 +1,13 @@
 package com.jingom.seizetheday.presentation.write
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.domain.usecase.SaveThanksRecordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,30 +16,37 @@ class WritingThanksViewModel @Inject constructor(
 	private val saveThanksRecordUseCase: SaveThanksRecordUseCase
 ) : ViewModel() {
 
-	var writingThanksScreenState by mutableStateOf(WritingThanksScreenState())
+	private var _writingThanksScreenState = MutableStateFlow(WritingThanksScreenState())
+	val writingThanksScreenState: StateFlow<WritingThanksScreenState> = _writingThanksScreenState
 
 	fun selectFeeling(feeling: Feeling) {
-		writingThanksScreenState = writingThanksScreenState
-			.changeFeeling(feeling)
+		_writingThanksScreenState.value = writingThanksScreenState.value.changeFeeling(feeling)
 	}
 
 	fun changeThanksContent(content: String) {
-		writingThanksScreenState = writingThanksScreenState
-			.changeContent(content = content)
+		_writingThanksScreenState.value = writingThanksScreenState.value.changeContent(content = content)
 	}
 
 	fun save() {
-		val selectedFeeling = writingThanksScreenState.feeling ?: return
-		val content = writingThanksScreenState.content
-
-		val thanksRecord = ThanksRecord(
-			id = 0,
-			feeling = selectedFeeling,
-			thanksContent = content
-		)
-
 		viewModelScope.launch {
-			saveThanksRecordUseCase(thanksRecord)
+			val selectedFeeling = writingThanksScreenState.value.feeling ?: return@launch
+			val content = writingThanksScreenState.value.content
+
+			val thanksRecord = ThanksRecord(
+				id = 0,
+				feeling = selectedFeeling,
+				thanksContent = content
+			)
+
+			saveThanksRecordUseCase(thanksRecord).onSuccess {
+				changeWritingThanksStepToSaved()
+			}
 		}
+	}
+
+	private fun changeWritingThanksStepToSaved() {
+		_writingThanksScreenState.value = writingThanksScreenState.value.copy(
+			step = WritingThanksStep.SAVED
+		)
 	}
 }

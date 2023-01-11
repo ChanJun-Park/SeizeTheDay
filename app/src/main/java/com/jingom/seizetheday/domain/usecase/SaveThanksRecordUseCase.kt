@@ -7,7 +7,7 @@ import javax.inject.Inject
 class SaveThanksRecordUseCase @Inject constructor(
 	private val thanksRecordRepository: ThanksRecordRepository
 ) {
-	suspend operator fun invoke(thanksRecord: ThanksRecord) {
+	suspend operator fun invoke(thanksRecord: ThanksRecord) = runCatching {
 		thanksRecordRepository.saveThanksRecord(thanksRecord)
 	}
 }
