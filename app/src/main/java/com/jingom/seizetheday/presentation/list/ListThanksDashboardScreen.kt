@@ -51,6 +51,7 @@ fun ThanksRecordListItem(
 			verticalAlignment = Alignment.CenterVertically
 		) {
 			Text(
+				modifier = Modifier.requiredWidth(150.dp),
 				text = thanksRecord.feeling.name,
 				style = MaterialTheme.typography.h4
 			)
