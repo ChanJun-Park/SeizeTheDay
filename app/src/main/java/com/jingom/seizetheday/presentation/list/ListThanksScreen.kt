@@ -1,25 +1,16 @@
 package com.jingom.seizetheday.presentation.list
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.collectAsState
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun ListThanksScreen() {
-	Surface(
-		modifier = Modifier.fillMaxSize()
-	) {
-		Column(
-			modifier = Modifier
-				.fillMaxWidth()
-				.wrapContentSize()
-		) {
-			Text(text = "ListThanksScreen")
-		}
-	}
+fun ListThanksScreen(
+	viewModel: ListThanksViewModel = hiltViewModel()
+) {
+	val state = viewModel.thanksRecords.collectAsState().value
+
+	ListThanksDashboardScreen(
+		state = state
+	)
 }

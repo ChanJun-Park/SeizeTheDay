@@ -16,7 +16,7 @@ class WritingThanksViewModel @Inject constructor(
 	private val saveThanksRecordUseCase: SaveThanksRecordUseCase
 ) : ViewModel() {
 
-	private var _writingThanksScreenState = MutableStateFlow(WritingThanksScreenState())
+	private val _writingThanksScreenState = MutableStateFlow(WritingThanksScreenState())
 	val writingThanksScreenState: StateFlow<WritingThanksScreenState> = _writingThanksScreenState
 
 	fun selectFeeling(feeling: Feeling) {
