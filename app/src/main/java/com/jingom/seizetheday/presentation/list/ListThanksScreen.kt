@@ -45,21 +45,12 @@ fun ListThanksScreen(
 ) {
 	Surface(modifier = Modifier.fillMaxSize()) {
 		Box(modifier = Modifier.fillMaxSize()) {
-			LazyColumn(modifier = Modifier.fillMaxSize()) {
-				items(
-					items = state.thanksRecords,
-					key = { it.id }
-				) { item ->
-					ThanksRecordListItem(
-						modifier = Modifier
-							.fillMaxWidth()
-							.wrapContentHeight(),
-						thanksRecord = item
-					)
-				}
-			}
+			ListThanks(
+				modifier = Modifier.fillMaxSize(),
+				thanksRecords = state.thanksRecords
+			)
 
-			IconButton(
+			AddThanksButton(
 				onClick = onNewThanksClick,
 				modifier = Modifier
 					.padding(20.dp)
@@ -69,15 +60,46 @@ fun ListThanksScreen(
 					)
 					.size(48.dp)
 					.align(Alignment.BottomEnd)
-			) {
-				Icon(
-					painter = painterResource(id = R.drawable.ic_add),
-					contentDescription = "새로운 감사함을 기록하기",
-					tint = MaterialTheme.colors.onPrimary,
-					modifier = Modifier.size(28.dp)
-				)
-			}
+			)
 		}
+	}
+}
+
+@Composable
+fun ListThanks(
+	modifier: Modifier = Modifier,
+	thanksRecords: List<ThanksRecord>
+) {
+	LazyColumn(modifier = modifier) {
+		items(
+			items = thanksRecords,
+			key = { it.id }
+		) { item ->
+			ThanksRecordListItem(
+				modifier = Modifier
+					.fillMaxWidth()
+					.wrapContentHeight(),
+				thanksRecord = item
+			)
+		}
+	}
+}
+
+@Composable
+fun AddThanksButton(
+	modifier: Modifier = Modifier,
+	onClick: () -> Unit = {}
+) {
+	IconButton(
+		onClick = onClick,
+		modifier = modifier
+	) {
+		Icon(
+			painter = painterResource(id = R.drawable.ic_add),
+			contentDescription = "새로운 감사함을 기록하기",
+			tint = MaterialTheme.colors.onPrimary,
+			modifier = Modifier.size(28.dp)
+		)
 	}
 }
 
