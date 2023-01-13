@@ -1,10 +1,8 @@
 package com.jingom.seizetheday.presentation.list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,6 +12,11 @@ import androidx.compose.ui.unit.dp
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import com.jingom.seizetheday.R
 
 data class ListThanksScreenState(
 	val thanksRecords: List<ThanksRecord>
@@ -21,19 +24,41 @@ data class ListThanksScreenState(
 
 @Composable
 fun ListThanksDashboardScreen(
-	state: ListThanksScreenState
+	state: ListThanksScreenState,
+	onNewThanksClick: () -> Unit = {}
 ) {
 	Surface(modifier = Modifier.fillMaxSize()) {
-		LazyColumn(modifier = Modifier.fillMaxSize()) {
-			items(
-				items = state.thanksRecords,
-				key = { it.id }
-			) { item ->
-				ThanksRecordListItem(
-					modifier = Modifier
-						.fillMaxWidth()
-						.wrapContentHeight(),
-					thanksRecord = item
+		Box(modifier = Modifier.fillMaxSize()) {
+			LazyColumn(modifier = Modifier.fillMaxSize()) {
+				items(
+					items = state.thanksRecords,
+					key = { it.id }
+				) { item ->
+					ThanksRecordListItem(
+						modifier = Modifier
+							.fillMaxWidth()
+							.wrapContentHeight(),
+						thanksRecord = item
+					)
+				}
+			}
+
+			IconButton(
+				onClick = onNewThanksClick,
+				modifier = Modifier
+					.padding(20.dp)
+					.background(
+						color = MaterialTheme.colors.primary,
+						shape = CircleShape
+					)
+					.size(48.dp)
+					.align(Alignment.BottomEnd)
+			) {
+				Icon(
+					painter = painterResource(id = R.drawable.ic_add),
+					contentDescription = "새로운 감사함을 기록하기",
+					tint = MaterialTheme.colors.onPrimary,
+					modifier = Modifier.size(28.dp)
 				)
 			}
 		}

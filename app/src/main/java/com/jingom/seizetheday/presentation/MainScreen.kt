@@ -18,7 +18,9 @@ fun MainScreen() {
 		startDestination = Route.WRITING_THANKS_SCREEN
 	) {
 		composable(Route.LIST_THANKS_SCREEN) {
-			ListThanksScreen()
+			ListThanksScreen(
+				onNewThanksClick = navController::navigateToWritingThanksScreen
+			)
 		}
 
 		composable(Route.WRITING_THANKS_SCREEN) {
@@ -38,4 +40,8 @@ private fun NavHostController.navigateToListThanksScreen() = navigate(
 			inclusive = true
 		)
 		.build()
+)
+
+private fun NavHostController.navigateToWritingThanksScreen() = navigate(
+	route = Route.WRITING_THANKS_SCREEN
 )
