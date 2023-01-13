@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,33 +22,35 @@ fun SelectFeelingScreen(
 	onFeelingSelected: (Feeling) -> Unit = {},
 	onSelectingCancel: () -> Unit = {}
 ) {
-	Column(modifier = Modifier.fillMaxSize()) {
-		SimpleToolBar(
-			hasNavigationButton = true,
-			title = "감사일기 작성",
-			onNavigateBackClick = onSelectingCancel,
-			modifier = Modifier
-				.height(60.dp)
-				.fillMaxWidth()
-		)
-		ScrollableContainer {
-			Column(
+	Surface(modifier = Modifier.fillMaxSize()) {
+		Column(modifier = Modifier.fillMaxSize()) {
+			SimpleToolBar(
+				hasNavigationButton = true,
+				title = "감사일기 작성",
+				onNavigateBackClick = onSelectingCancel,
 				modifier = Modifier
-					.wrapContentHeight()
-					.fillMaxWidth(),
-				horizontalAlignment = Alignment.CenterHorizontally,
-				verticalArrangement = Arrangement.Top
-			) {
-				Spacer(modifier = Modifier.height(30.dp))
+					.height(60.dp)
+					.fillMaxWidth()
+			)
+			ScrollableContainer {
+				Column(
+					modifier = Modifier
+						.wrapContentHeight()
+						.fillMaxWidth(),
+					horizontalAlignment = Alignment.CenterHorizontally,
+					verticalArrangement = Arrangement.Top
+				) {
+					Spacer(modifier = Modifier.height(30.dp))
 
-				SelectFeelingPromptMessage()
+					SelectFeelingPromptMessage()
 
-				Spacer(modifier = Modifier.height(30.dp))
+					Spacer(modifier = Modifier.height(30.dp))
 
-				FeelingSelectSection(
-					currentlySelectedFeeling = state.feeling,
-					onFeelingSelected = onFeelingSelected
-				)
+					FeelingSelectSection(
+						currentlySelectedFeeling = state.feeling,
+						onFeelingSelected = onFeelingSelected
+					)
+				}
 			}
 		}
 	}

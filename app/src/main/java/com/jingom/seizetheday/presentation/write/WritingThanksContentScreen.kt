@@ -1,10 +1,7 @@
 package com.jingom.seizetheday.presentation.write
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,41 +18,43 @@ fun WritingThanksContentScreen(
 	onSaveClick: () -> Unit = {},
 	onWritingContentCancel: () -> Unit = {}
 ) {
-	Column(modifier = Modifier.fillMaxSize()) {
-		SimpleToolBar(
-			hasNavigationButton = true,
-			title = "감사일기 작성",
-			onNavigateBackClick = onWritingContentCancel,
-			modifier = Modifier
-				.height(60.dp)
-				.fillMaxWidth()
-		)
-		ScrollableContainer {
-			Column(
+	Surface(modifier = Modifier.fillMaxSize()) {
+		Column(modifier = Modifier.fillMaxSize()) {
+			SimpleToolBar(
+				hasNavigationButton = true,
+				title = "감사일기 작성",
+				onNavigateBackClick = onWritingContentCancel,
 				modifier = Modifier
-					.wrapContentHeight()
-					.fillMaxWidth(),
-				horizontalAlignment = Alignment.CenterHorizontally,
-				verticalArrangement = Arrangement.Top
-			) {
-				if (state.feeling != null) {
-					SelectedFeeling(feeling = state.feeling)
-				}
+					.height(60.dp)
+					.fillMaxWidth()
+			)
+			ScrollableContainer {
+				Column(
+					modifier = Modifier
+						.wrapContentHeight()
+						.fillMaxWidth(),
+					horizontalAlignment = Alignment.CenterHorizontally,
+					verticalArrangement = Arrangement.Top
+				) {
+					if (state.feeling != null) {
+						SelectedFeeling(feeling = state.feeling)
+					}
 
-				WriteThanksContentPromptMessage()
+					WriteThanksContentPromptMessage()
 
-				Spacer(modifier = Modifier.height(20.dp))
+					Spacer(modifier = Modifier.height(20.dp))
 
-				ContentForSelectedFeeling(
-					content = state.content,
-					onContentChanged = onThanksContentChanged,
-					enabled = state.canEdit()
-				)
-
-				if (state.canSaveCurrentState()) {
-					SaveButton(
-						onClick = onSaveClick
+					ContentForSelectedFeeling(
+						content = state.content,
+						onContentChanged = onThanksContentChanged,
+						enabled = state.canEdit()
 					)
+
+					if (state.canSaveCurrentState()) {
+						SaveButton(
+							onClick = onSaveClick
+						)
+					}
 				}
 			}
 		}

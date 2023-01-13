@@ -13,17 +13,15 @@ import androidx.compose.ui.Modifier
 fun ScrollableContainer(
 	bodyContent: @Composable () -> Unit
 ) {
-	Surface(modifier = Modifier.fillMaxSize()) {
-		val verticalScrollState = rememberScrollState()
-		Column(
-			modifier = Modifier
-				.fillMaxSize()
-				.verticalScroll(
-					state = verticalScrollState,
-					flingBehavior = ScrollableDefaults.flingBehavior()
-				)
-		) {
-			bodyContent()
-		}
+	val verticalScrollState = rememberScrollState()
+	Column(
+		modifier = Modifier
+			.fillMaxSize()
+			.verticalScroll(
+				state = verticalScrollState,
+				flingBehavior = ScrollableDefaults.flingBehavior()
+			)
+	) {
+		bodyContent()
 	}
 }
