@@ -1,15 +1,25 @@
 package com.jingom.seizetheday.presentation.list
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,36 +53,62 @@ fun ListThanksScreen(
 	state: ListThanksScreenState,
 	onNewThanksClick: () -> Unit = {}
 ) {
-	Surface(modifier = Modifier.fillMaxSize()) {
-		Box(modifier = Modifier.fillMaxSize()) {
-			ListThanks(
-				modifier = Modifier
-					.fillMaxSize()
-					.padding(horizontal = 20.dp),
-				thanksRecords = state.thanksRecords
-			)
+	Box(modifier = Modifier.fillMaxSize()) {
+		ListThanksBackground(modifier = Modifier.fillMaxSize())
 
-			AddThanksButton(
-				onClick = onNewThanksClick,
-				modifier = Modifier
-					.padding(20.dp)
-					.background(
-						color = MaterialTheme.colors.primary,
-						shape = CircleShape
-					)
-					.size(48.dp)
-					.align(Alignment.BottomEnd)
-			)
-		}
+		val listThanksState = rememberLazyListState()
+
+		ListThanks(
+			thanksRecords = state.thanksRecords,
+			lazyListState = listThanksState,
+			modifier = Modifier
+				.background(
+					brush = Brush.verticalGradient(listOf(Color.Transparent, Color.Black))
+				)
+				.fillMaxSize()
+				.padding(horizontal = 20.dp)
+		)
+
+		AddThanksButton(
+			onClick = onNewThanksClick,
+			modifier = Modifier
+				.padding(20.dp)
+				.background(
+					color = MaterialTheme.colors.primary,
+					shape = CircleShape
+				)
+				.size(48.dp)
+				.align(Alignment.BottomEnd)
+		)
+	}
+}
+
+@Composable
+fun ListThanksBackground(
+	modifier: Modifier = Modifier
+) {
+	Column(modifier = modifier) {
+		Image(
+			painter = painterResource(id = R.drawable.main_background_1),
+			contentDescription = null
+		)
 	}
 }
 
 @Composable
 fun ListThanks(
 	modifier: Modifier = Modifier,
-	thanksRecords: List<ThanksRecord>
+	thanksRecords: List<ThanksRecord>,
+	lazyListState: LazyListState
 ) {
-	LazyColumn(modifier = modifier) {
+	LazyColumn(
+		state = lazyListState,
+		modifier = modifier
+	) {
+		item {
+			Spacer(modifier = Modifier.height(250.dp))
+		}
+
 		items(
 			items = thanksRecords,
 			key = { it.id }
@@ -110,27 +146,39 @@ fun ThanksRecordListItem(
 	modifier: Modifier = Modifier,
 	thanksRecord: ThanksRecord
 ) {
-	Surface(modifier = modifier) {
-		Row(
-			modifier = Modifier.fillMaxWidth(),
-			verticalAlignment = Alignment.CenterVertically
-		) {
-			Text(
-				modifier = Modifier.requiredWidth(150.dp),
-				text = thanksRecord.feeling.name,
-				style = MaterialTheme.typography.h4
-			)
+	Row(
+		verticalAlignment = Alignment.CenterVertically,
+		modifier = modifier
+	) {
+		Text(
+			color = Color.White,
+			text = thanksRecord.feeling.name,
+			style = MaterialTheme.typography.h4.copy(
+				shadow = Shadow(
+					color = Color.Gray.copy(alpha = 0.3f),
+					offset = Offset(x = 2f, y = 4f),
+					blurRadius = 0.1f
+				)
+			),
+			modifier = Modifier.requiredWidth(150.dp)
+		)
 
-			Spacer(modifier = Modifier.width(10.dp))
+		Spacer(modifier = Modifier.width(10.dp))
 
-			Text(
-				modifier = Modifier.fillMaxWidth(),
-				text = thanksRecord.thanksContent,
-				style = MaterialTheme.typography.body1,
-				maxLines = 3,
-				overflow = TextOverflow.Ellipsis
-			)
-		}
+		Text(
+			color = Color.White,
+			text = thanksRecord.thanksContent,
+			style = MaterialTheme.typography.body1.copy(
+				shadow = Shadow(
+					color = Color.Gray.copy(alpha = 0.3f),
+					offset = Offset(x = 2f, y = 4f),
+					blurRadius = 0.1f
+				)
+			),
+			maxLines = 3,
+			overflow = TextOverflow.Ellipsis,
+			modifier = Modifier.fillMaxWidth()
+		)
 	}
 }
 
