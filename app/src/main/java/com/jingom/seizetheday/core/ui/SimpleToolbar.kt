@@ -56,7 +56,7 @@ private fun OptionalMenuButton(hasOptionMenuButton: Boolean, onOptionMenuClick: 
 	}
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun SimpleToolBarPreview() {
 	SimpleToolBar(
@@ -105,12 +105,13 @@ fun NavigateBackButton(
 		Icon(
 			painter = painterResource(id = R.drawable.ic_navigate_before),
 			tint = MaterialTheme.colors.primary,
-			contentDescription = contentDescription
+			contentDescription = contentDescription,
+			modifier = Modifier.size(35.dp)
 		)
 	}
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun NavigateBackButtonPreview() {
 	NavigateBackButton(
@@ -136,7 +137,7 @@ fun MenuButton(
 	}
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun MenuButtonPreview() {
 	MenuButton(
