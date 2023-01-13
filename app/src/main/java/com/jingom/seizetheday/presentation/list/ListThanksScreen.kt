@@ -46,7 +46,9 @@ fun ListThanksScreen(
 	Surface(modifier = Modifier.fillMaxSize()) {
 		Box(modifier = Modifier.fillMaxSize()) {
 			ListThanks(
-				modifier = Modifier.fillMaxSize(),
+				modifier = Modifier
+					.fillMaxSize()
+					.padding(horizontal = 20.dp),
 				thanksRecords = state.thanksRecords
 			)
 

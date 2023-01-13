@@ -1,6 +1,7 @@
 package com.jingom.seizetheday.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
@@ -19,20 +20,20 @@ fun MainScreen() {
 	) {
 		composable(Route.LIST_THANKS_SCREEN) {
 			ListThanksScreen(
-				onNewThanksClick = navController::navigateToWritingThanksScreen
+				onNewThanksClick = navController::navigateFromListThanksToWritingThanks
 			)
 		}
 
 		composable(Route.WRITING_THANKS_SCREEN) {
 			WritingThanksScreen(
-				onWritingCancel = navController::navigateToListThanksScreen,
-				onWritingDone = navController::navigateToListThanksScreen,
+				onWritingCancel = navController::navigateFromWritingThanksToListThanks,
+				onWritingDone = navController::navigateFromWritingThanksToListThanks,
 			)
 		}
 	}
 }
 
-private fun NavHostController.navigateToListThanksScreen() = navigate(
+private fun NavHostController.navigateFromWritingThanksToListThanks() = navigate(
 	route = Route.LIST_THANKS_SCREEN,
 	navOptions = NavOptions.Builder()
 		.setPopUpTo(
@@ -42,6 +43,12 @@ private fun NavHostController.navigateToListThanksScreen() = navigate(
 		.build()
 )
 
-private fun NavHostController.navigateToWritingThanksScreen() = navigate(
-	route = Route.WRITING_THANKS_SCREEN
+private fun NavHostController.navigateFromListThanksToWritingThanks() = navigate(
+	route = Route.WRITING_THANKS_SCREEN,
+	navOptions = NavOptions.Builder()
+		.setPopUpTo(
+			route = Route.LIST_THANKS_SCREEN,
+			inclusive = true
+		)
+		.build()
 )
