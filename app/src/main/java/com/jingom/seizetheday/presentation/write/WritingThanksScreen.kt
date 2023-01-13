@@ -68,14 +68,16 @@ fun WritingThanksScreen(
 				onFeelingSelected = { feeling ->
 					viewModel.selectFeeling(feeling)
 					navController.navigate(Route.WRITING_THANKS_CONTENT)
-				}
+				},
+				onSelectingCancel = onWritingCancel
 			)
 		}
 		composable(Route.WRITING_THANKS_CONTENT) {
 			WritingThanksContentScreen(
 				state = state.value,
 				onThanksContentChanged = viewModel::changeThanksContent,
-				onSaveClick = viewModel::save
+				onSaveClick = viewModel::save,
+				onWritingContentCancel = navController::popBackStack
 			)
 		}
 	}

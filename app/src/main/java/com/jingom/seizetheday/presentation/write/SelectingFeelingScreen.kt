@@ -12,31 +12,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jingom.seizetheday.core.ui.ScrollableContainer
+import com.jingom.seizetheday.core.ui.SimpleToolBar
 import com.jingom.seizetheday.domain.model.Feeling
 
 @Composable
 fun SelectFeelingScreen(
 	state: WritingThanksScreenState,
-	onFeelingSelected: (Feeling) -> Unit = {}
+	onFeelingSelected: (Feeling) -> Unit = {},
+	onSelectingCancel: () -> Unit = {}
 ) {
-	ScrollableContainer {
-		Column(
+	Column(modifier = Modifier.fillMaxSize()) {
+		SimpleToolBar(
+			hasNavigationButton = true,
+			title = "감사일기 작성",
+			onNavigateBackClick = onSelectingCancel,
 			modifier = Modifier
-				.wrapContentHeight()
-				.fillMaxWidth(),
-			horizontalAlignment = Alignment.CenterHorizontally,
-			verticalArrangement = Arrangement.Top
-		) {
-			Spacer(modifier = Modifier.height(30.dp))
+				.height(60.dp)
+				.fillMaxWidth()
+		)
+		ScrollableContainer {
+			Column(
+				modifier = Modifier
+					.wrapContentHeight()
+					.fillMaxWidth(),
+				horizontalAlignment = Alignment.CenterHorizontally,
+				verticalArrangement = Arrangement.Top
+			) {
+				Spacer(modifier = Modifier.height(30.dp))
 
-			SelectFeelingPromptMessage()
+				SelectFeelingPromptMessage()
 
-			Spacer(modifier = Modifier.height(30.dp))
+				Spacer(modifier = Modifier.height(30.dp))
 
-			FeelingSelectSection(
-				currentlySelectedFeeling = state.feeling,
-				onFeelingSelected = onFeelingSelected
-			)
+				FeelingSelectSection(
+					currentlySelectedFeeling = state.feeling,
+					onFeelingSelected = onFeelingSelected
+				)
+			}
 		}
 	}
 }
