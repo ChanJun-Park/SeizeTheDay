@@ -43,6 +43,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
+        freeCompilerArgs = listOf("-Xjvm-default=enable")
         jvmTarget = "1.8"
     }
 
@@ -86,6 +87,8 @@ dependencies {
     implementation(Compose.navigation)
     implementation(Compose.viewModelCompose)
     implementation(Compose.activityCompose)
+
+    implementation(ComposeCollapsingToolbar.coposeCollapsingToolbar)
 
     // Dagger/Hilt
     implementation(DaggerHilt.hiltAndroid)

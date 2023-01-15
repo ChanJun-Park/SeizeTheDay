@@ -1,5 +1,6 @@
 package com.jingom.seizetheday.presentation.list
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,10 +9,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -20,6 +18,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
+import me.onebone.toolbar.*
 
 data class ListThanksScreenState(
 	val thanksRecords: List<ThanksRecord>
@@ -53,45 +54,70 @@ fun ListThanksScreen(
 	state: ListThanksScreenState,
 	onNewThanksClick: () -> Unit = {}
 ) {
-	Box(modifier = Modifier.fillMaxSize()) {
-		ListThanksBackground(modifier = Modifier.fillMaxSize())
+	val scaffoldState = rememberCollapsingToolbarScaffoldState()
 
-		val listThanksState = rememberLazyListState()
+	Surface(
+		color = MaterialTheme.colors.primary,
+		modifier = Modifier.fillMaxSize()
+	) {
+		Box(modifier = Modifier.fillMaxSize()) {
+			Image(
+				painter = painterResource(id = R.drawable.main_background_1),
+				contentScale = ContentScale.Crop,
+				contentDescription = null,
+				modifier = Modifier
+					.height(300.dp)
+					.graphicsLayer {
+						alpha = scaffoldState.toolbarState.progress
+					}
+			)
 
-		ListThanks(
-			thanksRecords = state.thanksRecords,
-			lazyListState = listThanksState,
-			modifier = Modifier
-				.background(
-					brush = Brush.verticalGradient(listOf(Color.Transparent, Color.Black))
+			CollapsingToolbarScaffold(
+				modifier = Modifier.fillMaxSize(),
+				state = scaffoldState,
+				scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
+				enabled = true,
+				toolbar = {
+					Spacer(
+						modifier = Modifier
+							.background(color = Color.Transparent)
+							.fillMaxWidth()
+							.height(0.dp)
+					)
+
+					Spacer(
+						modifier = Modifier
+							.background(color = Color.Transparent)
+							.height(250.dp)
+					)
+				}
+			) {
+				val listThanksState = rememberLazyListState()
+
+				ListThanks(
+					thanksRecords = state.thanksRecords,
+					lazyListState = listThanksState,
+					modifier = Modifier
+						.background(
+							brush = Brush.verticalGradient(listOf(Color.Transparent, Color.Black))
+						)
+						.fillMaxSize()
+						.padding(horizontal = 20.dp)
 				)
-				.fillMaxSize()
-				.padding(horizontal = 20.dp)
-		)
 
-		AddThanksButton(
-			onClick = onNewThanksClick,
-			modifier = Modifier
-				.padding(20.dp)
-				.background(
-					color = MaterialTheme.colors.primary,
-					shape = CircleShape
+				AddThanksButton(
+					onClick = onNewThanksClick,
+					modifier = Modifier
+						.padding(20.dp)
+						.background(
+							color = MaterialTheme.colors.primary,
+							shape = CircleShape
+						)
+						.size(48.dp)
+						.align(Alignment.BottomEnd)
 				)
-				.size(48.dp)
-				.align(Alignment.BottomEnd)
-		)
-	}
-}
-
-@Composable
-fun ListThanksBackground(
-	modifier: Modifier = Modifier
-) {
-	Column(modifier = modifier) {
-		Image(
-			painter = painterResource(id = R.drawable.main_background_1),
-			contentDescription = null
-		)
+			}
+		}
 	}
 }
 
@@ -105,10 +131,6 @@ fun ListThanks(
 		state = lazyListState,
 		modifier = modifier
 	) {
-		item {
-			Spacer(modifier = Modifier.height(250.dp))
-		}
-
 		items(
 			items = thanksRecords,
 			key = { it.id }
