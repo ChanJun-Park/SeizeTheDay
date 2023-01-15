@@ -66,7 +66,7 @@ fun ListThanksScreen(
 				contentScale = ContentScale.Crop,
 				contentDescription = null,
 				modifier = Modifier
-					.height(300.dp)
+					.fillMaxSize()
 					.graphicsLayer {
 						alpha = scaffoldState.toolbarState.progress
 					}
