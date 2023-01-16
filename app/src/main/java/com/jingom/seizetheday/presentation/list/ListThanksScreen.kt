@@ -31,6 +31,7 @@ import com.jingom.seizetheday.domain.model.ThanksRecord
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
+import java.time.LocalDate
 
 data class ListThanksScreenState(
 	val thanksRecords: List<ThanksRecord>
@@ -226,7 +227,8 @@ fun ThanksRecordListItemPreview() {
 		thanksRecord = ThanksRecord(
 			id = 1,
 			feeling = Feeling.Thanks,
-			thanksContent = """오늘도 건강할 수 있어서 감사합니다. 좋은 회사에서 일할 수 있어서 감사합니다. 좋은 사람들과 함깨 있어서 감사합니다"""
+			thanksContent = """오늘도 건강할 수 있어서 감사합니다. 좋은 회사에서 일할 수 있어서 감사합니다. 좋은 사람들과 함깨 있어서 감사합니다""",
+			date = LocalDate.now()
 		)
 	)
 }
@@ -236,11 +238,11 @@ fun ThanksRecordListItemPreview() {
 fun ListThanksDashboardScreenPreview() {
 	val state = ListThanksScreenState(
 		thanksRecords = listOf(
-			ThanksRecord(1, Feeling.Thanks, "오늘도 감사합니다."),
-			ThanksRecord(2, Feeling.Joy, "오늘도 즐겁습니다."),
-			ThanksRecord(3, Feeling.Awe, "오늘도 경의롭습니다."),
-			ThanksRecord(4, Feeling.Happy, "오늘도 행복합니다."),
-			ThanksRecord(5, Feeling.Hope, "오늘도 희망찹니다."),
+			ThanksRecord(1, Feeling.Thanks, "오늘도 감사합니다.", LocalDate.now()),
+			ThanksRecord(2, Feeling.Joy, "오늘도 즐겁습니다.", LocalDate.now()),
+			ThanksRecord(3, Feeling.Awe, "오늘도 경의롭습니다.", LocalDate.now()),
+			ThanksRecord(4, Feeling.Happy, "오늘도 행복합니다.", LocalDate.now()),
+			ThanksRecord(5, Feeling.Hope, "오늘도 희망찹니다.", LocalDate.now()),
 		)
 	)
 

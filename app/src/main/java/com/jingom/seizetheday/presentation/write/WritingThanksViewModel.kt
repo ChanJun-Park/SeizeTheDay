@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,7 +40,8 @@ class WritingThanksViewModel @Inject constructor(
 			val thanksRecord = ThanksRecord(
 				id = 0,
 				feeling = selectedFeeling,
-				thanksContent = content
+				thanksContent = content,
+				date = LocalDate.now()
 			)
 
 			saveThanksRecordUseCase(thanksRecord).onSuccess {

@@ -39,6 +39,9 @@ android {
     }
 
     compileOptions {
+        // Flag to enable support for the new language APIs
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -49,13 +52,6 @@ android {
 
     buildFeatures {
         compose = true
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
     }
     composeOptions {
         kotlinCompilerExtensionVersion = Compose.composeCompilerVersion
@@ -69,6 +65,7 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring(Desugar.coreLibraryDesugaring)
 
     // AndroidX
     implementation(AndroidX.coreKtx)
