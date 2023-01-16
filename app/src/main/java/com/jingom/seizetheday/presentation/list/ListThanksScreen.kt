@@ -1,6 +1,5 @@
 package com.jingom.seizetheday.presentation.list
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,7 +28,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
-import me.onebone.toolbar.*
+import me.onebone.toolbar.CollapsingToolbarScaffold
+import me.onebone.toolbar.ScrollStrategy
+import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 
 data class ListThanksScreenState(
 	val thanksRecords: List<ThanksRecord>
@@ -137,8 +139,14 @@ fun ListThanks(
 		) { item ->
 			ThanksRecordListItem(
 				modifier = Modifier
+					.padding(vertical = 5.dp)
+					.background(
+						color = Color.White.copy(alpha = 0.3f),
+						shape = RoundedCornerShape(5.dp)
+					)
 					.fillMaxWidth()
-					.wrapContentHeight(),
+					.wrapContentHeight()
+					.padding(10.dp),
 				thanksRecord = item
 			)
 		}
