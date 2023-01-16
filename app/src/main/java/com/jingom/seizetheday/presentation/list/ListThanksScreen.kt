@@ -59,7 +59,6 @@ fun ListThanksScreen(
 	val scaffoldState = rememberCollapsingToolbarScaffoldState()
 
 	Surface(
-		color = MaterialTheme.colors.primary,
 		modifier = Modifier.fillMaxSize()
 	) {
 		Box(modifier = Modifier.fillMaxSize()) {
@@ -101,7 +100,14 @@ fun ListThanksScreen(
 					lazyListState = listThanksState,
 					modifier = Modifier
 						.background(
-							brush = Brush.verticalGradient(listOf(Color.Transparent, Color.Black))
+							brush = Brush.verticalGradient(
+								listOf(
+									Color.Transparent,
+									MaterialTheme.colors.surface.copy(
+										alpha = scaffoldState.toolbarState.progress
+									)
+								)
+							)
 						)
 						.fillMaxSize()
 						.padding(horizontal = 20.dp)
@@ -181,7 +187,7 @@ fun ThanksRecordListItem(
 		modifier = modifier
 	) {
 		Text(
-			color = Color.White,
+			color = MaterialTheme.colors.onSurface,
 			text = thanksRecord.feeling.name,
 			style = MaterialTheme.typography.h4.copy(
 				shadow = Shadow(
@@ -196,7 +202,7 @@ fun ThanksRecordListItem(
 		Spacer(modifier = Modifier.width(10.dp))
 
 		Text(
-			color = Color.White,
+			color = MaterialTheme.colors.onSurface,
 			text = thanksRecord.thanksContent,
 			style = MaterialTheme.typography.body1.copy(
 				shadow = Shadow(
