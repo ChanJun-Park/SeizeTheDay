@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
+import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
@@ -60,7 +61,8 @@ fun ListThanksScreen(
 	val scaffoldState = rememberCollapsingToolbarScaffoldState()
 
 	Surface(
-		modifier = Modifier.fillMaxSize()
+		modifier = Modifier.fillMaxSize(),
+		color = MaterialTheme.colors.background
 	) {
 		Box(modifier = Modifier.fillMaxSize()) {
 			Image(
@@ -236,15 +238,17 @@ fun ThanksRecordListItemPreview() {
 @Preview
 @Composable
 fun ListThanksDashboardScreenPreview() {
-	val state = ListThanksScreenState(
-		thanksRecords = listOf(
-			ThanksRecord(1, Feeling.Thanks, "오늘도 감사합니다.", LocalDate.now()),
-			ThanksRecord(2, Feeling.Joy, "오늘도 즐겁습니다.", LocalDate.now()),
-			ThanksRecord(3, Feeling.Awe, "오늘도 경의롭습니다.", LocalDate.now()),
-			ThanksRecord(4, Feeling.Happy, "오늘도 행복합니다.", LocalDate.now()),
-			ThanksRecord(5, Feeling.Hope, "오늘도 희망찹니다.", LocalDate.now()),
+	SeizeTheDayTheme {
+		val state = ListThanksScreenState(
+			thanksRecords = listOf(
+				ThanksRecord(1, Feeling.Thanks, "오늘도 감사합니다.", LocalDate.now()),
+				ThanksRecord(2, Feeling.Joy, "오늘도 즐겁습니다.", LocalDate.now()),
+				ThanksRecord(3, Feeling.Awe, "오늘도 경의롭습니다.", LocalDate.now()),
+				ThanksRecord(4, Feeling.Happy, "오늘도 행복합니다.", LocalDate.now()),
+				ThanksRecord(5, Feeling.Hope, "오늘도 희망찹니다.", LocalDate.now()),
+			)
 		)
-	)
 
-	ListThanksScreen(state)
+		ListThanksScreen(state)
+	}
 }

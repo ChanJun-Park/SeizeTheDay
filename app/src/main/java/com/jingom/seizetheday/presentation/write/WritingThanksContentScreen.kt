@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.jingom.seizetheday.core.ui.ScrollableContainer
 import com.jingom.seizetheday.core.ui.SimpleToolBar
 import com.jingom.seizetheday.domain.model.Feeling
+import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 
 @Composable
 fun WritingThanksContentScreen(
@@ -18,7 +19,10 @@ fun WritingThanksContentScreen(
 	onSaveClick: () -> Unit = {},
 	onWritingContentCancel: () -> Unit = {}
 ) {
-	Surface(modifier = Modifier.fillMaxSize()) {
+	Surface(
+		modifier = Modifier.fillMaxSize(),
+		color = MaterialTheme.colors.background
+	) {
 		Column(modifier = Modifier.fillMaxSize()) {
 			SimpleToolBar(
 				hasNavigationButton = true,
@@ -115,10 +119,12 @@ fun SaveButtonPreview() {
 @Preview
 @Composable
 fun WritingThanksContentScreenPreview() {
-	WritingThanksContentScreen(
-		state = WritingThanksScreenState(
-			feeling = Feeling.Thanks,
-			content = "오늘도 감사합니다."
+	SeizeTheDayTheme {
+		WritingThanksContentScreen(
+			state = WritingThanksScreenState(
+				feeling = Feeling.Thanks,
+				content = "오늘도 감사합니다."
+			)
 		)
-	)
+	}
 }

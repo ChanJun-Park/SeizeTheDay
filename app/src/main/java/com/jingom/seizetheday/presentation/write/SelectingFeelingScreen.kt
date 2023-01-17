@@ -16,6 +16,7 @@ import com.jingom.seizetheday.core.BackPressHandler
 import com.jingom.seizetheday.core.ui.ScrollableContainer
 import com.jingom.seizetheday.core.ui.SimpleToolBar
 import com.jingom.seizetheday.domain.model.Feeling
+import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 
 @Composable
 fun SelectFeelingScreen(
@@ -25,7 +26,10 @@ fun SelectFeelingScreen(
 ) {
 	BackPressHandler(onBackPressed = onSelectingCancel)
 
-	Surface(modifier = Modifier.fillMaxSize()) {
+	Surface(
+		modifier = Modifier.fillMaxSize(),
+		color = MaterialTheme.colors.background
+	) {
 		Column(modifier = Modifier.fillMaxSize()) {
 			SimpleToolBar(
 				hasNavigationButton = true,
@@ -146,6 +150,8 @@ fun FeelingSelectSection(
 @Preview
 @Composable
 fun SelectFeelingScreenPreview() {
-	val state = WritingThanksScreenState(feeling = Feeling.Thanks)
-	SelectFeelingScreen(state)
+	SeizeTheDayTheme {
+		val state = WritingThanksScreenState(feeling = Feeling.Thanks)
+		SelectFeelingScreen(state)
+	}
 }
