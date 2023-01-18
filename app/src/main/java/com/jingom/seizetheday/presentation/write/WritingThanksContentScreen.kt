@@ -93,10 +93,14 @@ fun WriteThanksContentPromptMessagePreview() {
 @Composable
 fun ContentForSelectedFeeling(
 	content: String,
+	modifier: Modifier = Modifier,
 	onContentChanged: (String) -> Unit = {},
 	enabled: Boolean = true
 ) {
 	TextField(
+		modifier = modifier
+			.padding(horizontal = 16.dp)
+			.fillMaxWidth(),
 		value = content,
 		onValueChange = onContentChanged,
 		enabled = enabled
