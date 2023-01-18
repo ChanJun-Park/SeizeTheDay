@@ -7,7 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.jingom.seizetheday.core.ui.ScrollableContainer
+import com.jingom.seizetheday.core.ui.VerticalScrollableContainer
 import com.jingom.seizetheday.core.ui.SimpleToolBar
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
@@ -32,36 +32,53 @@ fun WritingThanksContentScreen(
 					.height(60.dp)
 					.fillMaxWidth()
 			)
-			ScrollableContainer {
-				Column(
-					modifier = Modifier
-						.wrapContentHeight()
-						.fillMaxWidth(),
-					horizontalAlignment = Alignment.CenterHorizontally,
-					verticalArrangement = Arrangement.Top
-				) {
-					if (state.feeling != null) {
-						SelectedFeeling(feeling = state.feeling)
-					}
+			VerticalScrollableContainer(
+				horizontalAlignment = Alignment.CenterHorizontally,
+				verticalArrangement = Arrangement.SpaceBetween,
+				modifier = Modifier.fillMaxSize()
+			) {
+				ContentLayer(
+					state = state,
+					modifier = Modifier,
+					onThanksContentChanged = onThanksContentChanged
+				)
 
-					WriteThanksContentPromptMessage()
-
-					Spacer(modifier = Modifier.height(20.dp))
-
-					ContentForSelectedFeeling(
-						content = state.content,
-						onContentChanged = onThanksContentChanged,
-						enabled = state.canEdit()
+				if (state.canSaveCurrentState()) {
+					SaveButton(
+						modifier = Modifier.padding(bottom = 20.dp),
+						onClick = onSaveClick
 					)
-
-					if (state.canSaveCurrentState()) {
-						SaveButton(
-							onClick = onSaveClick
-						)
-					}
 				}
 			}
 		}
+	}
+}
+
+@Composable
+private fun ContentLayer(
+	state: WritingThanksScreenState,
+	modifier: Modifier = Modifier,
+	onThanksContentChanged: (String) -> Unit = {}
+) {
+	Column(
+		modifier = modifier
+			.wrapContentHeight()
+			.fillMaxWidth(),
+		horizontalAlignment = Alignment.CenterHorizontally
+	) {
+		if (state.feeling != null) {
+			SelectedFeeling(feeling = state.feeling)
+		}
+
+		WriteThanksContentPromptMessage()
+
+		Spacer(modifier = Modifier.height(20.dp))
+
+		ContentForSelectedFeeling(
+			content = state.content,
+			onContentChanged = onThanksContentChanged,
+			enabled = state.canEdit()
+		)
 	}
 }
 
@@ -108,8 +125,14 @@ fun ContentForSelectedFeeling(
 }
 
 @Composable
-fun SaveButton(onClick: () -> Unit = {}) {
-	Button(onClick = onClick) {
+fun SaveButton(
+	modifier: Modifier = Modifier,
+	onClick: () -> Unit = {}
+) {
+	Button(
+		modifier = modifier,
+		onClick = onClick
+	) {
 		Text(text = "저장")
 	}
 }
