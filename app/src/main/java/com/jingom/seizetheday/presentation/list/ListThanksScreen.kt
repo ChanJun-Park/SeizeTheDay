@@ -142,6 +142,7 @@ fun ListThanks(
 	LazyColumn(
 		state = lazyListState,
 		modifier = modifier,
+		contentPadding = PaddingValues(top = 10.dp),
 		verticalArrangement = Arrangement.spacedBy(5.dp)
 	) {
 		items(
@@ -260,11 +261,6 @@ fun ThanksRecordListItemPreview() {
 			date = LocalDate.now()
 		)
 	)
-}
-
-@Composable
-fun ThanksRecordThumbnailItem() {
-
 }
 
 @Preview
