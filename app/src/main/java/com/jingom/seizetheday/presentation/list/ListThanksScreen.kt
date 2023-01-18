@@ -33,6 +33,7 @@ import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 data class ListThanksScreenState(
 	val thanksRecords: List<ThanksRecord>
@@ -140,22 +141,14 @@ fun ListThanks(
 ) {
 	LazyColumn(
 		state = lazyListState,
-		modifier = modifier
+		modifier = modifier,
+		verticalArrangement = Arrangement.spacedBy(5.dp)
 	) {
 		items(
 			items = thanksRecords,
 			key = { it.id }
 		) { item ->
 			ThanksRecordListItem(
-				modifier = Modifier
-					.padding(vertical = 5.dp)
-					.background(
-						color = Color.White.copy(alpha = 0.3f),
-						shape = RoundedCornerShape(5.dp)
-					)
-					.fillMaxWidth()
-					.wrapContentHeight()
-					.padding(10.dp),
 				thanksRecord = item
 			)
 		}
@@ -185,39 +178,73 @@ fun ThanksRecordListItem(
 	modifier: Modifier = Modifier,
 	thanksRecord: ThanksRecord
 ) {
-	Row(
-		verticalAlignment = Alignment.CenterVertically,
+	Surface(
+		color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+		shape = MaterialTheme.shapes.medium,
 		modifier = modifier
+			.fillMaxWidth()
+			.wrapContentHeight()
 	) {
-		Text(
-			color = MaterialTheme.colors.onSurface,
-			text = thanksRecord.feeling.name,
-			style = MaterialTheme.typography.h4.copy(
-				shadow = Shadow(
-					color = Color.Gray.copy(alpha = 0.3f),
-					offset = Offset(x = 2f, y = 4f),
-					blurRadius = 0.1f
-				)
-			),
-			modifier = Modifier.requiredWidth(150.dp)
-		)
+		Row(
+			modifier = Modifier
+				.fillMaxWidth()
+				.heightIn(min = 100.dp)
+				.padding(horizontal = 16.dp, vertical = 5.dp)
+		) {
+			// todo 이미지로 대체
+			Image(
+				painter = painterResource(id = R.drawable.main_background_2),
+				contentDescription = null,
+				contentScale = ContentScale.Crop,
+				modifier = Modifier.size(100.dp)
+			)
 
-		Spacer(modifier = Modifier.width(10.dp))
+			Spacer(modifier = Modifier.width(10.dp))
 
-		Text(
-			color = MaterialTheme.colors.onSurface,
-			text = thanksRecord.thanksContent,
-			style = MaterialTheme.typography.body1.copy(
-				shadow = Shadow(
-					color = Color.Gray.copy(alpha = 0.3f),
-					offset = Offset(x = 2f, y = 4f),
-					blurRadius = 0.1f
+			Column(
+				modifier = Modifier
+					.fillMaxWidth()
+					.wrapContentHeight()
+			) {
+				Text(
+					text = thanksRecord.feeling.name,
+					style = MaterialTheme.typography.subtitle1.copy(
+						shadow = Shadow(
+							color = Color.Gray.copy(alpha = 0.3f),
+							offset = Offset(x = 2f, y = 4f),
+							blurRadius = 0.1f
+						)
+					),
+					modifier = Modifier.fillMaxWidth()
 				)
-			),
-			maxLines = 3,
-			overflow = TextOverflow.Ellipsis,
-			modifier = Modifier.fillMaxWidth()
-		)
+
+				Text(
+					text = thanksRecord.date.format(DateTimeFormatter.ISO_DATE),
+					style = MaterialTheme.typography.subtitle2.copy(
+						shadow = Shadow(
+							color = Color.Gray.copy(alpha = 0.3f),
+							offset = Offset(x = 2f, y = 4f),
+							blurRadius = 0.1f
+						)
+					),
+					modifier = Modifier.fillMaxWidth()
+				)
+
+				Text(
+					text = thanksRecord.thanksContent,
+					style = MaterialTheme.typography.body1.copy(
+						shadow = Shadow(
+							color = Color.Gray.copy(alpha = 0.3f),
+							offset = Offset(x = 2f, y = 4f),
+							blurRadius = 0.1f
+						)
+					),
+					maxLines = 3,
+					overflow = TextOverflow.Ellipsis,
+					modifier = Modifier.fillMaxWidth()
+				)
+			}
+		}
 	}
 }
 
@@ -233,6 +260,11 @@ fun ThanksRecordListItemPreview() {
 			date = LocalDate.now()
 		)
 	)
+}
+
+@Composable
+fun ThanksRecordThumbnailItem() {
+
 }
 
 @Preview
