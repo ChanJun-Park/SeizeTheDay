@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">SeizeTheDay</string>
+    <string name="happy">happy</string>
+    <string name="joy">joy</string>
+    <string name="hope">hope</string>
+    <string name="thanks">thanks</string>
+    <string name="pride">pride</string>
+    <string name="serenity">serenity</string>
+    <string name="awe">awe</string>
 </resources>

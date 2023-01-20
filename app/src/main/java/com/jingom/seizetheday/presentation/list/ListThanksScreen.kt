@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
+import com.jingom.seizetheday.presentation.getResourceString
 import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
@@ -208,7 +209,7 @@ fun ThanksRecordListItem(
 					.wrapContentHeight()
 			) {
 				Text(
-					text = thanksRecord.feeling.name,
+					text = thanksRecord.feeling.getResourceString(),
 					style = MaterialTheme.typography.subtitle1.copy(
 						shadow = Shadow(
 							color = Color.Gray.copy(alpha = 0.3f),

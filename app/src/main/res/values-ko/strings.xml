@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">아로새김</string>
+    <string name="happy">행복</string>
+    <string name="joy">즐거움</string>
+    <string name="hope">희망</string>
+    <string name="thanks">감사</string>
+    <string name="pride">자부심</string>
+    <string name="serenity">고요함</string>
+    <string name="awe">경외심</string>
+</resources>

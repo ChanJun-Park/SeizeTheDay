@@ -16,6 +16,7 @@ import com.jingom.seizetheday.core.BackPressHandler
 import com.jingom.seizetheday.core.ui.VerticalScrollableContainer
 import com.jingom.seizetheday.core.ui.SimpleToolBar
 import com.jingom.seizetheday.domain.model.Feeling
+import com.jingom.seizetheday.presentation.getResourceString
 import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 
 @Composable
@@ -102,7 +103,7 @@ fun FeelingItem(
 		Text(
 			modifier = Modifier
 				.padding(5.dp),
-			text = feeling.name,
+			text = feeling.getResourceString(),
 			style = MaterialTheme.typography.body1
 		)
 	}

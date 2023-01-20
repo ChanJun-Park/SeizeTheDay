@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.jingom.seizetheday.core.ui.VerticalScrollableContainer
 import com.jingom.seizetheday.core.ui.SimpleToolBar
 import com.jingom.seizetheday.domain.model.Feeling
+import com.jingom.seizetheday.presentation.getResourceString
 import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 
 @Composable
@@ -85,7 +86,7 @@ private fun ContentLayer(
 @Composable
 fun SelectedFeeling(feeling: Feeling) {
 	Text(
-		text = feeling.name,
+		text = feeling.getResourceString(),
 		style = MaterialTheme.typography.h2
 	)
 }
