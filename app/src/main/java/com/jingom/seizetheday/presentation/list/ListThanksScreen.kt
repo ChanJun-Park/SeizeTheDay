@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
+import com.jingom.seizetheday.domain.model.ThanksRecordsMap
 import com.jingom.seizetheday.presentation.getResourceString
 import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -37,7 +37,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 data class ListThanksScreenState(
-	val thanksRecords: List<ThanksRecord>
+	val thanksRecordsMap: ThanksRecordsMap
 )
 
 // stateful
@@ -101,7 +101,7 @@ fun ListThanksScreen(
 				val listThanksState = rememberLazyListState()
 
 				ListThanks(
-					thanksRecords = state.thanksRecords,
+					thanksRecordsMap = state.thanksRecordsMap,
 					lazyListState = listThanksState,
 					modifier = Modifier
 						.background(
@@ -137,7 +137,7 @@ fun ListThanksScreen(
 @Composable
 fun ListThanks(
 	modifier: Modifier = Modifier,
-	thanksRecords: List<ThanksRecord>,
+	thanksRecordsMap: ThanksRecordsMap,
 	lazyListState: LazyListState
 ) {
 	LazyColumn(
@@ -146,15 +146,50 @@ fun ListThanks(
 		contentPadding = PaddingValues(top = 10.dp),
 		verticalArrangement = Arrangement.spacedBy(5.dp)
 	) {
-		items(
-			items = thanksRecords,
-			key = { it.id }
-		) { item ->
-			ThanksRecordListItem(
-				thanksRecord = item
-			)
+		thanksRecordsMap.forEachDateThanksRecords { localDate, thanksRecords ->
+
+			item(
+				key = localDate,
+				contentType = LocalDate::class
+			) {
+				DateHeader(localDate)
+			}
+
+			items(
+				items = thanksRecords,
+				key = { it.id },
+				contentType = { ThanksRecord::class }
+			) { item ->
+				ThanksRecordListItem(
+					thanksRecord = item
+				)
+			}
 		}
 	}
+}
+
+@Composable
+private fun DateHeader(
+	localDate: LocalDate,
+	modifier: Modifier = Modifier
+) {
+	Text(
+		text = localDate.toString(),
+		style = MaterialTheme.typography.h4.copy(
+			shadow = Shadow(
+				color = Color.Gray.copy(alpha = 0.3f),
+				offset = Offset(x = 2f, y = 4f),
+				blurRadius = 0.1f
+			)
+		),
+		modifier = modifier
+	)
+}
+
+@Preview
+@Composable
+private fun DateHeaderPreview() {
+	DateHeader(localDate = LocalDate.of(2023, 1, 27))
 }
 
 @Composable
@@ -269,12 +304,14 @@ fun ThanksRecordListItemPreview() {
 fun ListThanksDashboardScreenPreview() {
 	SeizeTheDayTheme {
 		val state = ListThanksScreenState(
-			thanksRecords = listOf(
-				ThanksRecord(1, Feeling.Thanks, "오늘도 감사합니다.", LocalDate.now()),
-				ThanksRecord(2, Feeling.Joy, "오늘도 즐겁습니다.", LocalDate.now()),
-				ThanksRecord(3, Feeling.Awe, "오늘도 경의롭습니다.", LocalDate.now()),
-				ThanksRecord(4, Feeling.Happy, "오늘도 행복합니다.", LocalDate.now()),
-				ThanksRecord(5, Feeling.Hope, "오늘도 희망찹니다.", LocalDate.now()),
+			thanksRecordsMap = ThanksRecordsMap(
+				groupedThanksRecordByDate = listOf(
+					ThanksRecord(1, Feeling.Thanks, "오늘도 감사합니다.", LocalDate.now()),
+					ThanksRecord(2, Feeling.Joy, "오늘도 즐겁습니다.", LocalDate.now()),
+					ThanksRecord(3, Feeling.Awe, "오늘도 경의롭습니다.", LocalDate.now()),
+					ThanksRecord(4, Feeling.Happy, "오늘도 행복합니다.", LocalDate.now()),
+					ThanksRecord(5, Feeling.Hope, "오늘도 희망찹니다.", LocalDate.now()),
+				).groupBy { it.date }
 			)
 		)
 
