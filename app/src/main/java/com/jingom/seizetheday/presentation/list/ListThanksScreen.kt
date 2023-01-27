@@ -3,6 +3,7 @@ package com.jingom.seizetheday.presentation.list
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -46,13 +47,15 @@ data class ListThanksScreenState(
 @Composable
 fun ListThanksScreen(
 	viewModel: ListThanksViewModel = hiltViewModel(),
-	onNewThanksClick: () -> Unit = {}
+	onNewThanksClick: () -> Unit = {},
+	onThanksClick: (ThanksRecord) -> Unit = {}
 ) {
 	val state = viewModel.thanksRecords.collectAsState().value
 
 	ListThanksScreen(
 		state = state,
-		onNewThanksClick = onNewThanksClick
+		onNewThanksClick = onNewThanksClick,
+		onThanksClick = onThanksClick
 	)
 }
 
@@ -60,7 +63,8 @@ fun ListThanksScreen(
 @Composable
 fun ListThanksScreen(
 	state: ListThanksScreenState,
-	onNewThanksClick: () -> Unit = {}
+	onNewThanksClick: () -> Unit = {},
+	onThanksClick: (ThanksRecord) -> Unit = {}
 ) {
 	val scaffoldState = rememberCollapsingToolbarScaffoldState()
 
@@ -105,6 +109,7 @@ fun ListThanksScreen(
 				ListThanks(
 					thanksRecordsMap = state.thanksRecordsMap,
 					lazyListState = listThanksState,
+					onThanksClick = onThanksClick,
 					modifier = Modifier
 						.background(
 							brush = Brush.verticalGradient(
@@ -139,9 +144,10 @@ fun ListThanksScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListThanks(
-	modifier: Modifier = Modifier,
 	thanksRecordsMap: ThanksRecordsMap,
-	lazyListState: LazyListState
+	lazyListState: LazyListState,
+	modifier: Modifier = Modifier,
+	onThanksClick: (ThanksRecord) -> Unit = {}
 ) {
 	LazyColumn(
 		state = lazyListState,
@@ -164,7 +170,8 @@ fun ListThanks(
 				contentType = { ThanksRecord::class }
 			) { item ->
 				ThanksRecordListItem(
-					thanksRecord = item
+					thanksRecord = item,
+					onClick = onThanksClick
 				)
 			}
 		}
@@ -221,13 +228,15 @@ fun AddThanksButton(
 
 @Composable
 fun ThanksRecordListItem(
+	thanksRecord: ThanksRecord,
 	modifier: Modifier = Modifier,
-	thanksRecord: ThanksRecord
+	onClick: (ThanksRecord) -> Unit = {}
 ) {
 	Surface(
 		color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
 		shape = MaterialTheme.shapes.medium,
 		modifier = modifier
+			.clickable { onClick(thanksRecord) }
 			.fillMaxWidth()
 			.wrapContentHeight()
 	) {

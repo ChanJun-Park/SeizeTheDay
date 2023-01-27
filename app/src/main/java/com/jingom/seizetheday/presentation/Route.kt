@@ -6,4 +6,5 @@ object Route {
 	const val SELECTING_FEELING = "selecting_feeling"
 
 	const val LIST_THANKS_SCREEN = "list_thanks_screen"
+	const val PAGE_THANKS_SCREEN = "page_thanks_screen"
 }

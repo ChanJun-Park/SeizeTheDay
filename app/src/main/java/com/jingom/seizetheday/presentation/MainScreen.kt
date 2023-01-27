@@ -1,13 +1,15 @@
 package com.jingom.seizetheday.presentation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.jingom.seizetheday.R
+import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.presentation.list.ListThanksScreen
+import com.jingom.seizetheday.presentation.page.PageThanksScreen
 import com.jingom.seizetheday.presentation.write.WritingThanksScreen
 
 @Composable
@@ -20,8 +22,13 @@ fun MainScreen() {
 	) {
 		composable(Route.LIST_THANKS_SCREEN) {
 			ListThanksScreen(
-				onNewThanksClick = navController::navigateFromListThanksToWritingThanks
+				onNewThanksClick = navController::navigateFromListThanksToWritingThanks,
+				onThanksClick = navController::navigateFromListThanksToPageThanks
 			)
+		}
+
+		composable(Route.PAGE_THANKS_SCREEN) {
+			PageThanksScreen()
 		}
 
 		composable(Route.WRITING_THANKS_SCREEN) {
@@ -51,4 +58,8 @@ private fun NavHostController.navigateFromListThanksToWritingThanks() = navigate
 			inclusive = true
 		)
 		.build()
+)
+
+private fun NavHostController.navigateFromListThanksToPageThanks(thanksRecord: ThanksRecord) = navigate(
+	route = Route.PAGE_THANKS_SCREEN
 )
