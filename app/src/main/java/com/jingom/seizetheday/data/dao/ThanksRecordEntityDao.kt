@@ -16,6 +16,7 @@ interface ThanksRecordEntityDao {
 	@Query("""
 		SELECT *
 		FROM thanks_record_entity
+		ORDER BY date DESC
 	""")
 	fun getThanksRecordEntitiesFlow(): Flow<List<ThanksRecordEntity>>
 }

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("com.android.application")
     kotlin("android")
@@ -61,6 +63,12 @@ android {
         resources.excludes.add("META-INF/LGPL2.1")
         resources.excludes.add("**/attach_hotspot_windows.dll")
         resources.excludes.add("META-INF/licenses/ASM")
+    }
+
+    tasks.withType(KotlinCompile::class).configureEach {
+        kotlinOptions {
+            freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
+        }
     }
 }
 

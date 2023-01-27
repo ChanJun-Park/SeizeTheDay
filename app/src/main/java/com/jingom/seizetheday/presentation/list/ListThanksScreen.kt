@@ -1,5 +1,6 @@
 package com.jingom.seizetheday.presentation.list
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -134,6 +136,7 @@ fun ListThanksScreen(
 	}
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListThanks(
 	modifier: Modifier = Modifier,
@@ -148,7 +151,7 @@ fun ListThanks(
 	) {
 		thanksRecordsMap.forEachDateThanksRecords { localDate, thanksRecords ->
 
-			item(
+			stickyHeader(
 				key = localDate,
 				contentType = LocalDate::class
 			) {
@@ -173,17 +176,23 @@ private fun DateHeader(
 	localDate: LocalDate,
 	modifier: Modifier = Modifier
 ) {
-	Text(
-		text = localDate.toString(),
-		style = MaterialTheme.typography.h4.copy(
-			shadow = Shadow(
-				color = Color.Gray.copy(alpha = 0.3f),
-				offset = Offset(x = 2f, y = 4f),
-				blurRadius = 0.1f
-			)
-		),
-		modifier = modifier
-	)
+	Surface(
+		color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+		shape = MaterialTheme.shapes.small,
+		modifier = modifier.wrapContentSize()
+	) {
+		Text(
+			text = localDate.toString(),
+			style = MaterialTheme.typography.h4.copy(
+				shadow = Shadow(
+					color = Color.Gray.copy(alpha = 0.3f),
+					offset = Offset(x = 2f, y = 4f),
+					blurRadius = 0.1f
+				)
+			),
+			modifier = Modifier.padding(5.dp)
+		)
+	}
 }
 
 @Preview
