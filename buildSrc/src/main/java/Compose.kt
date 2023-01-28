@@ -1,9 +1,11 @@
 object Compose {
     const val composeBomVersion = "2023.01.00"
-    const val composeCompilerVersion = "1.4.0"
+    const val composeCompilerVersion = "1.3.2"
 
     const val composeBom = "androidx.compose:compose-bom:$composeBomVersion"
 
+    const val foundation = "androidx.compose.foundation:foundation"
+    const val foundationLayout = "androidx.compose.foundation:foundation-layout"
     const val material = "androidx.compose.material:material"
     const val ui = "androidx.compose.ui:ui"
     const val uiTooling = "androidx.compose.ui:ui-tooling"

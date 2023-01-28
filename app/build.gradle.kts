@@ -75,6 +75,9 @@ android {
 dependencies {
     coreLibraryDesugaring(Desugar.coreLibraryDesugaring)
 
+    // Kotlin
+    implementation(Kotlin.kotlinStdlib)
+
     // AndroidX
     implementation(AndroidX.coreKtx)
     implementation(AndroidX.appCompat)
@@ -85,6 +88,8 @@ dependencies {
     // Compose
     implementation(platform(Compose.composeBom))
 
+    implementation(Compose.foundation)
+    implementation(Compose.foundationLayout)
     implementation(Compose.ui)
     implementation(Compose.uiToolingPreview)
     implementation(Compose.hiltNavigationCompose)
@@ -95,6 +100,9 @@ dependencies {
     implementation(Compose.activityCompose)
 
     implementation(ComposeCollapsingToolbar.coposeCollapsingToolbar)
+
+    // Accompanist
+    implementation(Accompanist.pager)
 
     // Dagger/Hilt
     implementation(DaggerHilt.hiltAndroid)
