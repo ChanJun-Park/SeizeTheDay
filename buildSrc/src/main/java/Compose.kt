@@ -1,13 +1,16 @@
 object Compose {
-    const val composeVersion = "1.1.1"
-    const val composeCompilerVersion = "1.1.1"
-    const val material = "androidx.compose.material:material:$composeVersion"
-    const val ui = "androidx.compose.ui:ui:$composeVersion"
-    const val uiTooling = "androidx.compose.ui:ui-tooling:$composeVersion"
-    const val uiToolingPreview = "androidx.compose.ui:ui-tooling-preview:$composeVersion"
-    const val testManifest = "androidx.compose.ui:ui-test-manifest:$composeVersion"
-    const val runtime = "androidx.compose.runtime:runtime:$composeVersion"
-    const val compiler = "androidx.compose.compiler:compiler:$composeCompilerVersion"
+    const val composeBomVersion = "2023.01.00"
+    const val composeCompilerVersion = "1.4.0"
+
+    const val composeBom = "androidx.compose:compose-bom:$composeBomVersion"
+
+    const val material = "androidx.compose.material:material"
+    const val ui = "androidx.compose.ui:ui"
+    const val uiTooling = "androidx.compose.ui:ui-tooling"
+    const val uiToolingPreview = "androidx.compose.ui:ui-tooling-preview"
+    const val testManifest = "androidx.compose.ui:ui-test-manifest"
+    const val runtime = "androidx.compose.runtime:runtime"
+    const val composeUiTest = "androidx.compose.ui:ui-test-junit4"
 
     private const val navigationVersion = "2.4.0-beta02"
     const val navigation = "androidx.navigation:navigation-compose:$navigationVersion"

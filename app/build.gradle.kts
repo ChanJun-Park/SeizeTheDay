@@ -83,7 +83,8 @@ dependencies {
     implementation(LifeCycle.runtime)
 
     // Compose
-    implementation(Compose.compiler)
+    implementation(platform(Compose.composeBom))
+
     implementation(Compose.ui)
     implementation(Compose.uiToolingPreview)
     implementation(Compose.hiltNavigationCompose)
@@ -122,16 +123,17 @@ dependencies {
     testImplementation(Testing.truth)
     testImplementation(Testing.coroutines)
     testImplementation(Testing.turbine)
-    testImplementation(Testing.composeUiTest)
+    testImplementation(Compose.composeUiTest)
     testImplementation(Testing.mockk)
     testImplementation(Testing.mockWebServer)
 
+    androidTestImplementation(platform(Compose.composeBom))
     androidTestImplementation(Testing.junit4)
     androidTestImplementation(Testing.junitAndroidExt)
     androidTestImplementation(Testing.truth)
     androidTestImplementation(Testing.coroutines)
     androidTestImplementation(Testing.turbine)
-    androidTestImplementation(Testing.composeUiTest)
+    androidTestImplementation(Compose.composeUiTest)
     androidTestImplementation(Testing.mockkAndroid)
     androidTestImplementation(Testing.mockWebServer)
     androidTestImplementation(Testing.hiltTesting)
