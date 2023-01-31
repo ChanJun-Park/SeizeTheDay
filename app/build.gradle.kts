@@ -85,6 +85,10 @@ dependencies {
     // LifeCycle
     implementation(LifeCycle.runtime)
 
+    // Paging3
+    implementation(Paging.paging)
+    implementation(Paging.pagingCompose)
+
     // Compose
     implementation(platform(Compose.composeBom))
 
