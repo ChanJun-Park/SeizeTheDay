@@ -16,7 +16,7 @@ interface ThanksRecordEntityDao {
 	@Query("""
 		SELECT *
 		FROM thanks_record_entity
-		ORDER BY date DESC
+		ORDER BY date DESC, id DESC
 	""")
 	fun getThanksRecordEntitiesFlow(): Flow<List<ThanksRecordEntity>>
 
@@ -24,7 +24,7 @@ interface ThanksRecordEntityDao {
 		"""
 		SELECT *
 		FROM thanks_record_entity
-		ORDER BY date, id DESC
+		ORDER BY date DESC, id DESC
 		LIMIT :perPageSize OFFSET :offset
 	"""
 	)
