@@ -19,4 +19,14 @@ interface ThanksRecordEntityDao {
 		ORDER BY date DESC
 	""")
 	fun getThanksRecordEntitiesFlow(): Flow<List<ThanksRecordEntity>>
+
+	@Query(
+		"""
+		SELECT *
+		FROM thanks_record_entity
+		ORDER BY date, id DESC
+		LIMIT :perPageSize OFFSET :offset
+	"""
+	)
+	suspend fun getThanksRecordEntities(offset: Int, perPageSize: Int): List<ThanksRecordEntity>
 }

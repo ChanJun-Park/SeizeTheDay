@@ -14,23 +14,62 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.presentation.getResourceString
-import com.jingom.seizetheday.presentation.ui.theme.Red100
-import com.jingom.seizetheday.presentation.ui.theme.Red50
+import com.jingom.seizetheday.presentation.write.SelectedFeeling
 import java.time.LocalDate
+import kotlin.math.absoluteValue
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun PageThanksScreen() {
+fun PageThanksScreen(
+	viewModel: PageThanksViewModel = hiltViewModel()
+) {
+	val pagingState = viewModel.thanksRecordsPagingData.collectAsLazyPagingItems()
+
 	Surface(
 		modifier = Modifier.fillMaxSize(),
 		color = MaterialTheme.colors.surface.copy(alpha = 0.1f)
 	) {
+		HorizontalPager(
+			count = pagingState.itemCount,
+			contentPadding = PaddingValues(horizontal = 30.dp)
+		) { index ->
+			pagingState[index]?.let {
+				DayThanksPage(
+					thanksRecord = it,
+					modifier = Modifier.graphicsLayer {
+						val pageOffset = calculateCurrentOffsetForPage(index).absoluteValue
 
+						lerp(
+							start = 0.85f,
+							stop = 1f,
+							fraction = 1f - pageOffset.coerceIn(0f, 1f)
+						).also { scale ->
+							scaleX = scale
+							scaleY = scale
+						}
+
+						alpha = lerp(
+							start = 0.5f,
+							stop = 1f,
+							fraction = 1f - pageOffset.coerceIn(0f, 1f)
+						)
+					}
+				)
+			}
+		}
 	}
 }
 
@@ -40,11 +79,11 @@ private fun DayThanksPage(
 	modifier: Modifier = Modifier
 ) {
 	Surface(
+		elevation = 1.dp,
 		modifier = modifier
 			.clip(RoundedCornerShape(30.dp))
 			.fillMaxWidth()
 			.height(700.dp)
-
 	) {
 		Column(
 			modifier = Modifier
@@ -114,13 +153,5 @@ fun CircleDashHorizontalDividerPreview() {
 		modifier = Modifier
 			.fillMaxWidth()
 			.height(20.dp)
-	)
-}
-
-@Composable
-private fun SelectedFeeling(feeling: Feeling) {
-	Text(
-		text = feeling.getResourceString(),
-		style = MaterialTheme.typography.h5
 	)
 }

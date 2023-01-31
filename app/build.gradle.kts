@@ -95,6 +95,7 @@ dependencies {
     implementation(Compose.foundation)
     implementation(Compose.foundationLayout)
     implementation(Compose.ui)
+    implementation(Compose.uiUtil)
     implementation(Compose.uiToolingPreview)
     implementation(Compose.hiltNavigationCompose)
     implementation(Compose.material)

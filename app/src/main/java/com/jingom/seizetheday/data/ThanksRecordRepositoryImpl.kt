@@ -1,5 +1,9 @@
 package com.jingom.seizetheday.data
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.jingom.seizetheday.data.dao.ThanksRecordEntityDao
 import com.jingom.seizetheday.data.model.toDBModel
 import com.jingom.seizetheday.domain.ThanksRecordRepository
@@ -18,5 +22,17 @@ class ThanksRecordRepositoryImpl constructor(
 		return thanksRecordEntityDao.getThanksRecordEntitiesFlow().map { list ->
 			list.map { it.toDomainModel() }
 		}
+	}
+
+	override fun getThanksRecordsPagingFlow(): Flow<PagingData<ThanksRecord>> {
+		return Pager(
+			config = PagingConfig(
+				pageSize = 15,
+				initialLoadSize = 15
+			),
+			pagingSourceFactory = {
+				ThanksPageSource(thanksRecordEntityDao = thanksRecordEntityDao)
+			}
+		).flow.map { pagingData -> pagingData.map { it.toDomainModel() } }
 	}
 }
