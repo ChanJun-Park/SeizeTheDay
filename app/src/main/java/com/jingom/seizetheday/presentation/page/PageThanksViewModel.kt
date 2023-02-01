@@ -1,5 +1,6 @@
 package com.jingom.seizetheday.presentation.page
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -15,14 +16,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PageThanksViewModel @Inject constructor(
+	savedStateHandle: SavedStateHandle,
 	getThanksRecordsPagingDataFlow: GetThanksRecordsPagingDataFlowUseCase
 ): ViewModel() {
 	private val _thanksRecordsPagingData = MutableStateFlow<PagingData<ThanksRecord>>(PagingData.empty())
 	val thanksRecordsPagingData: StateFlow<PagingData<ThanksRecord>> = _thanksRecordsPagingData
 
 	init {
+		val startThanksIdString: String? = savedStateHandle["startThanksId"]
+		val startThanksId = startThanksIdString?.toIntOrNull()
+
 		viewModelScope.launch {
-			getThanksRecordsPagingDataFlow().cachedIn(viewModelScope).collectLatest {
+			getThanksRecordsPagingDataFlow(startThanksId).cachedIn(viewModelScope).collectLatest {
 				_thanksRecordsPagingData.value = it
 			}
 		}

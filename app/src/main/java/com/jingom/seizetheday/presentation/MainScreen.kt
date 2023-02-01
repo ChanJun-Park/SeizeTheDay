@@ -6,6 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.presentation.list.ListThanksScreen
@@ -27,8 +28,12 @@ fun MainScreen() {
 			)
 		}
 
-		composable(Route.PAGE_THANKS_SCREEN) {
-			PageThanksScreen()
+		composable(
+			route = "${Route.PAGE_THANKS_SCREEN}?startThanksId={startThanksId}",
+			arguments = listOf(navArgument("startThanksId") { nullable = true } )
+		) { backStackEntry ->
+			val startThanksId = backStackEntry.arguments?.getString("startThanksId")?.toIntOrNull()
+			PageThanksScreen(startThanksId = startThanksId)
 		}
 
 		composable(Route.WRITING_THANKS_SCREEN) {
@@ -61,5 +66,5 @@ private fun NavHostController.navigateFromListThanksToWritingThanks() = navigate
 )
 
 private fun NavHostController.navigateFromListThanksToPageThanks(thanksRecord: ThanksRecord) = navigate(
-	route = Route.PAGE_THANKS_SCREEN
+	route = "${Route.PAGE_THANKS_SCREEN}?startThanksId=${thanksRecord.id}"
 )

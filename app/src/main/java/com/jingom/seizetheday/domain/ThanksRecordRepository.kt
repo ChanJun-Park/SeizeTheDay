@@ -6,7 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface ThanksRecordRepository {
 	suspend fun saveThanksRecord(thanksRecord: ThanksRecord)
+
 	fun getThanksRecordsFlow(): Flow<List<ThanksRecord>>
 
-	fun getThanksRecordsPagingFlow(): Flow<PagingData<ThanksRecord>>
+	fun getThanksRecordsPagingFlow(startThanksId: Int?): Flow<PagingData<ThanksRecord>>
 }

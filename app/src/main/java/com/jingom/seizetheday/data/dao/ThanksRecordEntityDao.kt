@@ -29,4 +29,13 @@ interface ThanksRecordEntityDao {
 	"""
 	)
 	suspend fun getThanksRecordEntities(offset: Int, perPageSize: Int): List<ThanksRecordEntity>
+
+	@Query(
+		"""
+		SELECT id
+		FROM thanks_record_entity
+		ORDER BY date DESC, id DESC
+		"""
+	)
+	suspend fun getThanksRecordEntityIds(): List<Int>
 }

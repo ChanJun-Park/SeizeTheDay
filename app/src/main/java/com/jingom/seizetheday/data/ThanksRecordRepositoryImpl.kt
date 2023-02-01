@@ -24,14 +24,17 @@ class ThanksRecordRepositoryImpl constructor(
 		}
 	}
 
-	override fun getThanksRecordsPagingFlow(): Flow<PagingData<ThanksRecord>> {
+	override fun getThanksRecordsPagingFlow(startThanksId: Int?): Flow<PagingData<ThanksRecord>> {
 		return Pager(
 			config = PagingConfig(
 				pageSize = 15,
 				initialLoadSize = 15
 			),
 			pagingSourceFactory = {
-				ThanksPageSource(thanksRecordEntityDao = thanksRecordEntityDao)
+				ThanksPageSource(
+					thanksRecordEntityDao = thanksRecordEntityDao,
+					startThanksId = startThanksId
+				)
 			}
 		).flow.map { pagingData -> pagingData.map { it.toDomainModel() } }
 	}

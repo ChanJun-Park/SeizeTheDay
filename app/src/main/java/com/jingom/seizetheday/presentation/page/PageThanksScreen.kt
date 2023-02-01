@@ -8,7 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -24,9 +24,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
+import com.google.accompanist.pager.rememberPagerState
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
-import com.jingom.seizetheday.presentation.getResourceString
 import com.jingom.seizetheday.presentation.write.SelectedFeeling
 import java.time.LocalDate
 import kotlin.math.absoluteValue
@@ -34,9 +34,37 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PageThanksScreen(
+	startThanksId: Int? = null,
 	viewModel: PageThanksViewModel = hiltViewModel()
 ) {
 	val pagingState = viewModel.thanksRecordsPagingData.collectAsLazyPagingItems()
+	val pagerState = rememberPagerState()
+	var lastViewingThanksId by remember {
+		mutableStateOf(startThanksId)
+	}
+	
+	LaunchedEffect(pagerState) {
+		snapshotFlow { pagerState.currentPage }.collect { page ->
+			if (page < 0 || page >= pagingState.itemCount) {
+				return@collect
+			}
+
+			lastViewingThanksId = pagingState.peek(page)?.id ?: return@collect
+		}
+	}
+
+	LaunchedEffect(key1 = pagingState.itemSnapshotList) {
+		if (pagingState.itemCount == 0) {
+			return@LaunchedEffect
+		}
+
+		var scrollTargetPage = pagingState.itemSnapshotList.items.indexOfFirst { it.id == lastViewingThanksId }
+		if (scrollTargetPage == -1) {
+			scrollTargetPage = 0
+		}
+
+		pagerState.scrollToPage(scrollTargetPage)
+	}
 
 	Surface(
 		modifier = Modifier.fillMaxSize(),
@@ -44,7 +72,8 @@ fun PageThanksScreen(
 	) {
 		HorizontalPager(
 			count = pagingState.itemCount,
-			contentPadding = PaddingValues(horizontal = 30.dp)
+			contentPadding = PaddingValues(horizontal = 30.dp),
+			state = pagerState
 		) { index ->
 			pagingState[index]?.let {
 				DayThanksPage(
