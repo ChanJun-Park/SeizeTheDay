@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -27,6 +26,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
@@ -39,9 +41,10 @@ import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-data class ListThanksScreenState(
-	val thanksRecordsMap: ThanksRecordsMap
-)
+sealed interface ListThanksRecordUiModel {
+	data class ThanksRecordItem(val thanksRecord: ThanksRecord): ListThanksRecordUiModel
+	data class DateHeaderItem(val date: LocalDate): ListThanksRecordUiModel
+}
 
 // stateful
 @Composable
@@ -50,10 +53,10 @@ fun ListThanksScreen(
 	onNewThanksClick: () -> Unit = {},
 	onThanksClick: (ThanksRecord) -> Unit = {}
 ) {
-	val state = viewModel.thanksRecords.collectAsState().value
+	val listThanksRecordUiModels = viewModel.thanksRecordsPagingData.collectAsLazyPagingItems()
 
 	ListThanksScreen(
-		state = state,
+		listThanksRecordUiModels = listThanksRecordUiModels,
 		onNewThanksClick = onNewThanksClick,
 		onThanksClick = onThanksClick
 	)
@@ -62,7 +65,7 @@ fun ListThanksScreen(
 // stateless
 @Composable
 fun ListThanksScreen(
-	state: ListThanksScreenState,
+	listThanksRecordUiModels: LazyPagingItems<ListThanksRecordUiModel>,
 	onNewThanksClick: () -> Unit = {},
 	onThanksClick: (ThanksRecord) -> Unit = {}
 ) {
@@ -107,7 +110,7 @@ fun ListThanksScreen(
 				val listThanksState = rememberLazyListState()
 
 				ListThanks(
-					thanksRecordsMap = state.thanksRecordsMap,
+					listThanksRecordUiModels = listThanksRecordUiModels,
 					lazyListState = listThanksState,
 					onThanksClick = onThanksClick,
 					modifier = Modifier
@@ -144,7 +147,7 @@ fun ListThanksScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListThanks(
-	thanksRecordsMap: ThanksRecordsMap,
+	listThanksRecordUiModels: LazyPagingItems<ListThanksRecordUiModel>,
 	lazyListState: LazyListState,
 	modifier: Modifier = Modifier,
 	onThanksClick: (ThanksRecord) -> Unit = {}
@@ -155,24 +158,22 @@ fun ListThanks(
 		contentPadding = PaddingValues(top = 10.dp),
 		verticalArrangement = Arrangement.spacedBy(5.dp)
 	) {
-		thanksRecordsMap.forEachDateThanksRecords { localDate, thanksRecords ->
-
-			stickyHeader(
-				key = localDate,
-				contentType = LocalDate::class
-			) {
-				DateHeader(localDate)
+		items(
+			items = listThanksRecordUiModels,
+			key = {
+				when (it) {
+					is ListThanksRecordUiModel.DateHeaderItem -> it.date
+					is ListThanksRecordUiModel.ThanksRecordItem -> it.thanksRecord.id
+				}
 			}
-
-			items(
-				items = thanksRecords,
-				key = { it.id },
-				contentType = { ThanksRecord::class }
-			) { item ->
-				ThanksRecordListItem(
-					thanksRecord = item,
+		) { item ->
+			when (item) {
+				is ListThanksRecordUiModel.DateHeaderItem -> DateHeader(item.date)
+				is ListThanksRecordUiModel.ThanksRecordItem -> ThanksRecordListItem(
+					thanksRecord = item.thanksRecord,
 					onClick = onThanksClick
 				)
+				null -> { /* do nothing */ }
 			}
 		}
 	}
@@ -320,19 +321,19 @@ fun ThanksRecordListItemPreview() {
 @Preview
 @Composable
 fun ListThanksDashboardScreenPreview() {
-	SeizeTheDayTheme {
-		val state = ListThanksScreenState(
-			thanksRecordsMap = ThanksRecordsMap(
-				groupedThanksRecordByDate = listOf(
-					ThanksRecord(1, Feeling.Thanks, "오늘도 감사합니다.", LocalDate.now()),
-					ThanksRecord(2, Feeling.Joy, "오늘도 즐겁습니다.", LocalDate.now()),
-					ThanksRecord(3, Feeling.Awe, "오늘도 경의롭습니다.", LocalDate.now()),
-					ThanksRecord(4, Feeling.Happy, "오늘도 행복합니다.", LocalDate.now()),
-					ThanksRecord(5, Feeling.Hope, "오늘도 희망찹니다.", LocalDate.now()),
-				).groupBy { it.date }
-			)
-		)
-
-		ListThanksScreen(state)
-	}
+//	SeizeTheDayTheme {
+//		val state = ListThanksScreenState(
+//			thanksRecordsMap = ThanksRecordsMap(
+//				groupedThanksRecordByDate = listOf(
+//					ThanksRecord(1, Feeling.Thanks, "오늘도 감사합니다.", LocalDate.now()),
+//					ThanksRecord(2, Feeling.Joy, "오늘도 즐겁습니다.", LocalDate.now()),
+//					ThanksRecord(3, Feeling.Awe, "오늘도 경의롭습니다.", LocalDate.now()),
+//					ThanksRecord(4, Feeling.Happy, "오늘도 행복합니다.", LocalDate.now()),
+//					ThanksRecord(5, Feeling.Hope, "오늘도 희망찹니다.", LocalDate.now()),
+//				).groupBy { it.date }
+//			)
+//		)
+//
+//		ListThanksScreen(state, listThanksRecordUiModels = listThanksRecordUiModels)
+//	}
 }

@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetThanksRecordsPagingDataFlowUseCase @Inject constructor(
 	private val thanksRecordRepository: ThanksRecordRepository
 ) {
-	operator fun invoke(startThanksId: Int?): Flow<PagingData<ThanksRecord>> {
+	operator fun invoke(startThanksId: Int? = null): Flow<PagingData<ThanksRecord>> {
 		return thanksRecordRepository.getThanksRecordsPagingFlow(startThanksId)
 	}
 }
