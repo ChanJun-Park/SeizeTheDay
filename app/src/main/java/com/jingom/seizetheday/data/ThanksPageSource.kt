@@ -53,7 +53,7 @@ class ThanksPageSource(
 		return try {
 			val result = thanksRecordEntityDao.getThanksRecordEntities(
 				offset = offset,
-				perPageSize = if (offset == 0) targetIdRowIndex else params.loadSize
+				perPageSize = if (offset == 0 && targetIdRowIndex != 0) targetIdRowIndex else params.loadSize
 			)
 
 			LoadResult.Page(
