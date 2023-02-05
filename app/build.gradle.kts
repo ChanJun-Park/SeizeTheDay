@@ -33,10 +33,21 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("../jingomkey")
+            storePassword = (project.property("releaseKeyStorePassword") as String?)
+            keyAlias = (project.property("releaseKeyAlias") as String?)
+            keyPassword = (project.property("releaseKeyPassword") as String?)
+        }
+    }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "${project.rootDir}/tools/proguard-rules.pro")
+
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
