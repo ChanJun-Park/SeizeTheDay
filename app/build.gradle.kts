@@ -125,6 +125,7 @@ dependencies {
     kapt(DaggerHilt.hiltCompiler)
 
     // Coil
+    implementation(Coil.coil)
     implementation(Coil.coilCompose)
 
     // Material
