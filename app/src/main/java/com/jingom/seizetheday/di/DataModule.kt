@@ -2,11 +2,9 @@ package com.jingom.seizetheday.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
-import com.jingom.seizetheday.data.SeizeTheDayDatabase
+import com.jingom.seizetheday.data.db.SeizeTheDayDatabase
 import com.jingom.seizetheday.data.ThanksRecordRepositoryImpl
-import com.jingom.seizetheday.data.dao.ThanksRecordEntityDao
+import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
 import com.jingom.seizetheday.domain.ThanksRecordRepository
 import dagger.Module
 import dagger.Provides

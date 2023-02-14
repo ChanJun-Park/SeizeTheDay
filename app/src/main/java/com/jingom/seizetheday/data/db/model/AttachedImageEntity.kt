@@ -1,4 +1,4 @@
-package com.jingom.seizetheday.data.model
+package com.jingom.seizetheday.data.db.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

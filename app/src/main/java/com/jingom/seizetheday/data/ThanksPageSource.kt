@@ -2,8 +2,8 @@ package com.jingom.seizetheday.data
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.jingom.seizetheday.data.dao.ThanksRecordEntityDao
-import com.jingom.seizetheday.data.model.ThanksRecordEntity
+import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
+import com.jingom.seizetheday.data.db.model.ThanksRecordEntity
 
 class ThanksPageSource(
 	private val thanksRecordEntityDao: ThanksRecordEntityDao,

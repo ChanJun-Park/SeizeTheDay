@@ -4,8 +4,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import com.jingom.seizetheday.data.dao.ThanksRecordEntityDao
-import com.jingom.seizetheday.data.model.toDBModel
+import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
+import com.jingom.seizetheday.data.db.model.toDBModel
 import com.jingom.seizetheday.domain.ThanksRecordRepository
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import kotlinx.coroutines.flow.Flow

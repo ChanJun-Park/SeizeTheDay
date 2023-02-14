@@ -1,4 +1,4 @@
-package com.jingom.seizetheday.data.converter
+package com.jingom.seizetheday.data.db.converter
 
 import androidx.room.TypeConverter
 import com.jingom.seizetheday.domain.model.Feeling

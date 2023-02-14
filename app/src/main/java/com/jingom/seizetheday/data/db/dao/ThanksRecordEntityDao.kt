@@ -1,10 +1,10 @@
-package com.jingom.seizetheday.data.dao
+package com.jingom.seizetheday.data.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.jingom.seizetheday.data.model.ThanksRecordEntity
+import com.jingom.seizetheday.data.db.model.ThanksRecordEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
