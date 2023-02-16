@@ -1,12 +1,15 @@
 package com.jingom.seizetheday.core.ui
 
 import android.net.Uri
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -17,7 +20,10 @@ import com.jingom.seizetheday.R
 import com.jingom.seizetheday.core.isInspectionMode
 import com.jingom.seizetheday.data.media.model.MediaImage
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.Card
+import androidx.compose.material.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 
 @Composable
@@ -25,21 +31,32 @@ fun LocalImagePickerScreen(
 	imageList: List<MediaImage>,
 	modifier: Modifier = Modifier
 ) {
-	Surface(modifier = modifier) {
-		LazyVerticalGrid(
-			columns = GridCells.Adaptive(minSize = 100.dp),
-			verticalArrangement = Arrangement.spacedBy(5.dp),
-			horizontalArrangement = Arrangement.spacedBy(5.dp),
-			modifier = Modifier.fillMaxSize()
-		) {
-			items(
-				items = imageList,
-				key = MediaImage::id
+	Surface(modifier = modifier.fillMaxSize()) {
+		Box(modifier = Modifier.fillMaxSize()) {
+
+			ImagePickerToolbar(
+				modifier = Modifier
+					.fillMaxWidth()
+					.height(60.dp)
+					.background(color = MaterialTheme.colors.surface.copy(alpha = 0.1f))
+			)
+
+			LazyVerticalGrid(
+				columns = GridCells.Adaptive(minSize = 100.dp),
+				verticalArrangement = Arrangement.spacedBy(5.dp),
+				horizontalArrangement = Arrangement.spacedBy(5.dp),
+				contentPadding = PaddingValues(top = 65.dp),
+				modifier = Modifier.fillMaxSize()
 			) {
-				SingleLocalImage(
-					mediaImage = it,
-					modifier = Modifier.aspectRatio(1f)
-				)
+				items(
+					items = imageList,
+					key = MediaImage::id
+				) {
+					SingleLocalImage(
+						mediaImage = it,
+						modifier = Modifier.aspectRatio(1f)
+					)
+				}
 			}
 		}
 	}
@@ -87,4 +104,56 @@ private fun SingleLocalImage(
 			modifier = Modifier.fillMaxSize(),
 		)
 	}
+}
+
+@Composable
+fun ImagePickerToolbar(
+	modifier: Modifier = Modifier,
+	title: String = "카메라 롤",
+	onBackButtonClick: () -> Unit = {},
+	onAlbumTitleClick: () -> Unit = {},
+	isAlbumListExpanded: Boolean = false
+) {
+	Box(modifier = modifier) {
+		NavigateBackButton(
+			onClick = onBackButtonClick,
+			modifier = Modifier.align(Alignment.CenterStart)
+		)
+
+		Row(
+			verticalAlignment = Alignment.CenterVertically,
+			modifier = Modifier
+				.wrapContentSize()
+				.align(Alignment.Center)
+				.clickable { onAlbumTitleClick() }
+		) {
+			Text(
+				text = title,
+				style = MaterialTheme.typography.h6
+			)
+
+			val expendMoreButtonDegree = animateIntAsState(
+				targetValue = if (isAlbumListExpanded) 180 else 0,
+				animationSpec = tween(easing = LinearEasing)
+			)
+
+			Icon(
+				painter = painterResource(id = R.drawable.ic_expand_more),
+				contentDescription = "다른 앨범 보기",
+				modifier = Modifier
+					.rotate(expendMoreButtonDegree.value.toFloat())
+					.padding(start = 10.dp)
+			)
+		}
+	}
+}
+
+@Preview
+@Composable
+fun ImagePickerToolbarPreview() {
+	ImagePickerToolbar(
+		modifier = Modifier
+			.fillMaxWidth()
+			.height(60.dp)
+	)
 }
