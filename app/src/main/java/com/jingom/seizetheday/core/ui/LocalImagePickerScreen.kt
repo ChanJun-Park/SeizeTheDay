@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +18,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -31,14 +33,18 @@ import com.jingom.seizetheday.data.media.model.MediaImageAlbum
 
 sealed class LocalImagePickerUiState {
 	data class ImageSelectionState(
-		val imageList: List<MediaImage> = emptyList(),
-		val selectedImageList: List<MediaImage> = emptyList(),
+		val imageList: List<MediaImageUiState> = emptyList()
 	): LocalImagePickerUiState()
 
 	data class AlbumSelectionState(
 		val albumList: List<MediaImageAlbum> = emptyList()
 	): LocalImagePickerUiState()
 }
+
+data class MediaImageUiState(
+	val mediaImage: MediaImage,
+	val isSelected: Boolean
+)
 
 @Composable
 fun LocalImagePickerScreen(
@@ -81,14 +87,14 @@ fun LocalImagePickerScreen(
 @Composable
 private fun LocalImagePickerScreenPreview() {
 	val dummyImageList = listOf(
-		MediaImage(1, 1, Uri.EMPTY, "image/png", 0, 0),
-		MediaImage(2, 2, Uri.EMPTY, "image/png", 0, 0),
-		MediaImage(3, 3, Uri.EMPTY, "image/png", 0, 0),
-		MediaImage(4, 4, Uri.EMPTY, "image/png", 0, 0),
-		MediaImage(5, 5, Uri.EMPTY, "image/png", 0, 0),
-		MediaImage(6, 6, Uri.EMPTY, "image/png", 0, 0),
-		MediaImage(7, 7, Uri.EMPTY, "image/png", 0, 0),
-		MediaImage(8, 8, Uri.EMPTY, "image/png", 0, 0),
+		MediaImageUiState(MediaImage(1, 1, Uri.EMPTY, "image/png", 0, 0), true),
+		MediaImageUiState(MediaImage(2, 2, Uri.EMPTY, "image/png", 0, 0), true),
+		MediaImageUiState(MediaImage(3, 3, Uri.EMPTY, "image/png", 0, 0), false),
+		MediaImageUiState(MediaImage(4, 4, Uri.EMPTY, "image/png", 0, 0), true),
+		MediaImageUiState(MediaImage(5, 5, Uri.EMPTY, "image/png", 0, 0), false),
+		MediaImageUiState(MediaImage(6, 6, Uri.EMPTY, "image/png", 0, 0), false),
+		MediaImageUiState(MediaImage(7, 7, Uri.EMPTY, "image/png", 0, 0), false),
+		MediaImageUiState(MediaImage(8, 8, Uri.EMPTY, "image/png", 0, 0), false),
 	)
 	val localImagePickerUiState = LocalImagePickerUiState.ImageSelectionState(
 		imageList = dummyImageList
@@ -101,7 +107,7 @@ private fun LocalImagePickerScreenPreview() {
 
 @Composable
 private fun ImageList(
-	imageList: List<MediaImage>,
+	imageList: List<MediaImageUiState>,
 	modifier: Modifier = Modifier,
 	onImageClick: (MediaImage) -> Unit = {}
 ) {
@@ -114,10 +120,11 @@ private fun ImageList(
 	) {
 		items(
 			items = imageList,
-			key = MediaImage::id
+			key = { it.mediaImage.id }
 		) {
 			SingleLocalImage(
-				mediaImage = it,
+				mediaImage = it.mediaImage,
+				isSelected = it.isSelected,
 				onClick = onImageClick,
 				modifier = Modifier.aspectRatio(1f)
 			)
@@ -199,9 +206,14 @@ private fun AlbumListPreview() {
 private fun SingleLocalImage(
 	mediaImage: MediaImage,
 	modifier: Modifier = Modifier,
+	isSelected: Boolean = false,
 	onClick: (MediaImage) -> Unit = {}
 ) {
-	Card(modifier = modifier.clickable { onClick(mediaImage) }) {
+	Card(
+		modifier = modifier
+			.selectedBorder(isSelected)
+			.clickable { onClick(mediaImage) }
+	) {
 		if (isInspectionMode) {
 			Image(
 				painter = painterResource(id = R.drawable.android),
@@ -217,6 +229,18 @@ private fun SingleLocalImage(
 			contentScale = ContentScale.Crop,
 			modifier = Modifier.fillMaxSize(),
 		)
+	}
+}
+
+private fun Modifier.selectedBorder(isSelected: Boolean) = composed {
+	if (isSelected) {
+		border(
+			width = 2.dp,
+			color = Color.Green,
+			shape = MaterialTheme.shapes.medium
+		)
+	} else {
+		this
 	}
 }
 
@@ -243,7 +267,7 @@ private fun SingleLocalImageAlbum(
 		)
 
 		Spacer(modifier = Modifier.width(10.dp))
-		
+
 		Column(
 			verticalArrangement = Arrangement.SpaceBetween,
 			modifier = Modifier.fillMaxSize()
