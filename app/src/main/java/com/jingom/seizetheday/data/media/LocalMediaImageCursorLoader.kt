@@ -5,6 +5,7 @@ import android.database.Cursor
 import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.WorkerThread
+import com.jingom.seizetheday.domain.LocalMediaImageLoader.Companion.ALL_IMAGES_ALBUM_ID
 
 private val imageCollection =
 	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -44,7 +45,7 @@ class LocalMediaImageCursorLoader(private val context: Context) {
 	)
 
 	@WorkerThread
-	fun getMediaImagesWithAlbumNameCursor(bucketId: Int = ALL_IMAGES_BUCKET_ID): Cursor? = context.contentResolver.query(
+	fun getMediaImagesWithAlbumNameCursor(bucketId: Int = ALL_IMAGES_ALBUM_ID): Cursor? = context.contentResolver.query(
 		/* uri = */ imageCollection,
 		/* projection = */ imageWithAlbumNameProjection,
 		/* selection = */ getBucketIdSelection(bucketId),
@@ -53,7 +54,7 @@ class LocalMediaImageCursorLoader(private val context: Context) {
 	)
 
 	@WorkerThread
-	fun getMediaImagesCursor(bucketId: Int = ALL_IMAGES_BUCKET_ID): Cursor? = context.contentResolver.query(
+	fun getMediaImagesCursor(bucketId: Int = ALL_IMAGES_ALBUM_ID): Cursor? = context.contentResolver.query(
 		/* uri = */ imageCollection,
 		/* projection = */ imageProjection,
 		/* selection = */ getBucketIdSelection(bucketId),
@@ -62,14 +63,10 @@ class LocalMediaImageCursorLoader(private val context: Context) {
 	)
 
 	private fun getBucketIdSelection(bucketId: Int): String {
-		return if (bucketId == ALL_IMAGES_BUCKET_ID) {
+		return if (bucketId == ALL_IMAGES_ALBUM_ID) {
 			""
 		} else {
 			"${MediaStore.Images.ImageColumns.BUCKET_ID} = $bucketId"
 		}
-	}
-
-	companion object {
-		const val ALL_IMAGES_BUCKET_ID = -1
 	}
 }

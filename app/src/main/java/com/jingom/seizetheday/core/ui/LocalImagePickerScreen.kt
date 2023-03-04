@@ -28,28 +28,34 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.core.isInspectionMode
-import com.jingom.seizetheday.data.media.model.MediaImage
-import com.jingom.seizetheday.data.media.model.MediaImageAlbum
+import com.jingom.seizetheday.domain.model.media.MediaImage
+import com.jingom.seizetheday.domain.model.media.MediaImageAlbum
 
-sealed class LocalImagePickerUiState {
-	data class ImageSelectionState(
-		val imageList: List<MediaImageUiState> = emptyList()
-	): LocalImagePickerUiState()
+data class ImageListUiState(
+	val imageList: List<MediaImageUiState> = emptyList()
+)
 
-	data class AlbumSelectionState(
-		val albumList: List<MediaImageAlbum> = emptyList()
-	): LocalImagePickerUiState()
-}
+data class AlbumListUiState(
+	val albumList: List<MediaImageAlbumUiState> = emptyList()
+)
 
 data class MediaImageUiState(
 	val mediaImage: MediaImage,
+	val isSelected: Boolean,
+	val selectionNumber: Int
+)
+
+data class MediaImageAlbumUiState(
+	val mediaImageAlbum: MediaImageAlbum,
 	val isSelected: Boolean
 )
 
 @Composable
 fun LocalImagePickerScreen(
-	localImagePickerUiState: LocalImagePickerUiState,
+	imageListUiState: ImageListUiState,
+	albumListUiState: AlbumListUiState,
 	modifier: Modifier = Modifier,
+	isAlbumListVisible: Boolean = false,
 	onImageClick: (MediaImage) -> Unit = {},
 	onAlbumClick: (MediaImageAlbum) -> Unit = {}
 ) {
@@ -63,21 +69,18 @@ fun LocalImagePickerScreen(
 					.background(color = MaterialTheme.colors.surface.copy(alpha = 0.1f))
 			)
 
-			when (localImagePickerUiState) {
-				is LocalImagePickerUiState.ImageSelectionState -> {
-					ImageList(
-						imageList = localImagePickerUiState.imageList,
-						onImageClick = onImageClick,
-						modifier = Modifier.fillMaxSize()
-					)
-				}
-				is LocalImagePickerUiState.AlbumSelectionState -> {
-					AlbumList(
-						albumList = localImagePickerUiState.albumList,
-						onAlbumClick = onAlbumClick,
-						modifier = Modifier.fillMaxSize()
-					)
-				}
+			ImageList(
+				imageList = imageListUiState.imageList,
+				onImageClick = onImageClick,
+				modifier = Modifier.fillMaxSize()
+			)
+
+			if (isAlbumListVisible) {
+				AlbumList(
+					albumList = albumListUiState.albumList,
+					onAlbumClick = onAlbumClick,
+					modifier = Modifier.fillMaxSize()
+				)
 			}
 		}
 	}
@@ -87,20 +90,21 @@ fun LocalImagePickerScreen(
 @Composable
 private fun LocalImagePickerScreenPreview() {
 	val dummyImageList = listOf(
-		MediaImageUiState(MediaImage(1, 1, Uri.EMPTY, "image/png", 0, 0), true),
-		MediaImageUiState(MediaImage(2, 2, Uri.EMPTY, "image/png", 0, 0), true),
-		MediaImageUiState(MediaImage(3, 3, Uri.EMPTY, "image/png", 0, 0), false),
-		MediaImageUiState(MediaImage(4, 4, Uri.EMPTY, "image/png", 0, 0), true),
-		MediaImageUiState(MediaImage(5, 5, Uri.EMPTY, "image/png", 0, 0), false),
-		MediaImageUiState(MediaImage(6, 6, Uri.EMPTY, "image/png", 0, 0), false),
-		MediaImageUiState(MediaImage(7, 7, Uri.EMPTY, "image/png", 0, 0), false),
-		MediaImageUiState(MediaImage(8, 8, Uri.EMPTY, "image/png", 0, 0), false),
+		MediaImageUiState(MediaImage(1, 1, Uri.EMPTY, "image/png", 0, 0), true, 1),
+		MediaImageUiState(MediaImage(2, 2, Uri.EMPTY, "image/png", 0, 0), true, 2),
+		MediaImageUiState(MediaImage(3, 3, Uri.EMPTY, "image/png", 0, 0), false, 3),
+		MediaImageUiState(MediaImage(4, 4, Uri.EMPTY, "image/png", 0, 0), true, 4),
+		MediaImageUiState(MediaImage(5, 5, Uri.EMPTY, "image/png", 0, 0), false, 5),
+		MediaImageUiState(MediaImage(6, 6, Uri.EMPTY, "image/png", 0, 0), false, 6),
+		MediaImageUiState(MediaImage(7, 7, Uri.EMPTY, "image/png", 0, 0), false, 7),
+		MediaImageUiState(MediaImage(8, 8, Uri.EMPTY, "image/png", 0, 0), false, 8),
 	)
-	val localImagePickerUiState = LocalImagePickerUiState.ImageSelectionState(
+	val imageListUiState = ImageListUiState(
 		imageList = dummyImageList
 	)
 	LocalImagePickerScreen(
-		localImagePickerUiState = localImagePickerUiState,
+		imageListUiState = imageListUiState,
+		albumListUiState = AlbumListUiState(emptyList()),
 		modifier = Modifier.fillMaxSize()
 	)
 }
@@ -134,17 +138,17 @@ private fun ImageList(
 
 @Composable
 private fun AlbumList(
-	albumList: List<MediaImageAlbum>,
+	albumList: List<MediaImageAlbumUiState>,
 	modifier: Modifier = Modifier,
 	onAlbumClick: (MediaImageAlbum) -> Unit = {}
 ) {
 	LazyColumn(modifier = modifier.fillMaxSize()) {
 		items(
 			items = albumList,
-			key = MediaImageAlbum::albumId
+			key = { it.mediaImageAlbum.albumId }
 		) {
 			SingleLocalImageAlbum(
-				imageAlbum = it,
+				imageAlbum = it.mediaImageAlbum,
 				onClick = onAlbumClick,
 				modifier = Modifier
 					.fillMaxWidth()
@@ -164,35 +168,50 @@ private fun AlbumList(
 @Composable
 private fun AlbumListPreview() {
 	val dummyImageAlbumList = listOf(
-		MediaImageAlbum(
-			albumId = 1,
-			albumName = "Camera",
-			thumbnailImage = MediaImage(1, 1, Uri.EMPTY, "image/png", 0, 0),
-			imageCount = 10
+		MediaImageAlbumUiState(
+			mediaImageAlbum = MediaImageAlbum(
+				albumId = 1,
+				albumName = "Camera",
+				thumbnailImage = MediaImage(1, 1, Uri.EMPTY, "image/png", 0, 0),
+				imageCount = 10
+			),
+			isSelected = false
 		),
-		MediaImageAlbum(
-			albumId = 2,
-			albumName = "Kakao",
-			thumbnailImage = MediaImage(2, 2, Uri.EMPTY, "image/png", 0, 0),
-			imageCount = 10
+		MediaImageAlbumUiState(
+			mediaImageAlbum = MediaImageAlbum(
+				albumId = 2,
+				albumName = "Kakao",
+				thumbnailImage = MediaImage(2, 2, Uri.EMPTY, "image/png", 0, 0),
+				imageCount = 10
+			),
+			isSelected = false
 		),
-		MediaImageAlbum(
-			albumId = 3,
-			albumName = "Naver",
-			thumbnailImage = MediaImage(3, 3, Uri.EMPTY, "image/png", 0, 0),
-			imageCount = 10
+		MediaImageAlbumUiState(
+			mediaImageAlbum = MediaImageAlbum(
+				albumId = 3,
+				albumName = "Naver",
+				thumbnailImage = MediaImage(3, 3, Uri.EMPTY, "image/png", 0, 0),
+				imageCount = 10
+			),
+			isSelected = false
 		),
-		MediaImageAlbum(
-			albumId = 4,
-			albumName = "Calendar",
-			thumbnailImage = MediaImage(4, 4, Uri.EMPTY, "image/png", 0, 0),
-			imageCount = 10
+		MediaImageAlbumUiState(
+			mediaImageAlbum = MediaImageAlbum(
+				albumId = 4,
+				albumName = "Calendar",
+				thumbnailImage = MediaImage(4, 4, Uri.EMPTY, "image/png", 0, 0),
+				imageCount = 10
+			),
+			isSelected = false
 		),
-		MediaImageAlbum(
-			albumId = 5,
-			albumName = "DDD",
-			thumbnailImage = MediaImage(5, 5, Uri.EMPTY, "image/png", 0, 0),
-			imageCount = 10
+		MediaImageAlbumUiState(
+			mediaImageAlbum = MediaImageAlbum(
+				albumId = 5,
+				albumName = "DDD",
+				thumbnailImage = MediaImage(5, 5, Uri.EMPTY, "image/png", 0, 0),
+				imageCount = 10
+			),
+			isSelected = false
 		)
 	)
 
@@ -258,9 +277,8 @@ private fun SingleLocalImageAlbum(
 			)
 			.clickable { onClick(imageAlbum) }
 	) {
-
-		SingleLocalImage(
-			mediaImage = imageAlbum.thumbnailImage,
+		AlbumThumbnail(
+			imageAlbum = imageAlbum,
 			modifier = Modifier
 				.fillMaxHeight()
 				.aspectRatio(1f)
@@ -281,6 +299,22 @@ private fun SingleLocalImageAlbum(
 				style = MaterialTheme.typography.caption
 			)
 		}
+	}
+}
+
+@Composable
+private fun AlbumThumbnail(
+	imageAlbum: MediaImageAlbum,
+	modifier: Modifier = Modifier
+) {
+	val thumbnail = imageAlbum.thumbnailImage
+	if (thumbnail != null) {
+		SingleLocalImage(
+			mediaImage = thumbnail,
+			modifier = modifier
+		)
+	} else {
+		Spacer(modifier = modifier)
 	}
 }
 

@@ -4,6 +4,7 @@ import android.content.Context
 import com.jingom.seizetheday.data.ThanksRecordRepositoryImpl
 import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
 import com.jingom.seizetheday.data.media.LocalMediaImageCursorLoader
+import com.jingom.seizetheday.domain.LocalMediaImageLoader
 import com.jingom.seizetheday.data.media.LocalMediaImageLoaderImpl
 import com.jingom.seizetheday.di.coroutine.IoDispatcher
 import com.jingom.seizetheday.domain.ThanksRecordRepository
@@ -35,7 +36,7 @@ class DataModule {
 	fun provideLocalMediaImageLoader(
 		localMediaImageCursorLoader: LocalMediaImageCursorLoader,
 		@IoDispatcher dispatcher: CoroutineDispatcher
-	): LocalMediaImageLoaderImpl {
+	): LocalMediaImageLoader {
 		return LocalMediaImageLoaderImpl(localMediaImageCursorLoader, dispatcher)
 	}
 }

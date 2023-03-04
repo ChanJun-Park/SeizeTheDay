@@ -5,9 +5,11 @@ import android.net.Uri
 import android.provider.MediaStore
 import com.jingom.seizetheday.core.extensions.toData
 import com.jingom.seizetheday.core.extensions.toDataList
-import com.jingom.seizetheday.data.media.model.MediaImage
-import com.jingom.seizetheday.data.media.model.MediaImageAlbum
+import com.jingom.seizetheday.domain.model.media.MediaImage
+import com.jingom.seizetheday.domain.model.media.MediaImageAlbum
 import com.jingom.seizetheday.di.coroutine.IoDispatcher
+import com.jingom.seizetheday.domain.LocalMediaImageLoader
+import com.jingom.seizetheday.domain.LocalMediaImageLoader.Companion.ALL_IMAGES_ALBUM_ID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -30,8 +32,8 @@ class LocalMediaImageLoaderImpl(
 		return@withContext albumList
 	}
 
-	override suspend fun getLocalMediaImageList(bucketId: Int): List<MediaImage> = withContext(dispatcher) {
-		localMediaImageCursorLoader.getMediaImagesCursor(bucketId).toDataList { cursor ->
+	override suspend fun getLocalMediaImageList(albumId: Int): List<MediaImage> = withContext(dispatcher) {
+		localMediaImageCursorLoader.getMediaImagesCursor(albumId).toDataList { cursor ->
 			getMediaImage(cursor)
 		}
 	}
@@ -42,7 +44,7 @@ class LocalMediaImageLoaderImpl(
 		val thumbnailImage = getMediaImage(cursor)
 
 		MediaImageAlbum(
-			albumId = LocalMediaImageCursorLoader.ALL_IMAGES_BUCKET_ID,
+			albumId = ALL_IMAGES_ALBUM_ID,
 			albumName = "",
 			thumbnailImage = thumbnailImage,
 			imageCount = imageCount

@@ -1,4 +1,4 @@
-package com.jingom.seizetheday.data.media.model
+package com.jingom.seizetheday.domain.model.media
 
 import android.net.Uri
 
