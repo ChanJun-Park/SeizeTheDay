@@ -19,14 +19,19 @@ class LocalMediaImageLoaderImpl(
 ): LocalMediaImageLoader {
 	override suspend fun getLocalMedialImageAlbumList(): List<MediaImageAlbum> = withContext(dispatcher) {
 		val albumList = mutableListOf<MediaImageAlbum>()
+		val albumIdList = mutableListOf<Int>()
 
 		getAllImageAlbum()?.let { allImageAlbum ->
 			albumList.add(allImageAlbum)
 		}
 
 		getAlbumIdList().forEach { albumId ->
-			val imageAlbum = getImageAlbum(albumId) ?: return@forEach // continue
-			albumList.add(imageAlbum)
+			if (albumIdList.contains(albumId).not()) {
+				val imageAlbum = getImageAlbum(albumId) ?: return@forEach // continue
+
+				albumIdList.add(albumId)
+				albumList.add(imageAlbum)
+			}
 		}
 
 		return@withContext albumList
@@ -51,7 +56,7 @@ class LocalMediaImageLoaderImpl(
 		)
 	}
 
-	private fun getImageAlbum(albumId: Int): MediaImageAlbum? = localMediaImageCursorLoader.getMediaImagesWithAlbumNameCursor().toData { cursor ->
+	private fun getImageAlbum(albumId: Int): MediaImageAlbum? = localMediaImageCursorLoader.getMediaImagesWithAlbumNameCursor(albumId).toData { cursor ->
 		val imageCount = cursor.count
 
 		val bucketDisplayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)

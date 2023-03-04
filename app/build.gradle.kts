@@ -115,6 +115,7 @@ dependencies {
     implementation(Compose.navigation)
     implementation(Compose.viewModelCompose)
     implementation(Compose.activityCompose)
+    implementation(Compose.constraintLayout)
 
     implementation(ComposeCollapsingToolbar.coposeCollapsingToolbar)
 

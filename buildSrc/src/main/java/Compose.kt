@@ -1,6 +1,6 @@
 object Compose {
     const val composeBomVersion = "2023.01.00"
-    const val composeCompilerVersion = "1.3.2"
+    const val composeCompilerVersion = "1.4.2"
 
     const val composeBom = "androidx.compose:compose-bom:$composeBomVersion"
 
@@ -32,4 +32,7 @@ object Compose {
 
     private const val customViewVersionPoolingContainer = "1.0.0-alpha01"
     const val composePreviewCustomViewPoolingContainer = "androidx.customview:customview-poolingcontainer:$customViewVersionPoolingContainer"
+
+    private const val constraintLayoutVersion = "1.0.1"
+    const val constraintLayout = "androidx.constraintlayout:constraintlayout-compose:$constraintLayoutVersion"
 }

@@ -16,25 +16,27 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.core.BackPressHandler
 import com.jingom.seizetheday.core.isInspectionMode
+import com.jingom.seizetheday.domain.LocalMediaImageLoader
 import com.jingom.seizetheday.domain.model.media.MediaImage
 import com.jingom.seizetheday.domain.model.media.MediaImageAlbum
 
@@ -64,19 +66,26 @@ fun LocalImagePickerScreen(
 ) {
 	val imageListUiState by viewModel.imageListUiState.collectAsStateWithLifecycle()
 	val albumListUiState by viewModel.albumListUiState.collectAsStateWithLifecycle()
+	val selectedImageAlbum by viewModel.selectedImageAlbum.collectAsStateWithLifecycle()
 
 	var isAlbumListVisible by remember {
 		mutableStateOf(false)
 	}
 
 	LocalImagePickerScreen(
+		selectedImageAlbum = selectedImageAlbum,
 		imageListUiState = imageListUiState,
 		albumListUiState = albumListUiState,
 		isAlbumListVisible = isAlbumListVisible,
 		onImageClick = viewModel::toggleImageSelectionState,
-		onAlbumClick = viewModel::changeSelectedAlbum,
+		onAlbumClick = {
+			viewModel.changeSelectedAlbum(it)
+			isAlbumListVisible = !isAlbumListVisible
+		},
 		onBackButtonClick = onBackButtonClick,
-		onAlbumTitleClick = { isAlbumListVisible = !isAlbumListVisible }
+		onAlbumTitleClick = {
+			isAlbumListVisible = !isAlbumListVisible
+		}
 	)
 
 	BackPressHandler(
@@ -93,6 +102,7 @@ fun LocalImagePickerScreen(
 
 @Composable
 fun LocalImagePickerScreen(
+	selectedImageAlbum: MediaImageAlbum,
 	imageListUiState: ImageListUiState,
 	albumListUiState: AlbumListUiState,
 	modifier: Modifier = Modifier,
@@ -104,15 +114,6 @@ fun LocalImagePickerScreen(
 ) {
 	Surface(modifier = modifier.fillMaxSize()) {
 		Box(modifier = Modifier.fillMaxSize()) {
-
-			ImagePickerToolbar(
-				onBackButtonClick = onBackButtonClick,
-				onAlbumTitleClick = onAlbumTitleClick,
-				modifier = Modifier
-					.fillMaxWidth()
-					.height(60.dp)
-					.background(color = MaterialTheme.colors.surface.copy(alpha = 0.1f))
-			)
 
 			ImageList(
 				imageList = imageListUiState.imageList,
@@ -127,6 +128,17 @@ fun LocalImagePickerScreen(
 					modifier = Modifier.fillMaxSize()
 				)
 			}
+
+			ImagePickerToolbar(
+				title = selectedImageAlbum.getTitleString(),
+				onBackButtonClick = onBackButtonClick,
+				onAlbumTitleClick = onAlbumTitleClick,
+				isAlbumListExpanded = isAlbumListVisible,
+				modifier = Modifier
+					.fillMaxWidth()
+					.height(60.dp)
+					.background(color = MaterialTheme.colors.surface.copy(alpha = 0.1f))
+			)
 		}
 	}
 }
@@ -148,6 +160,7 @@ private fun LocalImagePickerScreenPreview() {
 		imageList = dummyImageList
 	)
 	LocalImagePickerScreen(
+		selectedImageAlbum = MediaImageAlbum(albumId = LocalMediaImageLoader.ALL_IMAGES_ALBUM_ID),
 		imageListUiState = imageListUiState,
 		albumListUiState = AlbumListUiState(emptyList()),
 		modifier = Modifier.fillMaxSize()
@@ -160,23 +173,25 @@ private fun ImageList(
 	modifier: Modifier = Modifier,
 	onImageClick: (MediaImage) -> Unit = {}
 ) {
-	LazyVerticalGrid(
-		columns = GridCells.Adaptive(minSize = 100.dp),
-		verticalArrangement = Arrangement.spacedBy(5.dp),
-		horizontalArrangement = Arrangement.spacedBy(5.dp),
-		contentPadding = PaddingValues(top = 65.dp),
-		modifier = modifier.fillMaxSize()
-	) {
-		items(
-			items = imageList,
-			key = { it.mediaImage.id }
+	Surface(modifier = modifier) {
+		LazyVerticalGrid(
+			columns = GridCells.Adaptive(minSize = 100.dp),
+			verticalArrangement = Arrangement.spacedBy(5.dp),
+			horizontalArrangement = Arrangement.spacedBy(5.dp),
+			contentPadding = PaddingValues(top = 65.dp),
+			modifier = Modifier.fillMaxSize()
 		) {
-			SingleLocalImage(
-				mediaImage = it.mediaImage,
-				isSelected = it.isSelected,
-				onClick = onImageClick,
-				modifier = Modifier.aspectRatio(1f)
-			)
+			items(
+				items = imageList,
+				key = { it.mediaImage.id }
+			) {
+				SingleLocalImage(
+					mediaImage = it.mediaImage,
+					isSelected = it.isSelected,
+					onClick = onImageClick,
+					modifier = Modifier.aspectRatio(1f)
+				)
+			}
 		}
 	}
 }
@@ -187,24 +202,29 @@ private fun AlbumList(
 	modifier: Modifier = Modifier,
 	onAlbumClick: (MediaImageAlbum) -> Unit = {}
 ) {
-	LazyColumn(modifier = modifier.fillMaxSize()) {
-		items(
-			items = albumList,
-			key = { it.mediaImageAlbum.albumId }
+	Surface(modifier = modifier) {
+		LazyColumn(
+			contentPadding = PaddingValues(top = 65.dp),
+			modifier = Modifier.fillMaxSize()
 		) {
-			SingleLocalImageAlbum(
-				imageAlbum = it.mediaImageAlbum,
-				onClick = onAlbumClick,
-				modifier = Modifier
-					.fillMaxWidth()
-					.height(60.dp)
-			)
-			Spacer(
-				modifier = Modifier
-					.fillMaxWidth()
-					.height(1.dp)
-					.background(color = Color.Gray.copy(alpha = 0.1f))
-			)
+			items(
+				items = albumList,
+				key = { it.mediaImageAlbum.albumId }
+			) {
+				SingleLocalImageAlbum(
+					imageAlbum = it.mediaImageAlbum,
+					onClick = onAlbumClick,
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(60.dp)
+				)
+				Spacer(
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(1.dp)
+						.background(color = Color.Gray.copy(alpha = 0.1f))
+				)
+			}
 		}
 	}
 }
@@ -336,7 +356,7 @@ private fun SingleLocalImageAlbum(
 			modifier = Modifier.fillMaxSize()
 		) {
 			Text(
-				text = imageAlbum.albumName,
+				text = imageAlbum.getTitleString(),
 				style = MaterialTheme.typography.body1
 			)
 			Text(
@@ -381,28 +401,38 @@ private fun SingleLocalImageAlbumPreview() {
 
 @Composable
 private fun ImagePickerToolbar(
+	title: String,
 	modifier: Modifier = Modifier,
-	title: String = "카메라 롤",
 	onBackButtonClick: () -> Unit = {},
 	onAlbumTitleClick: () -> Unit = {},
 	isAlbumListExpanded: Boolean = false
 ) {
-	Box(modifier = modifier) {
-		NavigateBackButton(
-			onClick = onBackButtonClick,
-			modifier = Modifier.align(Alignment.CenterStart)
-		)
+	Surface(modifier = modifier) {
+		ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+			val (backButton, titleText, arrowIcon) = createRefs()
 
-		Row(
-			verticalAlignment = Alignment.CenterVertically,
-			modifier = Modifier
-				.wrapContentSize()
-				.align(Alignment.Center)
-				.clickable { onAlbumTitleClick() }
-		) {
+			NavigateBackButton(
+				onClick = onBackButtonClick,
+				modifier = Modifier
+					.constrainAs(backButton) {
+						start.linkTo(parent.start)
+						top.linkTo(parent.top)
+						bottom.linkTo(parent.bottom)
+					}
+			)
+
+
 			Text(
 				text = title,
-				style = MaterialTheme.typography.h6
+				style = MaterialTheme.typography.h6,
+				modifier = Modifier
+					.clickable { onAlbumTitleClick() }
+					.constrainAs(titleText) {
+						start.linkTo(parent.start)
+						end.linkTo(parent.end)
+						top.linkTo(parent.top)
+						bottom.linkTo(parent.bottom)
+					}
 			)
 
 			val expendMoreButtonDegree = animateIntAsState(
@@ -414,8 +444,14 @@ private fun ImagePickerToolbar(
 				painter = painterResource(id = R.drawable.ic_expand_more),
 				contentDescription = "다른 앨범 보기",
 				modifier = Modifier
-					.rotate(expendMoreButtonDegree.value.toFloat())
 					.padding(start = 10.dp)
+					.rotate(expendMoreButtonDegree.value.toFloat())
+					.clickable { onAlbumTitleClick() }
+					.constrainAs(arrowIcon) {
+						start.linkTo(titleText.end)
+						top.linkTo(parent.top)
+						bottom.linkTo(parent.bottom)
+					}
 			)
 		}
 	}
@@ -425,8 +461,20 @@ private fun ImagePickerToolbar(
 @Composable
 private fun ImagePickerToolbarPreview() {
 	ImagePickerToolbar(
+		title = "모든 이미지",
 		modifier = Modifier
 			.fillMaxWidth()
 			.height(60.dp)
 	)
+}
+
+@Composable
+private fun MediaImageAlbum.getTitleString(): String {
+	val context = LocalContext.current
+
+	return if (albumId == LocalMediaImageLoader.ALL_IMAGES_ALBUM_ID) {
+		context.getString(R.string.every_image)
+	} else {
+		albumName
+	}
 }

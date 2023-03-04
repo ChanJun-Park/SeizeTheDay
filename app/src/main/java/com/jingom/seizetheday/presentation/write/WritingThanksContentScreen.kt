@@ -1,12 +1,16 @@
 package com.jingom.seizetheday.presentation.write
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jingom.seizetheday.core.ui.LocalImagePickerActivity
 import com.jingom.seizetheday.core.ui.VerticalScrollableContainer
 import com.jingom.seizetheday.core.ui.SimpleToolBar
 import com.jingom.seizetheday.domain.model.Feeling
@@ -20,6 +24,13 @@ fun WritingThanksContentScreen(
 	onSaveClick: () -> Unit = {},
 	onWritingContentCancel: () -> Unit = {}
 ) {
+	val context = LocalContext.current
+	val imagePickerLauncher = rememberLauncherForActivityResult(
+		contract = ActivityResultContracts.StartActivityForResult()
+	) { result ->
+
+	}
+
 	Surface(
 		modifier = Modifier.fillMaxSize(),
 		color = MaterialTheme.colors.background
@@ -44,10 +55,17 @@ fun WritingThanksContentScreen(
 					onThanksContentChanged = onThanksContentChanged
 				)
 
+				ImageAttachButton(
+					onClick = {
+						val intent = LocalImagePickerActivity.getIntent(context)
+						imagePickerLauncher.launch(intent)
+					}
+				)
+
 				if (state.canSaveCurrentState()) {
 					SaveButton(
-						modifier = Modifier.padding(bottom = 20.dp),
-						onClick = onSaveClick
+						onClick = onSaveClick,
+						modifier = Modifier.padding(bottom = 20.dp)
 					)
 				}
 			}
@@ -123,6 +141,19 @@ fun ContentForSelectedFeeling(
 		onValueChange = onContentChanged,
 		enabled = enabled
 	)
+}
+
+@Composable
+fun ImageAttachButton(
+	modifier: Modifier = Modifier,
+	onClick: () -> Unit = {}
+) {
+	Button(
+		modifier = modifier,
+		onClick = onClick
+	) {
+		Text(text = "이미지 추가")
+	}
 }
 
 @Composable

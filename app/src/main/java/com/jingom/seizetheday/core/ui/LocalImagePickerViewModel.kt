@@ -12,6 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,9 +20,8 @@ import javax.inject.Inject
 class LocalImagePickerViewModel @Inject constructor(
 	private val getMediaImages: GetMediaImagesUseCase,
 	private val getMediaImageAlbums: GetMediaImageAlbumsUseCase
-): ViewModel() {
+) : ViewModel() {
 	private val _selectedImageList = MutableStateFlow(SelectedImageList())
-	val selectedImageList: StateFlow<SelectedImageList> = _selectedImageList
 
 	private val _selectedImageAlbum = MutableStateFlow(MediaImageAlbum(LocalMediaImageLoader.ALL_IMAGES_ALBUM_ID))
 	val selectedImageAlbum: StateFlow<MediaImageAlbum> = _selectedImageAlbum
@@ -45,10 +45,8 @@ class LocalImagePickerViewModel @Inject constructor(
 		collectSelectedImageState()
 	}
 
-	fun toggleImageSelectionState(image: MediaImage) {
-		val currentSelectedImageList = selectedImageList.value
-
-		_selectedImageList.value = if (currentSelectedImageList.contains(image)) {
+	fun toggleImageSelectionState(image: MediaImage) = _selectedImageList.update { currentSelectedImageList ->
+		if (currentSelectedImageList.contains(image)) {
 			currentSelectedImageList.remove(image)
 		} else {
 			currentSelectedImageList.add(image)
@@ -72,11 +70,15 @@ class LocalImagePickerViewModel @Inject constructor(
 		imageList = images.map(this::toMediaImageUiState)
 	)
 
-	private fun toMediaImageUiState(mediaImage: MediaImage) = MediaImageUiState(
-		mediaImage = mediaImage,
-		isSelected = selectedImageList.value.contains(mediaImage),
-		selectionNumber = selectedImageList.value.indexOf(mediaImage)
-	)
+	private fun toMediaImageUiState(mediaImage: MediaImage): MediaImageUiState {
+		val currentlySelectedImageList = _selectedImageList.value
+
+		return MediaImageUiState(
+			mediaImage = mediaImage,
+			isSelected = currentlySelectedImageList.contains(mediaImage),
+			selectionNumber = currentlySelectedImageList.indexOf(mediaImage)
+		)
+	}
 
 	private fun loadMediaImageAlbums() {
 		imageAlbumListLoadingJob?.cancel()
@@ -97,7 +99,7 @@ class LocalImagePickerViewModel @Inject constructor(
 
 	private fun collectSelectedImageState() {
 		viewModelScope.launch {
-			selectedImageList.collectLatest {
+			_selectedImageList.collectLatest {
 				_imageListUiState.value = createImageListUiState(
 					imageListUiState.value.toMediaImageList()
 				)
