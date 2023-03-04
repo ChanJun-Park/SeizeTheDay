@@ -5,23 +5,24 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.jingom.seizetheday.core.ui.LocalImagePickerActivity
-import com.jingom.seizetheday.core.ui.VerticalScrollableContainer
 import com.jingom.seizetheday.core.ui.SimpleToolBar
+import com.jingom.seizetheday.core.ui.VerticalScrollableContainer
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.presentation.getResourceString
 import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 
 @Composable
 fun WritingThanksContentScreen(
-	state: WritingThanksScreenState,
-	onThanksContentChanged: (String) -> Unit = {},
-	onSaveClick: () -> Unit = {},
+	viewModel: WritingThanksViewModel = hiltViewModel(),
 	onWritingContentCancel: () -> Unit = {}
 ) {
 	val context = LocalContext.current
@@ -30,7 +31,27 @@ fun WritingThanksContentScreen(
 	) { result ->
 
 	}
+	val state by viewModel.writingThanksScreenState.collectAsState()
+	WritingThanksContentScreen(
+		state = state,
+		onThanksContentChanged = viewModel::changeThanksContent,
+		onSaveClick = viewModel::save,
+		onWritingContentCancel = onWritingContentCancel,
+		onImageAttachClick = {
+			val intent = LocalImagePickerActivity.getIntent(context)
+			imagePickerLauncher.launch(intent)
+		}
+	)
+}
 
+@Composable
+fun WritingThanksContentScreen(
+	state: WritingThanksScreenState,
+	onThanksContentChanged: (String) -> Unit = {},
+	onSaveClick: () -> Unit = {},
+	onImageAttachClick: () -> Unit = {},
+	onWritingContentCancel: () -> Unit = {}
+) {
 	Surface(
 		modifier = Modifier.fillMaxSize(),
 		color = MaterialTheme.colors.background
@@ -51,15 +72,12 @@ fun WritingThanksContentScreen(
 			) {
 				ContentLayer(
 					state = state,
+					onThanksContentChanged = onThanksContentChanged,
 					modifier = Modifier,
-					onThanksContentChanged = onThanksContentChanged
 				)
 
 				ImageAttachButton(
-					onClick = {
-						val intent = LocalImagePickerActivity.getIntent(context)
-						imagePickerLauncher.launch(intent)
-					}
+					onClick = onImageAttachClick
 				)
 
 				if (state.canSaveCurrentState()) {
