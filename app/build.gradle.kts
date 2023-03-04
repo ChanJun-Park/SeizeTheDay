@@ -95,6 +95,7 @@ dependencies {
 
     // LifeCycle
     implementation(LifeCycle.runtime)
+    implementation(LifeCycle.runtimeCompose)
 
     // Paging3
     implementation(Paging.paging)

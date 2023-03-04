@@ -16,6 +16,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -25,8 +29,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.jingom.seizetheday.R
+import com.jingom.seizetheday.core.BackPressHandler
 import com.jingom.seizetheday.core.isInspectionMode
 import com.jingom.seizetheday.domain.model.media.MediaImage
 import com.jingom.seizetheday.domain.model.media.MediaImageAlbum
@@ -52,17 +59,55 @@ data class MediaImageAlbumUiState(
 
 @Composable
 fun LocalImagePickerScreen(
+	viewModel: LocalImagePickerViewModel = hiltViewModel(),
+	onBackButtonClick: () -> Unit = {}
+) {
+	val imageListUiState by viewModel.imageListUiState.collectAsStateWithLifecycle()
+	val albumListUiState by viewModel.albumListUiState.collectAsStateWithLifecycle()
+
+	var isAlbumListVisible by remember {
+		mutableStateOf(false)
+	}
+
+	LocalImagePickerScreen(
+		imageListUiState = imageListUiState,
+		albumListUiState = albumListUiState,
+		isAlbumListVisible = isAlbumListVisible,
+		onImageClick = viewModel::toggleImageSelectionState,
+		onAlbumClick = viewModel::changeSelectedAlbum,
+		onBackButtonClick = onBackButtonClick,
+		onAlbumTitleClick = { isAlbumListVisible = !isAlbumListVisible }
+	)
+
+	BackPressHandler(
+		onBackPressed = {
+			if (isAlbumListVisible) {
+				isAlbumListVisible = false
+				return@BackPressHandler
+			}
+
+			onBackButtonClick()
+		}
+	)
+}
+
+@Composable
+fun LocalImagePickerScreen(
 	imageListUiState: ImageListUiState,
 	albumListUiState: AlbumListUiState,
 	modifier: Modifier = Modifier,
 	isAlbumListVisible: Boolean = false,
 	onImageClick: (MediaImage) -> Unit = {},
-	onAlbumClick: (MediaImageAlbum) -> Unit = {}
+	onAlbumClick: (MediaImageAlbum) -> Unit = {},
+	onBackButtonClick: () -> Unit = {},
+	onAlbumTitleClick: () -> Unit = {}
 ) {
 	Surface(modifier = modifier.fillMaxSize()) {
 		Box(modifier = Modifier.fillMaxSize()) {
 
 			ImagePickerToolbar(
+				onBackButtonClick = onBackButtonClick,
+				onAlbumTitleClick = onAlbumTitleClick,
 				modifier = Modifier
 					.fillMaxWidth()
 					.height(60.dp)
