@@ -1,11 +1,9 @@
-package com.jingom.seizetheday.di
+package com.jingom.seizetheday.di.db
 
 import android.content.Context
 import androidx.room.Room
 import com.jingom.seizetheday.data.db.SeizeTheDayDatabase
-import com.jingom.seizetheday.data.ThanksRecordRepositoryImpl
 import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
-import com.jingom.seizetheday.domain.ThanksRecordRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +13,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class DataModule {
+class DBModule {
 
 	@Singleton
 	@Provides
@@ -31,11 +29,5 @@ class DataModule {
 	@Provides
 	fun provideThanksRecordEntityDao(database: SeizeTheDayDatabase): ThanksRecordEntityDao {
 		return database.getThanksRecordEntityDao()
-	}
-
-	@Singleton
-	@Provides
-	fun provideThanksRecordRepository(thanksRecordEntityDao: ThanksRecordEntityDao): ThanksRecordRepository {
-		return ThanksRecordRepositoryImpl(thanksRecordEntityDao)
 	}
 }
