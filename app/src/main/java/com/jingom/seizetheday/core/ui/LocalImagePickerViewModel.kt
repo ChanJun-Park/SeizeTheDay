@@ -32,9 +32,6 @@ class LocalImagePickerViewModel @Inject constructor(
 	private val _albumListUiState = MutableStateFlow(AlbumListUiState())
 	val albumListUiState: StateFlow<AlbumListUiState> = _albumListUiState
 
-	private val _isAlbumListVisible = MutableStateFlow(false)
-	val isAlbumListVisible: StateFlow<Boolean> = _isAlbumListVisible
-
 	private var imageListLoadingJob: Job? = null
 	private var imageAlbumListLoadingJob: Job? = null
 
