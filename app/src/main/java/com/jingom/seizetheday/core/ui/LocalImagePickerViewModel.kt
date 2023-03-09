@@ -9,10 +9,7 @@ import com.jingom.seizetheday.domain.usecase.GetMediaImageAlbumsUseCase
 import com.jingom.seizetheday.domain.usecase.GetMediaImagesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,15 +19,16 @@ class LocalImagePickerViewModel @Inject constructor(
 	private val getMediaImageAlbums: GetMediaImageAlbumsUseCase
 ) : ViewModel() {
 	private val _selectedImageList = MutableStateFlow(SelectedImageList())
+	val selectedImageList = _selectedImageList.asStateFlow()
 
 	private val _selectedImageAlbum = MutableStateFlow(MediaImageAlbum(LocalMediaImageLoader.ALL_IMAGES_ALBUM_ID))
-	val selectedImageAlbum: StateFlow<MediaImageAlbum> = _selectedImageAlbum
+	val selectedImageAlbum = _selectedImageAlbum.asStateFlow()
 
 	private val _imageListUiState = MutableStateFlow(ImageListUiState())
-	val imageListUiState: StateFlow<ImageListUiState> = _imageListUiState
+	val imageListUiState = _imageListUiState.asStateFlow()
 
 	private val _albumListUiState = MutableStateFlow(AlbumListUiState())
-	val albumListUiState: StateFlow<AlbumListUiState> = _albumListUiState
+	val albumListUiState = _albumListUiState.asStateFlow()
 
 	private var imageListLoadingJob: Job? = null
 	private var imageAlbumListLoadingJob: Job? = null

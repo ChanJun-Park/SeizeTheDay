@@ -74,9 +74,6 @@ fun WritingThanksScreen(
 		}
 		composable(Route.WRITING_THANKS_CONTENT) {
 			WritingThanksContentScreen(
-				state = state.value,
-				onThanksContentChanged = viewModel::changeThanksContent,
-				onSaveClick = viewModel::save,
 				onWritingContentCancel = navController::popBackStack
 			)
 		}

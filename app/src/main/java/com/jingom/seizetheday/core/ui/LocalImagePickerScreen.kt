@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.rotate
@@ -27,8 +28,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,6 +43,8 @@ import com.jingom.seizetheday.core.isInspectionMode
 import com.jingom.seizetheday.domain.LocalMediaImageLoader
 import com.jingom.seizetheday.domain.model.media.MediaImage
 import com.jingom.seizetheday.domain.model.media.MediaImageAlbum
+import kotlinx.coroutines.NonDisposableHandle
+import kotlinx.coroutines.NonDisposableHandle.parent
 
 data class ImageListUiState(
 	val imageList: List<MediaImageUiState> = emptyList()
@@ -62,7 +68,8 @@ data class MediaImageAlbumUiState(
 @Composable
 fun LocalImagePickerScreen(
 	viewModel: LocalImagePickerViewModel = hiltViewModel(),
-	onBackButtonClick: () -> Unit = {}
+	onBackButtonClick: () -> Unit = {},
+	onAttachButtonClick: () -> Unit = {}
 ) {
 	val imageListUiState by viewModel.imageListUiState.collectAsStateWithLifecycle()
 	val albumListUiState by viewModel.albumListUiState.collectAsStateWithLifecycle()
@@ -83,9 +90,8 @@ fun LocalImagePickerScreen(
 			isAlbumListVisible = !isAlbumListVisible
 		},
 		onBackButtonClick = onBackButtonClick,
-		onAlbumTitleClick = {
-			isAlbumListVisible = !isAlbumListVisible
-		}
+		onAlbumTitleClick = { isAlbumListVisible = !isAlbumListVisible },
+		onAttachButtonClick = onAttachButtonClick
 	)
 
 	BackPressHandler(
@@ -110,35 +116,42 @@ fun LocalImagePickerScreen(
 	onImageClick: (MediaImage) -> Unit = {},
 	onAlbumClick: (MediaImageAlbum) -> Unit = {},
 	onBackButtonClick: () -> Unit = {},
-	onAlbumTitleClick: () -> Unit = {}
+	onAlbumTitleClick: () -> Unit = {},
+	onAttachButtonClick: () -> Unit = {}
 ) {
 	Surface(modifier = modifier.fillMaxSize()) {
 		Box(modifier = Modifier.fillMaxSize()) {
 
+			ImagePickerToolbar(
+				title = selectedImageAlbum.getTitleString(),
+				onBackButtonClick = onBackButtonClick,
+				onAlbumTitleClick = onAlbumTitleClick,
+				onAttachButtonClick = onAttachButtonClick,
+				isAlbumListExpanded = isAlbumListVisible,
+				modifier = Modifier
+					.fillMaxWidth()
+					.height(60.dp)
+					.background(color = MaterialTheme.colors.surface.copy(alpha = 0.1f))
+					.zIndex(3f)
+			)
+
 			ImageList(
 				imageList = imageListUiState.imageList,
 				onImageClick = onImageClick,
-				modifier = Modifier.fillMaxSize()
+				modifier = Modifier
+					.fillMaxSize()
+					.zIndex(1f)
 			)
 
 			if (isAlbumListVisible) {
 				AlbumList(
 					albumList = albumListUiState.albumList,
 					onAlbumClick = onAlbumClick,
-					modifier = Modifier.fillMaxSize()
+					modifier = Modifier
+						.fillMaxSize()
+						.zIndex(2f)
 				)
 			}
-
-			ImagePickerToolbar(
-				title = selectedImageAlbum.getTitleString(),
-				onBackButtonClick = onBackButtonClick,
-				onAlbumTitleClick = onAlbumTitleClick,
-				isAlbumListExpanded = isAlbumListVisible,
-				modifier = Modifier
-					.fillMaxWidth()
-					.height(60.dp)
-					.background(color = MaterialTheme.colors.surface.copy(alpha = 0.1f))
-			)
 		}
 	}
 }
@@ -405,11 +418,12 @@ private fun ImagePickerToolbar(
 	modifier: Modifier = Modifier,
 	onBackButtonClick: () -> Unit = {},
 	onAlbumTitleClick: () -> Unit = {},
+	onAttachButtonClick: () -> Unit = {},
 	isAlbumListExpanded: Boolean = false
 ) {
 	Surface(modifier = modifier) {
 		ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-			val (backButton, titleText, arrowIcon) = createRefs()
+			val (backButton, titleText, arrowIcon, attachButton) = createRefs()
 
 			NavigateBackButton(
 				onClick = onBackButtonClick,
@@ -453,7 +467,33 @@ private fun ImagePickerToolbar(
 						bottom.linkTo(parent.bottom)
 					}
 			)
+
+			AttachButton(
+				modifier = Modifier
+					.padding(end = 18.dp)
+					.clickable { onAttachButtonClick() }
+					.sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+					.constrainAs(attachButton) {
+						end.linkTo(parent.end)
+						top.linkTo(parent.top)
+						bottom.linkTo(parent.bottom)
+					}
+			)
 		}
+	}
+}
+
+@Composable
+private fun AttachButton(
+	modifier: Modifier = Modifier
+) {
+	Box(modifier = modifier) {
+		Text(
+			text = stringResource(R.string.attach),
+			style = MaterialTheme.typography.h6,
+			textAlign = TextAlign.Center,
+			modifier = Modifier.align(Alignment.Center)
+		)
 	}
 }
 
