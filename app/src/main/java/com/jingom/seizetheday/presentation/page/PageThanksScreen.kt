@@ -34,7 +34,7 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PageThanksScreen(
-	startThanksId: Int? = null,
+	startThanksId: Long? = null,
 	viewModel: PageThanksViewModel = hiltViewModel()
 ) {
 	val pagingState = viewModel.thanksRecordsPagingData.collectAsLazyPagingItems()

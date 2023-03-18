@@ -1,7 +1,7 @@
 package com.jingom.seizetheday.domain.model
 
 data class AttachedImage(
-	val id: Int,
-	val thanksRecordId: Int,
+	val id: Long,
+	val thanksRecordId: Long,
 	val imageUri: String
 )

@@ -2,6 +2,8 @@ package com.jingom.seizetheday.core.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jingom.seizetheday.R
+import com.jingom.seizetheday.core.UIText
 import com.jingom.seizetheday.domain.LocalMediaImageLoader
 import com.jingom.seizetheday.domain.model.media.MediaImage
 import com.jingom.seizetheday.domain.model.media.MediaImageAlbum
@@ -30,8 +32,13 @@ class LocalImagePickerViewModel @Inject constructor(
 	private val _albumListUiState = MutableStateFlow(AlbumListUiState())
 	val albumListUiState = _albumListUiState.asStateFlow()
 
+	private val _errorMessages = MutableStateFlow<List<UIText>>(emptyList())
+	val errorMessages = _errorMessages.asStateFlow()
+
 	private var imageListLoadingJob: Job? = null
 	private var imageAlbumListLoadingJob: Job? = null
+
+	private var maxImagePickCount: Int? = null
 
 	init {
 		loadMediaImages()
@@ -40,17 +47,29 @@ class LocalImagePickerViewModel @Inject constructor(
 		collectSelectedImageState()
 	}
 
-	fun toggleImageSelectionState(image: MediaImage) = _selectedImageList.update { currentSelectedImageList ->
+	fun toggleImageSelectionState(image: MediaImage) {
+		val currentSelectedImageList = selectedImageList.value
 		if (currentSelectedImageList.contains(image)) {
-			currentSelectedImageList.remove(image)
+			removeImage(currentSelectedImageList, image)
 		} else {
-			currentSelectedImageList.add(image)
+			addImage(currentSelectedImageList, image)
 		}
 	}
 
 	fun changeSelectedAlbum(album: MediaImageAlbum) {
 		_selectedImageAlbum.value = album
 		loadMediaImages(album.albumId)
+	}
+
+	fun setImagePickOptions(imagePickOptions: LocalImagePickerActivity.ImagePickOptions?) {
+		imagePickOptions ?: return
+
+		maxImagePickCount = imagePickOptions.maxPickCount
+	}
+
+	fun shownErrorMessage(errorMessage: UIText) {
+		val newErrorMessages = errorMessages.value - errorMessage
+		_errorMessages.update { newErrorMessages }
 	}
 
 	private fun loadMediaImages(albumId: Int = LocalMediaImageLoader.ALL_IMAGES_ALBUM_ID) {
@@ -104,5 +123,19 @@ class LocalImagePickerViewModel @Inject constructor(
 
 	private fun ImageListUiState.toMediaImageList(): List<MediaImage> {
 		return imageList.map { it.mediaImage }
+	}
+
+	private fun removeImage(currentSelectedImageList: SelectedImageList, image: MediaImage) {
+		_selectedImageList.value = currentSelectedImageList.remove(image)
+	}
+
+	private fun addImage(currentSelectedImageList: SelectedImageList, image: MediaImage) {
+		val maxImagePickCount = maxImagePickCount
+		if (maxImagePickCount == null || currentSelectedImageList.size < maxImagePickCount) {
+			_selectedImageList.value = currentSelectedImageList.add(image)
+		} else {
+			val newErrorMessages = errorMessages.value + UIText.StringResource(R.string.max_image_count_error, maxImagePickCount)
+			_errorMessages.update { newErrorMessages }
+		}
 	}
 }

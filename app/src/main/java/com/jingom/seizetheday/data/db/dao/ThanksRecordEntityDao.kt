@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface ThanksRecordEntityDao {
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
-	suspend fun insert(thanksRecord: ThanksRecordEntity)
+	suspend fun insert(thanksRecord: ThanksRecordEntity): Long
 
 	@Query("""
 		SELECT *

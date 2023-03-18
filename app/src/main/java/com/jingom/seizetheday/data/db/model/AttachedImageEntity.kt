@@ -12,9 +12,9 @@ private const val IMAGE_URL_COLUMN_NAME = "image_uri"
 data class AttachedImageEntity(
 	@PrimaryKey(autoGenerate = true)
 	@ColumnInfo(name = "id")
-	val id: Int,
+	val id: Long,
 	@ColumnInfo(name = THANKS_RECORD_ID_COLUMN_NAME)
-	val thanksRecordId: Int,
+	val thanksRecordId: Long,
 	@ColumnInfo(name = IMAGE_URL_COLUMN_NAME)
 	val imageUri: String
 ) {

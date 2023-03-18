@@ -3,43 +3,53 @@ package com.jingom.seizetheday.presentation.write
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
 import com.jingom.seizetheday.core.ui.LocalImagePickerActivity
 import com.jingom.seizetheday.core.ui.SimpleToolBar
 import com.jingom.seizetheday.core.ui.VerticalScrollableContainer
+import com.jingom.seizetheday.domain.model.AttachedImage
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.presentation.getResourceString
 import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
+
+private const val TEMP_MAX_IMAGE_PICK_COUNT = 10
 
 @Composable
 fun WritingThanksContentScreen(
 	viewModel: WritingThanksViewModel = hiltViewModel(),
 	onWritingContentCancel: () -> Unit = {}
 ) {
-	val context = LocalContext.current
 	val imagePickerLauncher = rememberLauncherForActivityResult(
-		contract = ActivityResultContracts.StartActivityForResult()
-	) { result ->
+		contract = LocalImagePickerActivity.PickLocalImages(),
+		onResult = viewModel::attachSelectedImages
+	)
 
-	}
 	val state by viewModel.writingThanksScreenState.collectAsState()
+	val attachedImages by viewModel.attachedImageListState.collectAsState()
+
 	WritingThanksContentScreen(
 		state = state,
+		attachedImages = attachedImages,
 		onThanksContentChanged = viewModel::changeThanksContent,
 		onSaveClick = viewModel::save,
 		onWritingContentCancel = onWritingContentCancel,
 		onImageAttachClick = {
-			val intent = LocalImagePickerActivity.getIntent(context)
-			imagePickerLauncher.launch(intent)
+			imagePickerLauncher.launch(LocalImagePickerActivity.ImagePickOptions(TEMP_MAX_IMAGE_PICK_COUNT))
 		}
 	)
 }
@@ -47,6 +57,7 @@ fun WritingThanksContentScreen(
 @Composable
 fun WritingThanksContentScreen(
 	state: WritingThanksScreenState,
+	attachedImages: List<AttachedImage> = emptyList(),
 	onThanksContentChanged: (String) -> Unit = {},
 	onSaveClick: () -> Unit = {},
 	onImageAttachClick: () -> Unit = {},
@@ -67,9 +78,20 @@ fun WritingThanksContentScreen(
 			)
 			VerticalScrollableContainer(
 				horizontalAlignment = Alignment.CenterHorizontally,
-				verticalArrangement = Arrangement.SpaceBetween,
 				modifier = Modifier.fillMaxSize()
 			) {
+				WriteThanksContentPromptMessage()
+
+				if (attachedImages.isNotEmpty()) {
+					AttachedImageLayer(
+						imageList = attachedImages,
+						modifier = Modifier
+							.padding(horizontal = 20.dp)
+							.fillMaxWidth()
+							.height(300.dp)
+					)
+				}
+
 				ContentLayer(
 					state = state,
 					onThanksContentChanged = onThanksContentChanged,
@@ -91,6 +113,48 @@ fun WritingThanksContentScreen(
 	}
 }
 
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+private fun AttachedImageLayer(
+	modifier: Modifier = Modifier,
+	imageList: List<AttachedImage> = emptyList()
+) {
+	HorizontalPager(
+		count = imageList.size,
+		modifier = modifier.clip(RoundedCornerShape(5.dp))
+	) { pageIndex ->
+		val attachedImage = imageList.getImageForIndex(pageIndex) ?: return@HorizontalPager
+
+		AttachedImageComponent(
+			attachedImage = attachedImage,
+			modifier = Modifier
+				.fillMaxSize()
+				.clip(RoundedCornerShape(5.dp))
+		)
+	}
+}
+
+@Composable
+private fun AttachedImageComponent(
+	attachedImage: AttachedImage,
+	modifier: Modifier
+) {
+	AsyncImage(
+		model = attachedImage.imageUri,
+		contentDescription = null,
+		contentScale = ContentScale.Crop,
+		modifier = modifier
+	)
+}
+
+private fun List<AttachedImage>.getImageForIndex(index: Int): AttachedImage? {
+	return if (index in indices) {
+		get(index)
+	} else {
+		null
+	}
+}
+
 @Composable
 private fun ContentLayer(
 	state: WritingThanksScreenState,
@@ -106,10 +170,6 @@ private fun ContentLayer(
 		if (state.feeling != null) {
 			SelectedFeeling(feeling = state.feeling)
 		}
-
-		WriteThanksContentPromptMessage()
-
-		Spacer(modifier = Modifier.height(20.dp))
 
 		ContentForSelectedFeeling(
 			content = state.content,

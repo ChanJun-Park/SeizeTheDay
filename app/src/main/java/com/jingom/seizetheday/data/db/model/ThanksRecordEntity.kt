@@ -11,7 +11,7 @@ import java.time.LocalDate
 data class ThanksRecordEntity(
 	@PrimaryKey(autoGenerate = true)
 	@ColumnInfo(name = "id")
-	val id: Int,
+	val id: Long,
 	@ColumnInfo(name = "feeling")
 	val feeling: Feeling,
 	@ColumnInfo(name = "thanks_content")

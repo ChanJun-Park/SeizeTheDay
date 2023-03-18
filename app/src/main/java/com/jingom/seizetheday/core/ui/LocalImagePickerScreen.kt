@@ -1,6 +1,8 @@
 package com.jingom.seizetheday.core.ui
 
+import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
@@ -15,11 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -39,12 +37,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.core.BackPressHandler
+import com.jingom.seizetheday.core.UIText
 import com.jingom.seizetheday.core.isInspectionMode
 import com.jingom.seizetheday.domain.LocalMediaImageLoader
 import com.jingom.seizetheday.domain.model.media.MediaImage
 import com.jingom.seizetheday.domain.model.media.MediaImageAlbum
-import kotlinx.coroutines.NonDisposableHandle
-import kotlinx.coroutines.NonDisposableHandle.parent
 
 data class ImageListUiState(
 	val imageList: List<MediaImageUiState> = emptyList()
@@ -74,6 +71,8 @@ fun LocalImagePickerScreen(
 	val imageListUiState by viewModel.imageListUiState.collectAsStateWithLifecycle()
 	val albumListUiState by viewModel.albumListUiState.collectAsStateWithLifecycle()
 	val selectedImageAlbum by viewModel.selectedImageAlbum.collectAsStateWithLifecycle()
+	val errorMessages by viewModel.errorMessages.collectAsStateWithLifecycle()
+	val context = LocalContext.current
 
 	var isAlbumListVisible by remember {
 		mutableStateOf(false)
@@ -104,6 +103,26 @@ fun LocalImagePickerScreen(
 			onBackButtonClick()
 		}
 	)
+
+	if (errorMessages.isNotEmpty()) {
+		LaunchedEffect(key1 = errorMessages) {
+			showErrorMessage(errorMessages, context, viewModel)
+		}
+	}
+}
+
+private fun showErrorMessage(
+	errorMessages: List<UIText>,
+	context: Context,
+	viewModel: LocalImagePickerViewModel
+) {
+	if (errorMessages.isEmpty()) {
+		return
+	}
+
+	val errorMessage = errorMessages[0]
+	Toast.makeText(context, errorMessage.asString(context), Toast.LENGTH_SHORT).show()
+	viewModel.shownErrorMessage(errorMessage)
 }
 
 @Composable

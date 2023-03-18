@@ -2,6 +2,7 @@ package com.jingom.seizetheday.di.data
 
 import android.content.Context
 import com.jingom.seizetheday.data.ThanksRecordRepositoryImpl
+import com.jingom.seizetheday.data.db.dao.AttachedImageEntityDao
 import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
 import com.jingom.seizetheday.data.media.LocalMediaImageCursorLoader
 import com.jingom.seizetheday.domain.LocalMediaImageLoader
@@ -21,8 +22,11 @@ import javax.inject.Singleton
 class DataModule {
 	@Singleton
 	@Provides
-	fun provideThanksRecordRepository(thanksRecordEntityDao: ThanksRecordEntityDao): ThanksRecordRepository {
-		return ThanksRecordRepositoryImpl(thanksRecordEntityDao)
+	fun provideThanksRecordRepository(
+		thanksRecordEntityDao: ThanksRecordEntityDao,
+		attachedImageEntityDao: AttachedImageEntityDao
+	): ThanksRecordRepository {
+		return ThanksRecordRepositoryImpl(thanksRecordEntityDao, attachedImageEntityDao)
 	}
 
 	@Singleton

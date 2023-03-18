@@ -3,6 +3,7 @@ package com.jingom.seizetheday.di.db
 import android.content.Context
 import androidx.room.Room
 import com.jingom.seizetheday.data.db.SeizeTheDayDatabase
+import com.jingom.seizetheday.data.db.dao.AttachedImageEntityDao
 import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
 import dagger.Module
 import dagger.Provides
@@ -29,5 +30,11 @@ class DBModule {
 	@Provides
 	fun provideThanksRecordEntityDao(database: SeizeTheDayDatabase): ThanksRecordEntityDao {
 		return database.getThanksRecordEntityDao()
+	}
+
+	@Singleton
+	@Provides
+	fun provideAttachedImageEntityDao(database: SeizeTheDayDatabase): AttachedImageEntityDao {
+		return database.getAttachedImageEntityDao()
 	}
 }
