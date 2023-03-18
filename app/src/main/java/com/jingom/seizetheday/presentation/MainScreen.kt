@@ -7,7 +7,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.jingom.seizetheday.R
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.presentation.list.ListThanksScreen
 import com.jingom.seizetheday.presentation.page.PageThanksScreen

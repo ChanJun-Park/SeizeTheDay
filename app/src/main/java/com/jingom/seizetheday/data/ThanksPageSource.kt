@@ -7,63 +7,102 @@ import com.jingom.seizetheday.data.db.model.ThanksRecordEntity
 
 class ThanksPageSource(
 	private val thanksRecordEntityDao: ThanksRecordEntityDao,
-	private val startThanksId: Int?
-): PagingSource<Int, ThanksRecordEntity>() {
+	private val startThanksId: Long?,
+	private val pageConfigSize: Int = 15,
+) : PagingSource<Int, ThanksRecordEntity>() {
+
+	private var isInitialized: Boolean = false
+	private var totalRecordCount: Int = 0
+	private var startTargetThanksIdIndex: Int? = null
+	private var totalPageCount: Int = 0
+	private var startPageIndex: Int = 0
+
 	override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ThanksRecordEntity> {
-		return if (startThanksId == null) {
-			loadFromStart(params)
+		if (isInitialized.not()) {
+			init()
+		}
+
+		val currentPage = params.key ?: startPageIndex
+
+		return try {
+			val result = loadCurrentPageData(currentPage)
+
+			val prevKey = if (currentPage == 0) null else currentPage - 1
+			val prevPageSize = if (currentPage == 0) 0 else pageConfigSize
+
+			val nextKey = if (currentPage == totalPageCount - 1) null else currentPage + 1
+			val nextPageSize = if (currentPage == totalPageCount - 1) {
+				0
+			} else {
+				getPageSize(currentPage + 1)
+			}
+
+			LoadResult.Page(
+				data = result,
+				prevKey = prevKey,
+				nextKey = nextKey,
+				itemsBefore = prevPageSize,
+				itemsAfter = nextPageSize
+			)
+		} catch (e: Exception) {
+			LoadResult.Error(e)
+		}
+	}
+
+	private fun init() {
+		initTotalRecordCount()
+		initStartTargetThanksIdRowIndex()
+		initTotalPageCount()
+		initStartPageIndex()
+	}
+
+	private fun initTotalRecordCount() {
+		totalRecordCount = thanksRecordEntityDao.selectThanksRecordCount()
+	}
+
+	private fun initStartTargetThanksIdRowIndex() {
+		val startTargetId = startThanksId ?: return
+		val ids = thanksRecordEntityDao.selectThanksIdsInDateOrder()
+
+		var targetIdIndex: Int? = ids.indexOf(startTargetId)
+		if (targetIdIndex == -1) {
+			targetIdIndex = null
+		}
+
+		startTargetThanksIdIndex = targetIdIndex
+	}
+
+	private fun initTotalPageCount() {
+		var pageCount = totalRecordCount / pageConfigSize
+
+		if (totalRecordCount % pageConfigSize != 0) {
+			pageCount += 1
+		}
+
+		totalPageCount = pageCount
+	}
+
+	private fun initStartPageIndex() {
+		startPageIndex = startTargetThanksIdIndex?.let {
+			(it / pageConfigSize)
+		} ?: 0
+	}
+
+	private suspend fun loadCurrentPageData(
+		currentPage: Int
+	) = thanksRecordEntityDao.getThanksRecordEntities(
+		offset = (currentPage - 1) * pageConfigSize,
+		perPageSize = getPageSize(currentPage)
+	)
+
+	private fun getPageSize(currentPage: Int) = if (currentPage == totalPageCount - 1) {
+		if (totalRecordCount % pageConfigSize == 0) {
+			pageConfigSize
 		} else {
-			loadFromStartThanksId(params)
+			totalRecordCount % pageConfigSize
 		}
-	}
-
-	private suspend fun loadFromStart(params: LoadParams<Int>): LoadResult<Int, ThanksRecordEntity> {
-		val currentPage = params.key ?: 1
-
-		return try {
-			val result = thanksRecordEntityDao.getThanksRecordEntities(
-				offset = (currentPage - 1) * params.loadSize,
-				perPageSize = params.loadSize
-			)
-
-			LoadResult.Page(
-				data = result,
-				prevKey = if (currentPage == 1) null else currentPage - 1,
-				nextKey = if (result.isEmpty()) null else currentPage + 1
-			)
-		} catch (e: Exception) {
-			LoadResult.Error(e)
-		}
-	}
-
-	private suspend fun loadFromStartThanksId(params: LoadParams<Int>): LoadResult<Int, ThanksRecordEntity> {
-		val targetId = startThanksId ?: throw IllegalStateException("loadFromStartThanksId must be called with non null startThanksId")
-
-		val ids = thanksRecordEntityDao.getThanksRecordEntityIds()
-		var targetIdRowIndex = ids.indexOf(targetId)
-		if (targetIdRowIndex == -1) {
-			targetIdRowIndex = 0
-		}
-
-		val startPage = (targetIdRowIndex / params.loadSize) + 1
-		val currentPage = params.key ?: startPage
-
-		val offset = (targetIdRowIndex + (currentPage - startPage) * params.loadSize).coerceAtLeast(0)
-
-		return try {
-			val result = thanksRecordEntityDao.getThanksRecordEntities(
-				offset = offset,
-				perPageSize = if (offset == 0 && targetIdRowIndex != 0) targetIdRowIndex else params.loadSize
-			)
-
-			LoadResult.Page(
-				data = result,
-				prevKey = if ((currentPage == 1 && ((targetIdRowIndex % params.loadSize) == 0)) || currentPage == 0) null else currentPage - 1,
-				nextKey = if (result.isEmpty()) null else currentPage + 1
-			)
-		} catch (e: Exception) {
-			LoadResult.Error(e)
-		}
+	} else {
+		pageConfigSize
 	}
 
 	override fun getRefreshKey(state: PagingState<Int, ThanksRecordEntity>): Int? {

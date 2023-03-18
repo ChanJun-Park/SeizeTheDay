@@ -32,7 +32,7 @@ class ThanksRecordRepositoryImpl constructor(
 		}
 	}
 
-	override fun getThanksRecordsPagingFlow(startThanksId: Int?): Flow<PagingData<ThanksRecord>> {
+	override fun getThanksRecordsPagingFlow(startThanksId: Long?): Flow<PagingData<ThanksRecord>> {
 		return Pager(
 			config = PagingConfig(
 				pageSize = 15,

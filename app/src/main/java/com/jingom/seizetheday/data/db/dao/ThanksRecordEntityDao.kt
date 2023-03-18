@@ -38,4 +38,19 @@ interface ThanksRecordEntityDao {
 		"""
 	)
 	suspend fun getThanksRecordEntityIds(): List<Int>
+
+	@Query(
+		"""
+		SELECT COUNT(*)
+		FROM thanks_record_entity
+		"""
+	)
+	fun selectThanksRecordCount(): Int
+
+	@Query("""
+		SELECT id
+		FROM thanks_record_entity
+		ORDER BY date DESC, id DESC
+	""")
+	fun selectThanksIdsInDateOrder(): List<Long>
 }

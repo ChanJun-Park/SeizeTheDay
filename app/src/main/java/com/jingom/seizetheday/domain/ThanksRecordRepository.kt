@@ -12,5 +12,5 @@ interface ThanksRecordRepository {
 
 	fun getThanksRecordsFlow(): Flow<List<ThanksRecord>>
 
-	fun getThanksRecordsPagingFlow(startThanksId: Int?): Flow<PagingData<ThanksRecord>>
+	fun getThanksRecordsPagingFlow(startThanksId: Long?): Flow<PagingData<ThanksRecord>>
 }

@@ -3,18 +3,23 @@ package com.jingom.seizetheday.presentation.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
+import com.jingom.seizetheday.di.coroutine.IoDispatcher
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.domain.model.ThanksRecordsMap
 import com.jingom.seizetheday.domain.usecase.GetThanksRecordsFlowUseCase
 import com.jingom.seizetheday.domain.usecase.GetThanksRecordsPagingDataFlowUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import javax.inject.Inject
 
 @HiltViewModel
 class ListThanksViewModel @Inject constructor(
-	getThanksRecordsPagingDataFlow: GetThanksRecordsPagingDataFlowUseCase
+	getThanksRecordsPagingDataFlow: GetThanksRecordsPagingDataFlowUseCase,
+	@IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
 	private val _thanksRecordsPagingData = MutableStateFlow<PagingData<ListThanksRecordUiModel>>(PagingData.empty())
@@ -22,10 +27,10 @@ class ListThanksViewModel @Inject constructor(
 
 	init {
 		viewModelScope.launch {
-			getThanksRecordsPagingDataFlow().cachedIn(viewModelScope).collectLatest {
+			getThanksRecordsPagingDataFlow().cachedIn(viewModelScope + ioDispatcher).collectLatest {
 				val listThanksRecordUiModels = mapToUiModels(it)
 				val headerInsertedListThanksRecordUiModels = insertDateSeparators(listThanksRecordUiModels)
-				_thanksRecordsPagingData.value = headerInsertedListThanksRecordUiModels
+				_thanksRecordsPagingData.update { headerInsertedListThanksRecordUiModels }
 			}
 		}
 	}
