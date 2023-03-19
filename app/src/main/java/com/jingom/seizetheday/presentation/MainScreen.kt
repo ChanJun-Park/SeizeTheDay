@@ -29,7 +29,7 @@ fun MainScreen() {
 
 		composable(
 			route = "${Route.PAGE_THANKS_SCREEN}?startThanksId={startThanksId}",
-			arguments = listOf(navArgument("startThanksId") { nullable = true } )
+			arguments = listOf(navArgument("startThanksId") { nullable = true })
 		) { backStackEntry ->
 			val startThanksId = backStackEntry.arguments?.getString("startThanksId")?.toLongOrNull()
 			PageThanksScreen(startThanksId = startThanksId)
