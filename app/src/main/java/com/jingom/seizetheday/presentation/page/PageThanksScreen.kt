@@ -20,11 +20,9 @@ import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.calculateCurrentOffsetForPage
-import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.pager.*
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.presentation.write.SelectedFeeling
@@ -42,7 +40,7 @@ fun PageThanksScreen(
 	var lastViewingThanksId by remember {
 		mutableStateOf(startThanksId)
 	}
-	
+
 	LaunchedEffect(pagerState) {
 		snapshotFlow { pagerState.currentPage }.collect { page ->
 			if (page < 0 || page >= pagingState.itemCount) {
@@ -53,18 +51,11 @@ fun PageThanksScreen(
 		}
 	}
 
-	LaunchedEffect(key1 = pagingState.itemSnapshotList) {
-		if (pagingState.itemCount == 0) {
-			return@LaunchedEffect
-		}
-
-		var scrollTargetPage = pagingState.itemSnapshotList.items.indexOfFirst { it.id == lastViewingThanksId }
-		if (scrollTargetPage == -1) {
-			scrollTargetPage = 0
-		}
-
-		pagerState.scrollToPage(scrollTargetPage)
-	}
+	LaunchPositionAligningEffect(
+		pagingState,
+		lastViewingThanksId,
+		pagerState
+	)
 
 	Surface(
 		modifier = Modifier.fillMaxSize(),
@@ -99,6 +90,27 @@ fun PageThanksScreen(
 				)
 			}
 		}
+	}
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+private fun LaunchPositionAligningEffect(
+	pagingState: LazyPagingItems<ThanksRecord>,
+	lastViewingThanksId: Long?,
+	pagerState: PagerState
+) {
+	LaunchedEffect(key1 = pagingState.itemSnapshotList) {
+		if (pagingState.itemCount == 0) {
+			return@LaunchedEffect
+		}
+
+		var scrollTargetPage = pagingState.itemSnapshotList.items.indexOfFirst { it.id == lastViewingThanksId }
+		if (scrollTargetPage == -1) {
+			scrollTargetPage = 0
+		}
+
+		pagerState.scrollToPage(scrollTargetPage)
 	}
 }
 
