@@ -102,6 +102,7 @@ fun PageThanksScreen(
 	}
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun LaunchTrackingLastViewingThanksIdEffect(
 	pageThanksScreenState: PageThanksScreenState,
