@@ -31,30 +31,39 @@ import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
+fun rememberPageThanksScreenState(
+	startThanksId: Long?,
+	pagerState: PagerState = rememberPagerState(),
+) = remember(startThanksId, pagerState) {
+	PageThanksScreenState(startThanksId, pagerState)
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Stable
+class PageThanksScreenState(
+	startThanksId: Long?,
+	val pagerState: PagerState,
+) {
+	var lastViewingThanksId = startThanksId
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
 fun PageThanksScreen(
 	startThanksId: Long? = null,
+	pageThanksScreenState: PageThanksScreenState = rememberPageThanksScreenState(startThanksId),
 	viewModel: PageThanksViewModel = hiltViewModel()
 ) {
 	val pagingState = viewModel.thanksRecordsPagingData.collectAsLazyPagingItems()
-	val pagerState = rememberPagerState()
-	var lastViewingThanksId by remember {
-		mutableStateOf(startThanksId)
-	}
 
-	LaunchedEffect(pagerState) {
-		snapshotFlow { pagerState.currentPage }.collect { page ->
-			if (page < 0 || page >= pagingState.itemCount) {
-				return@collect
-			}
-
-			lastViewingThanksId = pagingState.peek(page)?.id ?: return@collect
-		}
-	}
+	LaunchTrackingLastViewingThanksIdEffect(
+		pageThanksScreenState,
+		pagingState
+	)
 
 	LaunchPositionAligningEffect(
 		pagingState,
-		lastViewingThanksId,
-		pagerState
+		pageThanksScreenState
 	)
 
 	Surface(
@@ -64,7 +73,7 @@ fun PageThanksScreen(
 		HorizontalPager(
 			count = pagingState.itemCount,
 			contentPadding = PaddingValues(horizontal = 30.dp),
-			state = pagerState
+			state = pageThanksScreenState.pagerState
 		) { index ->
 			pagingState[index]?.let {
 				DayThanksPage(
@@ -93,24 +102,39 @@ fun PageThanksScreen(
 	}
 }
 
+@Composable
+private fun LaunchTrackingLastViewingThanksIdEffect(
+	pageThanksScreenState: PageThanksScreenState,
+	pagingState: LazyPagingItems<ThanksRecord>
+) {
+	LaunchedEffect(pageThanksScreenState) {
+		snapshotFlow { pageThanksScreenState.pagerState.currentPage }.collect { page ->
+			if (page < 0 || page >= pagingState.itemCount) {
+				return@collect
+			}
+
+			pageThanksScreenState.lastViewingThanksId = pagingState.peek(page)?.id ?: return@collect
+		}
+	}
+}
+
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun LaunchPositionAligningEffect(
 	pagingState: LazyPagingItems<ThanksRecord>,
-	lastViewingThanksId: Long?,
-	pagerState: PagerState
+	pageThanksScreenState: PageThanksScreenState
 ) {
 	LaunchedEffect(key1 = pagingState.itemSnapshotList) {
 		if (pagingState.itemCount == 0) {
 			return@LaunchedEffect
 		}
 
-		var scrollTargetPage = pagingState.itemSnapshotList.items.indexOfFirst { it.id == lastViewingThanksId }
+		var scrollTargetPage = pagingState.itemSnapshotList.items.indexOfFirst { it.id == pageThanksScreenState.lastViewingThanksId }
 		if (scrollTargetPage == -1) {
 			scrollTargetPage = 0
 		}
 
-		pagerState.scrollToPage(scrollTargetPage)
+		pageThanksScreenState.pagerState.scrollToPage(scrollTargetPage)
 	}
 }
 
