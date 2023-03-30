@@ -180,6 +180,7 @@ private fun DayThanksPage(
 @Preview
 @Composable
 fun DayThanksPagePreview() {
+
 	val dummyThanksRecord = ThanksRecord(
 		id = 1,
 		feeling = Feeling.Thanks,
