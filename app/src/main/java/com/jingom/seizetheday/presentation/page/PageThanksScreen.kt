@@ -111,7 +111,9 @@ private fun LaunchTrackingLastViewingThanksIdEffect(
 	pagingState: LazyPagingItems<ThanksRecordWithImages>
 ) {
 	LaunchedEffect(pageThanksScreenState) {
-		snapshotFlow { pageThanksScreenState.pagerState.currentPage }.collect { page ->
+		snapshotFlow {
+			pageThanksScreenState.pagerState.currentPage
+		}.collect { page ->
 			if (page < 0 || page >= pagingState.itemCount) {
 				return@collect
 			}
