@@ -26,10 +26,8 @@ class ListThanksViewModel @Inject constructor(
 		viewModelScope.launch {
 			getThanksRecordWitImagesPagingDataFlow()
 				.cachedIn(viewModelScope + ioDispatcher)
-				.collectLatest {
-					val listThanksRecordUiModels = mapToUiModels(it)
-					val headerInsertedListThanksRecordUiModels = insertDateSeparators(listThanksRecordUiModels)
-					_thanksRecordsPagingData.update { headerInsertedListThanksRecordUiModels }
+				.collectLatest { pagingData ->
+					_thanksRecordsPagingData.update { insertDateSeparators(mapToUiModels(pagingData)) }
 				}
 		}
 	}

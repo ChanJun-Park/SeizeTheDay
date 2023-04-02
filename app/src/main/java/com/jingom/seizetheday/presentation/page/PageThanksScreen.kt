@@ -1,10 +1,9 @@
 package com.jingom.seizetheday.presentation.page
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -22,11 +21,12 @@ import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import com.google.accompanist.pager.*
-import com.jingom.seizetheday.domain.model.AttachedImageList
-import com.jingom.seizetheday.domain.model.Feeling
-import com.jingom.seizetheday.domain.model.ThanksRecord
-import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
+import com.jingom.seizetheday.domain.model.*
 import com.jingom.seizetheday.presentation.write.SelectedFeeling
 import java.time.LocalDate
 import kotlin.math.absoluteValue
@@ -170,6 +170,11 @@ private fun DayThanksPage(
 
 			Spacer(modifier = Modifier.height(20.dp))
 
+			AttachedImageLayout(
+				images = thanksRecordWithImages.attachedImageList,
+				modifier = Modifier.fillMaxWidth()
+			)
+
 			Text(
 				text = thanksRecordWithImages.thanksRecord.thanksContent,
 				style = MaterialTheme.typography.body1
@@ -177,6 +182,41 @@ private fun DayThanksPage(
 		}
 
 	}
+}
+
+@Composable
+private fun AttachedImageLayout(
+	images: AttachedImageList,
+	modifier: Modifier = Modifier
+) {
+	LazyRow(
+		horizontalArrangement = Arrangement.spacedBy(5.dp),
+		verticalAlignment = Alignment.CenterVertically,
+		modifier = modifier
+	) {
+		items(images.getImageList()) {
+			AttachedImageUI(
+				imageModel = it.imageUri,
+				modifier = Modifier
+					.clip(RoundedCornerShape(5.dp))
+					.clickable {  }
+					.size(150.dp)
+			)
+		}
+	}
+}
+
+@Composable
+private fun AttachedImageUI(
+	imageModel: String,
+	modifier: Modifier = Modifier
+) {
+	AsyncImage(
+		model = imageModel,
+		contentDescription = null,
+		contentScale = ContentScale.Crop,
+		modifier = modifier
+	)
 }
 
 @Preview

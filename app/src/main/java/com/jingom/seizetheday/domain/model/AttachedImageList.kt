@@ -9,6 +9,8 @@ data class AttachedImageList(
 
 	fun fistImage(): AttachedImage? = imageList.firstOrNull()
 
+	fun getImageList(): List<AttachedImage> = imageList
+
 	companion object {
 		fun emptyAttachedImageList() = AttachedImageList(emptyList())
 	}
