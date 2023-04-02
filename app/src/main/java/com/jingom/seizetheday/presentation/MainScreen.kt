@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.jingom.seizetheday.domain.model.ThanksRecord
+import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 import com.jingom.seizetheday.presentation.list.ListThanksScreen
 import com.jingom.seizetheday.presentation.page.PageThanksScreen
 import com.jingom.seizetheday.presentation.write.WritingThanksScreen
@@ -64,6 +65,6 @@ private fun NavHostController.navigateFromListThanksToWritingThanks() = navigate
 		.build()
 )
 
-private fun NavHostController.navigateFromListThanksToPageThanks(thanksRecord: ThanksRecord) = navigate(
-	route = "${Route.PAGE_THANKS_SCREEN}?startThanksId=${thanksRecord.id}"
+private fun NavHostController.navigateFromListThanksToPageThanks(thanksRecordWithImages: ThanksRecordWithImages) = navigate(
+	route = "${Route.PAGE_THANKS_SCREEN}?startThanksId=${thanksRecordWithImages.thanksRecord.id}"
 )

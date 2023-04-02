@@ -1,18 +1,15 @@
 package com.jingom.seizetheday.presentation.list
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -29,21 +26,22 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import coil.compose.AsyncImage
 import com.jingom.seizetheday.R
+import com.jingom.seizetheday.domain.model.AttachedImageList
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
-import com.jingom.seizetheday.domain.model.ThanksRecordsMap
+import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 import com.jingom.seizetheday.presentation.getResourceString
-import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-sealed interface ListThanksRecordUiModel {
-	data class ThanksRecordItem(val thanksRecord: ThanksRecord): ListThanksRecordUiModel
-	data class DateHeaderItem(val date: LocalDate): ListThanksRecordUiModel
+sealed interface ListThanksRecordUiState {
+	data class ThanksRecordItemWithImages(val thanksRecordWithImages: ThanksRecordWithImages) : ListThanksRecordUiState
+	data class DateHeaderItem(val date: LocalDate) : ListThanksRecordUiState
 }
 
 // stateful
@@ -51,7 +49,7 @@ sealed interface ListThanksRecordUiModel {
 fun ListThanksScreen(
 	viewModel: ListThanksViewModel = hiltViewModel(),
 	onNewThanksClick: () -> Unit = {},
-	onThanksClick: (ThanksRecord) -> Unit = {}
+	onThanksClick: (ThanksRecordWithImages) -> Unit = {}
 ) {
 	val listThanksRecordUiModels = viewModel.thanksRecordsPagingData.collectAsLazyPagingItems()
 
@@ -65,9 +63,9 @@ fun ListThanksScreen(
 // stateless
 @Composable
 fun ListThanksScreen(
-	listThanksRecordUiModels: LazyPagingItems<ListThanksRecordUiModel>,
+	listThanksRecordUiModels: LazyPagingItems<ListThanksRecordUiState>,
 	onNewThanksClick: () -> Unit = {},
-	onThanksClick: (ThanksRecord) -> Unit = {}
+	onThanksClick: (ThanksRecordWithImages) -> Unit = {}
 ) {
 	val scaffoldState = rememberCollapsingToolbarScaffoldState()
 
@@ -144,13 +142,12 @@ fun ListThanksScreen(
 	}
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListThanks(
-	listThanksRecordUiModels: LazyPagingItems<ListThanksRecordUiModel>,
+	listThanksRecordUiModels: LazyPagingItems<ListThanksRecordUiState>,
 	lazyListState: LazyListState,
 	modifier: Modifier = Modifier,
-	onThanksClick: (ThanksRecord) -> Unit = {}
+	onThanksClick: (ThanksRecordWithImages) -> Unit = {}
 ) {
 	LazyColumn(
 		state = lazyListState,
@@ -162,18 +159,19 @@ fun ListThanks(
 			items = listThanksRecordUiModels,
 			key = {
 				when (it) {
-					is ListThanksRecordUiModel.DateHeaderItem -> it.date
-					is ListThanksRecordUiModel.ThanksRecordItem -> it.thanksRecord.id
+					is ListThanksRecordUiState.DateHeaderItem -> it.date
+					is ListThanksRecordUiState.ThanksRecordItemWithImages -> it.thanksRecordWithImages.thanksRecord.id
 				}
 			}
 		) { item ->
 			when (item) {
-				is ListThanksRecordUiModel.DateHeaderItem -> DateHeader(item.date)
-				is ListThanksRecordUiModel.ThanksRecordItem -> ThanksRecordListItem(
-					thanksRecord = item.thanksRecord,
+				is ListThanksRecordUiState.DateHeaderItem -> DateHeader(item.date)
+				is ListThanksRecordUiState.ThanksRecordItemWithImages -> ThanksRecordListItem(
+					thanksRecordWithImages = item.thanksRecordWithImages,
 					onClick = onThanksClick
 				)
-				null -> { /* do nothing */ }
+				null -> { /* do nothing */
+				}
 			}
 		}
 	}
@@ -229,15 +227,15 @@ fun AddThanksButton(
 
 @Composable
 fun ThanksRecordListItem(
-	thanksRecord: ThanksRecord,
+	thanksRecordWithImages: ThanksRecordWithImages,
 	modifier: Modifier = Modifier,
-	onClick: (ThanksRecord) -> Unit = {}
+	onClick: (ThanksRecordWithImages) -> Unit = {}
 ) {
 	Surface(
 		color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
 		shape = MaterialTheme.shapes.medium,
 		modifier = modifier
-			.clickable { onClick(thanksRecord) }
+			.clickable { onClick(thanksRecordWithImages) }
 			.fillMaxWidth()
 			.wrapContentHeight()
 	) {
@@ -247,13 +245,14 @@ fun ThanksRecordListItem(
 				.heightIn(min = 100.dp)
 				.padding(horizontal = 16.dp, vertical = 5.dp)
 		) {
-			// todo 이미지로 대체
-			Image(
-				painter = painterResource(id = R.drawable.main_background_2),
-				contentDescription = null,
-				contentScale = ContentScale.Crop,
-				modifier = Modifier.size(100.dp)
-			)
+			thanksRecordWithImages.attachedImageList.fistImage()?.let { attachedImage ->
+				AsyncImage(
+					model = attachedImage.imageUri,
+					contentDescription = null,
+					contentScale = ContentScale.Crop,
+					modifier = Modifier.size(100.dp)
+				)
+			}
 
 			Spacer(modifier = Modifier.width(10.dp))
 
@@ -263,7 +262,7 @@ fun ThanksRecordListItem(
 					.wrapContentHeight()
 			) {
 				Text(
-					text = thanksRecord.feeling.getResourceString(),
+					text = thanksRecordWithImages.thanksRecord.feeling.getResourceString(),
 					style = MaterialTheme.typography.subtitle1.copy(
 						shadow = Shadow(
 							color = Color.Gray.copy(alpha = 0.3f),
@@ -275,7 +274,7 @@ fun ThanksRecordListItem(
 				)
 
 				Text(
-					text = thanksRecord.date.format(DateTimeFormatter.ISO_DATE),
+					text = thanksRecordWithImages.thanksRecord.date.format(DateTimeFormatter.ISO_DATE),
 					style = MaterialTheme.typography.subtitle2.copy(
 						shadow = Shadow(
 							color = Color.Gray.copy(alpha = 0.3f),
@@ -287,7 +286,7 @@ fun ThanksRecordListItem(
 				)
 
 				Text(
-					text = thanksRecord.thanksContent,
+					text = thanksRecordWithImages.thanksRecord.thanksContent,
 					style = MaterialTheme.typography.body1.copy(
 						shadow = Shadow(
 							color = Color.Gray.copy(alpha = 0.3f),
@@ -307,14 +306,20 @@ fun ThanksRecordListItem(
 @Preview
 @Composable
 fun ThanksRecordListItemPreview() {
+	val dummyThanksRecord = ThanksRecord(
+		id = 1,
+		feeling = Feeling.Thanks,
+		thanksContent = """오늘도 건강할 수 있어서 감사합니다. 좋은 회사에서 일할 수 있어서 감사합니다. 좋은 사람들과 함깨 있어서 감사합니다""",
+		date = LocalDate.now()
+	)
+	val dummyThanksRecordWithImages = ThanksRecordWithImages(
+		thanksRecord = dummyThanksRecord,
+		attachedImageList = AttachedImageList.emptyAttachedImageList()
+	)
+
 	ThanksRecordListItem(
 		modifier = Modifier.fillMaxWidth(),
-		thanksRecord = ThanksRecord(
-			id = 1,
-			feeling = Feeling.Thanks,
-			thanksContent = """오늘도 건강할 수 있어서 감사합니다. 좋은 회사에서 일할 수 있어서 감사합니다. 좋은 사람들과 함깨 있어서 감사합니다""",
-			date = LocalDate.now()
-		)
+		thanksRecordWithImages = dummyThanksRecordWithImages
 	)
 }
 

@@ -3,7 +3,6 @@ package com.jingom.seizetheday.data
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.map
 import com.jingom.seizetheday.data.db.dao.AttachedImageEntityDao
 import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
 import com.jingom.seizetheday.data.db.model.toDBModel
@@ -11,8 +10,8 @@ import com.jingom.seizetheday.data.db.model.toDataModel
 import com.jingom.seizetheday.domain.ThanksRecordRepository
 import com.jingom.seizetheday.domain.model.AttachedImage
 import com.jingom.seizetheday.domain.model.ThanksRecord
+import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class ThanksRecordRepositoryImpl constructor(
 	private val thanksRecordEntityDao: ThanksRecordEntityDao,
@@ -26,24 +25,19 @@ class ThanksRecordRepositoryImpl constructor(
 		attachedImageEntityDao.insert(*attachedImages.map { it.toDataModel() }.toTypedArray())
 	}
 
-	override fun getThanksRecordsFlow(): Flow<List<ThanksRecord>> {
-		return thanksRecordEntityDao.getThanksRecordEntitiesFlow().map { list ->
-			list.map { it.toDomainModel() }
-		}
-	}
-
-	override fun getThanksRecordsPagingFlow(startThanksId: Long?): Flow<PagingData<ThanksRecord>> {
+	override fun getThanksRecordsPagingFlow(startThanksId: Long?): Flow<PagingData<ThanksRecordWithImages>> {
 		return Pager(
 			config = PagingConfig(
 				pageSize = 15,
 				initialLoadSize = 15
 			),
 			pagingSourceFactory = {
-				ThanksPageSource(
+				ThanksRecordWithImagesPagingSource(
 					thanksRecordEntityDao = thanksRecordEntityDao,
+					attachedImageEntityDao = attachedImageEntityDao,
 					startThanksId = startThanksId
 				)
 			}
-		).flow.map { pagingData -> pagingData.map { it.toDomainModel() } }
+		).flow
 	}
 }

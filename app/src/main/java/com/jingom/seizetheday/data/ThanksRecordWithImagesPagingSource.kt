@@ -2,14 +2,18 @@ package com.jingom.seizetheday.data
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.jingom.seizetheday.data.db.dao.AttachedImageEntityDao
 import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
-import com.jingom.seizetheday.data.db.model.ThanksRecordEntity
+import com.jingom.seizetheday.domain.model.AttachedImageList
+import com.jingom.seizetheday.domain.model.ThanksRecord
+import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 
-class ThanksPageSource(
+class ThanksRecordWithImagesPagingSource(
 	private val thanksRecordEntityDao: ThanksRecordEntityDao,
+	private val attachedImageEntityDao: AttachedImageEntityDao,
 	private val startThanksId: Long?,
 	private val pageConfigSize: Int = 15,
-) : PagingSource<Int, ThanksRecordEntity>() {
+) : PagingSource<Int, ThanksRecordWithImages>() {
 
 	private var isInitialized: Boolean = false
 	private var totalRecordCount: Int = 0
@@ -17,7 +21,7 @@ class ThanksPageSource(
 	private var totalPageCount: Int = 0
 	private var startPageIndex: Int = 0
 
-	override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ThanksRecordEntity> {
+	override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ThanksRecordWithImages> {
 		if (isInitialized.not()) {
 			init()
 		}
@@ -88,12 +92,30 @@ class ThanksPageSource(
 		} ?: 0
 	}
 
-	private suspend fun loadCurrentPageData(
-		currentPage: Int
-	) = thanksRecordEntityDao.getThanksRecordEntities(
-		offset = (currentPage - 1) * pageConfigSize,
-		perPageSize = getPageSize(currentPage)
-	)
+	private suspend fun loadCurrentPageData(currentPage: Int): List<ThanksRecordWithImages> {
+		val thanksRecords = loadCurrentThanksRecordsPage(currentPage)
+
+		return thanksRecords.map { thanksRecord ->
+			val images = loadAttachedImages(thanksRecord)
+
+			ThanksRecordWithImages(
+				thanksRecord = thanksRecord,
+				attachedImageList = AttachedImageList(images)
+			)
+		}
+	}
+
+	private suspend fun loadCurrentThanksRecordsPage(currentPage: Int) = thanksRecordEntityDao
+		.getThanksRecordEntities(
+			offset = (currentPage - 1) * pageConfigSize,
+			perPageSize = getPageSize(currentPage)
+		).map { it.toDomainModel() }
+
+	private suspend fun loadAttachedImages(thanksRecord: ThanksRecord) = attachedImageEntityDao
+		.selectAllImageWithThanksRecordId(thanksRecord.id)
+		.map { attachedImageEntity ->
+			attachedImageEntity.toDomainModel()
+		}
 
 	private fun getPageSize(currentPage: Int) = if (currentPage == totalPageCount - 1) {
 		if (totalRecordCount % pageConfigSize == 0) {
@@ -105,7 +127,7 @@ class ThanksPageSource(
 		pageConfigSize
 	}
 
-	override fun getRefreshKey(state: PagingState<Int, ThanksRecordEntity>): Int? {
+	override fun getRefreshKey(state: PagingState<Int, ThanksRecordWithImages>): Int? {
 		return state.anchorPosition?.let {
 			state.closestPageToPosition(it)?.prevKey?.plus(1)
 				?: state.closestPageToPosition(it)?.nextKey?.minus(1)

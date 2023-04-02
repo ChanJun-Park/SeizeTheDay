@@ -23,8 +23,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.google.accompanist.pager.*
+import com.jingom.seizetheday.domain.model.AttachedImageList
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
+import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 import com.jingom.seizetheday.presentation.write.SelectedFeeling
 import java.time.LocalDate
 import kotlin.math.absoluteValue
@@ -54,7 +56,7 @@ fun PageThanksScreen(
 	pageThanksScreenState: PageThanksScreenState = rememberPageThanksScreenState(startThanksId),
 	viewModel: PageThanksViewModel = hiltViewModel()
 ) {
-	val pagingState = viewModel.thanksRecordsPagingData.collectAsLazyPagingItems()
+	val pagingState = viewModel.thanksRecordWithImagesPagingData.collectAsLazyPagingItems()
 
 	LaunchTrackingLastViewingThanksIdEffect(
 		pageThanksScreenState,
@@ -77,7 +79,7 @@ fun PageThanksScreen(
 		) { index ->
 			pagingState[index]?.let {
 				DayThanksPage(
-					thanksRecord = it,
+					thanksRecordWithImages = it,
 					modifier = Modifier.graphicsLayer {
 						val pageOffset = calculateCurrentOffsetForPage(index).absoluteValue
 
@@ -106,7 +108,7 @@ fun PageThanksScreen(
 @Composable
 private fun LaunchTrackingLastViewingThanksIdEffect(
 	pageThanksScreenState: PageThanksScreenState,
-	pagingState: LazyPagingItems<ThanksRecord>
+	pagingState: LazyPagingItems<ThanksRecordWithImages>
 ) {
 	LaunchedEffect(pageThanksScreenState) {
 		snapshotFlow { pageThanksScreenState.pagerState.currentPage }.collect { page ->
@@ -114,7 +116,7 @@ private fun LaunchTrackingLastViewingThanksIdEffect(
 				return@collect
 			}
 
-			pageThanksScreenState.lastViewingThanksId = pagingState.peek(page)?.id ?: return@collect
+			pageThanksScreenState.lastViewingThanksId = pagingState.peek(page)?.thanksRecord?.id ?: return@collect
 		}
 	}
 }
@@ -122,7 +124,7 @@ private fun LaunchTrackingLastViewingThanksIdEffect(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun LaunchPositionAligningEffect(
-	pagingState: LazyPagingItems<ThanksRecord>,
+	pagingState: LazyPagingItems<ThanksRecordWithImages>,
 	pageThanksScreenState: PageThanksScreenState
 ) {
 	LaunchedEffect(key1 = pagingState.itemSnapshotList) {
@@ -130,7 +132,7 @@ private fun LaunchPositionAligningEffect(
 			return@LaunchedEffect
 		}
 
-		var scrollTargetPage = pagingState.itemSnapshotList.items.indexOfFirst { it.id == pageThanksScreenState.lastViewingThanksId }
+		var scrollTargetPage = pagingState.itemSnapshotList.items.indexOfFirst { it.thanksRecord.id == pageThanksScreenState.lastViewingThanksId }
 		if (scrollTargetPage == -1) {
 			scrollTargetPage = 0
 		}
@@ -141,7 +143,7 @@ private fun LaunchPositionAligningEffect(
 
 @Composable
 private fun DayThanksPage(
-	thanksRecord: ThanksRecord,
+	thanksRecordWithImages: ThanksRecordWithImages,
 	modifier: Modifier = Modifier
 ) {
 	Surface(
@@ -158,18 +160,18 @@ private fun DayThanksPage(
 				.fillMaxSize()
 		) {
 			Text(
-				text = thanksRecord.date.toString(),
+				text = thanksRecordWithImages.thanksRecord.date.toString(),
 				style = MaterialTheme.typography.h6
 			)
 
 			CircleDashHorizontalDivider()
 
-			SelectedFeeling(thanksRecord.feeling)
+			SelectedFeeling(thanksRecordWithImages.thanksRecord.feeling)
 
 			Spacer(modifier = Modifier.height(20.dp))
 
 			Text(
-				text = thanksRecord.thanksContent,
+				text = thanksRecordWithImages.thanksRecord.thanksContent,
 				style = MaterialTheme.typography.body1
 			)
 		}
@@ -187,8 +189,12 @@ fun DayThanksPagePreview() {
 		thanksContent = LoremIpsum(200).values.joinToString(separator = " "),
 		date = LocalDate.of(2023, 1, 28)
 	)
+	val dummyThanksRecordWithImages = ThanksRecordWithImages(
+		thanksRecord = dummyThanksRecord,
+		attachedImageList = AttachedImageList.emptyAttachedImageList()
+	)
 
-	DayThanksPage(dummyThanksRecord)
+	DayThanksPage(dummyThanksRecordWithImages)
 }
 
 @Composable
