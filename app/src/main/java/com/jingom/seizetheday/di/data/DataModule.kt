@@ -1,13 +1,15 @@
 package com.jingom.seizetheday.di.data
 
 import android.content.Context
+import com.jingom.seizetheday.data.AttachedImageRepositoryImpl
 import com.jingom.seizetheday.data.ThanksRecordRepositoryImpl
 import com.jingom.seizetheday.data.db.dao.AttachedImageEntityDao
 import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
 import com.jingom.seizetheday.data.media.LocalMediaImageCursorLoader
-import com.jingom.seizetheday.domain.LocalMediaImageLoader
 import com.jingom.seizetheday.data.media.LocalMediaImageLoaderImpl
 import com.jingom.seizetheday.di.coroutine.IoDispatcher
+import com.jingom.seizetheday.domain.AttachedImageRepository
+import com.jingom.seizetheday.domain.LocalMediaImageLoader
 import com.jingom.seizetheday.domain.ThanksRecordRepository
 import dagger.Module
 import dagger.Provides
@@ -23,10 +25,17 @@ class DataModule {
 	@Singleton
 	@Provides
 	fun provideThanksRecordRepository(
-		thanksRecordEntityDao: ThanksRecordEntityDao,
-		attachedImageEntityDao: AttachedImageEntityDao
+		thanksRecordEntityDao: ThanksRecordEntityDao
 	): ThanksRecordRepository {
-		return ThanksRecordRepositoryImpl(thanksRecordEntityDao, attachedImageEntityDao)
+		return ThanksRecordRepositoryImpl(thanksRecordEntityDao)
+	}
+
+	@Singleton
+	@Provides
+	fun provideAttachedImageRepository(
+		attachedImageEntityDao: AttachedImageEntityDao
+	): AttachedImageRepository {
+		return AttachedImageRepositoryImpl(attachedImageEntityDao)
 	}
 
 	@Singleton
