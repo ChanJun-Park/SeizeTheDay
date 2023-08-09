@@ -5,9 +5,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.jingom.seizetheday.domain.model.AttachedImage
 
-private const val THANKS_RECORD_ID_COLUMN_NAME = "thanks_record_id"
-private const val IMAGE_URL_COLUMN_NAME = "image_uri"
-
 @Entity(tableName = "attached_image_entity")
 data class AttachedImageEntity(
 	@PrimaryKey(autoGenerate = true)
@@ -19,6 +16,11 @@ data class AttachedImageEntity(
 	val imageUri: String
 ) {
 	fun toDomainModel(): AttachedImage = AttachedImage(id, thanksRecordId, imageUri)
+
+	companion object {
+		const val THANKS_RECORD_ID_COLUMN_NAME = "thanks_record_id"
+		const val IMAGE_URL_COLUMN_NAME = "image_uri"
+	}
 }
 
 fun AttachedImage.toDataModel(): AttachedImageEntity = AttachedImageEntity(id, thanksRecordId, imageUri)

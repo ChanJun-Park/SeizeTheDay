@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.jingom.seizetheday.data.db.model.ThanksRecordEntity
+import com.jingom.seizetheday.data.db.model.ThanksRecordWithAttachedImagesEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -19,6 +21,15 @@ interface ThanksRecordEntityDao {
 		ORDER BY date DESC, id DESC
 	""")
 	fun getThanksRecordEntitiesFlow(): Flow<List<ThanksRecordEntity>>
+
+	@Transaction
+	@Query("""
+		SELECT *
+		FROM thanks_record_entity
+		ORDER BY date DESC, id DESC
+		LIMIT :perPageSize OFFSET :offset
+	""")
+	suspend fun getThanksRecordWithAttachedImageEntities(offset: Int, perPageSize: Int): List<ThanksRecordWithAttachedImagesEntity>
 
 	@Query(
 		"""

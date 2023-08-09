@@ -2,15 +2,12 @@ package com.jingom.seizetheday.data
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.jingom.seizetheday.data.db.dao.AttachedImageEntityDao
 import com.jingom.seizetheday.data.db.dao.ThanksRecordEntityDao
-import com.jingom.seizetheday.domain.model.AttachedImageList
-import com.jingom.seizetheday.domain.model.ThanksRecord
+import com.jingom.seizetheday.data.db.model.toDomainModel
 import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 
 class ThanksRecordWithImagesPagingSource(
 	private val thanksRecordEntityDao: ThanksRecordEntityDao,
-	private val attachedImageEntityDao: AttachedImageEntityDao,
 	private val startThanksId: Long?,
 	private val pageConfigSize: Int = 15,
 ) : PagingSource<Int, ThanksRecordWithImages>() {
@@ -93,29 +90,14 @@ class ThanksRecordWithImagesPagingSource(
 	}
 
 	private suspend fun loadCurrentPageData(currentPage: Int): List<ThanksRecordWithImages> {
-		val thanksRecords = loadCurrentThanksRecordsPage(currentPage)
-
-		return thanksRecords.map { thanksRecord ->
-			val images = loadAttachedImages(thanksRecord)
-
-			ThanksRecordWithImages(
-				thanksRecord = thanksRecord,
-				attachedImageList = AttachedImageList(images)
-			)
-		}
+		return loadCurrentThanksRecordWithAttachedImagesPage(currentPage)
 	}
 
-	private suspend fun loadCurrentThanksRecordsPage(currentPage: Int) = thanksRecordEntityDao
-		.getThanksRecordEntities(
+	private suspend fun loadCurrentThanksRecordWithAttachedImagesPage(currentPage: Int) = thanksRecordEntityDao
+		.getThanksRecordWithAttachedImageEntities(
 			offset = (currentPage - 1) * pageConfigSize,
 			perPageSize = getPageSize(currentPage)
 		).map { it.toDomainModel() }
-
-	private suspend fun loadAttachedImages(thanksRecord: ThanksRecord) = attachedImageEntityDao
-		.selectAllImageWithThanksRecordId(thanksRecord.id)
-		.map { attachedImageEntity ->
-			attachedImageEntity.toDomainModel()
-		}
 
 	private fun getPageSize(currentPage: Int) = if (currentPage == totalPageCount - 1) {
 		if (totalRecordCount % pageConfigSize == 0) {

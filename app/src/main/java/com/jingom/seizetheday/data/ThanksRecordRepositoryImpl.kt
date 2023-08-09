@@ -34,7 +34,6 @@ class ThanksRecordRepositoryImpl constructor(
 			pagingSourceFactory = {
 				ThanksRecordWithImagesPagingSource(
 					thanksRecordEntityDao = thanksRecordEntityDao,
-					attachedImageEntityDao = attachedImageEntityDao,
 					startThanksId = startThanksId
 				)
 			}
