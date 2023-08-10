@@ -18,6 +18,13 @@ interface ThanksRecordEntityDao {
 	@Query("""
 		SELECT *
 		FROM thanks_record_entity
+		WHERE id = :id
+	""")
+	suspend fun getThanksRecord(id: Long): ThanksRecordEntity
+
+	@Query("""
+		SELECT *
+		FROM thanks_record_entity
 		ORDER BY date DESC, id DESC
 	""")
 	fun getThanksRecordEntitiesFlow(): Flow<List<ThanksRecordEntity>>
@@ -49,6 +56,15 @@ interface ThanksRecordEntityDao {
 		"""
 	)
 	suspend fun getThanksRecordEntityIds(): List<Int>
+
+	@Query(
+		"""
+		SELECT COUNT(id)
+		FROM thanks_record_entity
+		WHERE date < :thanksRecordDate AND id < :thanksRecordId
+		"""
+	)
+	suspend fun getThanksRecordRowIndex(thanksRecordId: Long, thanksRecordDate: String): Int
 
 	@Query(
 		"""

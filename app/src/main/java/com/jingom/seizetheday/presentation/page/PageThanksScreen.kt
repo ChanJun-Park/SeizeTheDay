@@ -3,27 +3,27 @@ package com.jingom.seizetheday.presentation.page
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.LazyPagingItems
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.*
 import com.jingom.seizetheday.domain.model.*
@@ -33,40 +33,11 @@ import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun rememberPageThanksScreenState(
-	startThanksId: Long?,
-	pagerState: PagerState = rememberPagerState(),
-) = remember(startThanksId, pagerState) {
-	PageThanksScreenState(startThanksId, pagerState)
-}
-
-@OptIn(ExperimentalPagerApi::class)
-@Stable
-class PageThanksScreenState(
-	startThanksId: Long?,
-	val pagerState: PagerState,
-) {
-	var lastViewingThanksId = startThanksId
-}
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-fun PageThanksScreen(
-	startThanksId: Long? = null,
-	pageThanksScreenState: PageThanksScreenState = rememberPageThanksScreenState(startThanksId),
-	viewModel: PageThanksViewModel = hiltViewModel()
-) {
+fun PageThanksScreen(viewModel: PageThanksViewModel = hiltViewModel()) {
 	val pagingState = viewModel.thanksRecordWithImagesPagingData.collectAsLazyPagingItems()
+	val startIndex by viewModel.startIndex.collectAsStateWithLifecycle()
 
-	LaunchTrackingLastViewingThanksIdEffect(
-		pageThanksScreenState,
-		pagingState
-	)
-
-	LaunchPositionAligningEffect(
-		pagingState,
-		pageThanksScreenState
-	)
+	val pagerState = rememberPagerState(startIndex)
 
 	Surface(
 		modifier = Modifier.fillMaxSize(),
@@ -75,7 +46,7 @@ fun PageThanksScreen(
 		HorizontalPager(
 			count = pagingState.itemCount,
 			contentPadding = PaddingValues(horizontal = 30.dp),
-			state = pageThanksScreenState.pagerState
+			state = pagerState
 		) { index ->
 			pagingState[index]?.let {
 				DayThanksPage(
@@ -101,43 +72,6 @@ fun PageThanksScreen(
 				)
 			}
 		}
-	}
-}
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-private fun LaunchTrackingLastViewingThanksIdEffect(
-	pageThanksScreenState: PageThanksScreenState,
-	pagingState: LazyPagingItems<ThanksRecordWithImages>
-) {
-	LaunchedEffect(pageThanksScreenState) {
-		snapshotFlow { pageThanksScreenState.pagerState.currentPage }.collect { page ->
-			if (page < 0 || page >= pagingState.itemCount) {
-				return@collect
-			}
-
-			pageThanksScreenState.lastViewingThanksId = pagingState.peek(page)?.thanksRecord?.id ?: return@collect
-		}
-	}
-}
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-private fun LaunchPositionAligningEffect(
-	pagingState: LazyPagingItems<ThanksRecordWithImages>,
-	pageThanksScreenState: PageThanksScreenState
-) {
-	LaunchedEffect(key1 = pagingState.itemSnapshotList) {
-		if (pagingState.itemCount == 0) {
-			return@LaunchedEffect
-		}
-
-		var scrollTargetPage = pagingState.itemSnapshotList.items.indexOfFirst { it.thanksRecord.id == pageThanksScreenState.lastViewingThanksId }
-		if (scrollTargetPage == -1) {
-			scrollTargetPage = 0
-		}
-
-		pageThanksScreenState.pagerState.scrollToPage(scrollTargetPage)
 	}
 }
 
@@ -199,7 +133,7 @@ private fun AttachedImageLayout(
 				imageModel = it.imageUri,
 				modifier = Modifier
 					.clip(RoundedCornerShape(5.dp))
-					.clickable {  }
+					.clickable { }
 					.size(150.dp)
 			)
 		}

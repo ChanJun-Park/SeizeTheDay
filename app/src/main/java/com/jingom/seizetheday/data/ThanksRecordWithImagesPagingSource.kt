@@ -8,22 +8,19 @@ import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 
 class ThanksRecordWithImagesPagingSource(
 	private val thanksRecordEntityDao: ThanksRecordEntityDao,
-	private val startThanksId: Long?,
 	private val pageConfigSize: Int = 15,
 ) : PagingSource<Int, ThanksRecordWithImages>() {
 
 	private var isInitialized: Boolean = false
 	private var totalRecordCount: Int = 0
-	private var startTargetThanksIdIndex: Int? = null
 	private var totalPageCount: Int = 0
-	private var startPageIndex: Int = 0
 
 	override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ThanksRecordWithImages> {
 		if (isInitialized.not()) {
 			init()
 		}
 
-		val currentPage = params.key ?: startPageIndex
+		val currentPage = params.key ?: 0
 
 		return try {
 			val result = loadCurrentPageData(currentPage)
@@ -32,11 +29,7 @@ class ThanksRecordWithImagesPagingSource(
 			val prevPageSize = if (currentPage == 0) 0 else pageConfigSize
 
 			val nextKey = if (currentPage == totalPageCount - 1) null else currentPage + 1
-			val nextPageSize = if (currentPage == totalPageCount - 1) {
-				0
-			} else {
-				getPageSize(currentPage + 1)
-			}
+			val nextPageSize = if (currentPage == totalPageCount - 1) 0 else pageConfigSize
 
 			LoadResult.Page(
 				data = result,
@@ -52,25 +45,11 @@ class ThanksRecordWithImagesPagingSource(
 
 	private fun init() {
 		initTotalRecordCount()
-		initStartTargetThanksIdRowIndex()
 		initTotalPageCount()
-		initStartPageIndex()
 	}
 
 	private fun initTotalRecordCount() {
 		totalRecordCount = thanksRecordEntityDao.selectThanksRecordCount()
-	}
-
-	private fun initStartTargetThanksIdRowIndex() {
-		val startTargetId = startThanksId ?: return
-		val ids = thanksRecordEntityDao.selectThanksIdsInDateOrder()
-
-		var targetIdIndex: Int? = ids.indexOf(startTargetId)
-		if (targetIdIndex == -1) {
-			targetIdIndex = null
-		}
-
-		startTargetThanksIdIndex = targetIdIndex
 	}
 
 	private fun initTotalPageCount() {
@@ -83,30 +62,11 @@ class ThanksRecordWithImagesPagingSource(
 		totalPageCount = pageCount
 	}
 
-	private fun initStartPageIndex() {
-		startPageIndex = startTargetThanksIdIndex?.let {
-			(it / pageConfigSize)
-		} ?: 0
-	}
-
 	private suspend fun loadCurrentPageData(currentPage: Int): List<ThanksRecordWithImages> {
-		return loadCurrentThanksRecordWithAttachedImagesPage(currentPage)
-	}
-
-	private suspend fun loadCurrentThanksRecordWithAttachedImagesPage(currentPage: Int) = thanksRecordEntityDao
-		.getThanksRecordWithAttachedImageEntities(
-			offset = (currentPage - 1) * pageConfigSize,
-			perPageSize = getPageSize(currentPage)
+		return thanksRecordEntityDao.getThanksRecordWithAttachedImageEntities(
+			offset = (currentPage - 1).coerceAtLeast(0) * pageConfigSize,
+			perPageSize = pageConfigSize
 		).map { it.toDomainModel() }
-
-	private fun getPageSize(currentPage: Int) = if (currentPage == totalPageCount - 1) {
-		if (totalRecordCount % pageConfigSize == 0) {
-			pageConfigSize
-		} else {
-			totalRecordCount % pageConfigSize
-		}
-	} else {
-		pageConfigSize
 	}
 
 	override fun getRefreshKey(state: PagingState<Int, ThanksRecordWithImages>): Int? {
