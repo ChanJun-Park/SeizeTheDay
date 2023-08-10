@@ -56,19 +56,19 @@ android {
         // Flag to enable support for the new language APIs
         isCoreLibraryDesugaringEnabled = true
 
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjvm-default=enable")
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 
     buildFeatures {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = Compose.composeCompilerVersion
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
     packagingOptions {
         resources.excludes.add("META-INF/AL2.0")
@@ -85,89 +85,81 @@ android {
 }
 
 dependencies {
-    coreLibraryDesugaring(Desugar.coreLibraryDesugaring)
+    coreLibraryDesugaring(libs.desugar)
 
     // Kotlin
-    implementation(Kotlin.kotlinStdlib)
+    implementation(libs.kotlin.stdlib)
 
     // AndroidX
-    implementation(AndroidX.coreKtx)
-    implementation(AndroidX.appCompat)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.constraintlayout.compose)
 
     // LifeCycle
-    implementation(LifeCycle.runtime)
-    implementation(LifeCycle.runtimeCompose)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // Paging3
-    implementation(Paging.paging)
-    implementation(Paging.pagingCompose)
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
 
     // Compose
-    implementation(platform(Compose.composeBom))
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.util)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.runtime)
 
-    implementation(Compose.foundation)
-    implementation(Compose.foundationLayout)
-    implementation(Compose.ui)
-    implementation(Compose.uiUtil)
-    implementation(Compose.uiToolingPreview)
-    implementation(Compose.hiltNavigationCompose)
-    implementation(Compose.material)
-    implementation(Compose.runtime)
-    implementation(Compose.navigation)
-    implementation(Compose.viewModelCompose)
-    implementation(Compose.activityCompose)
-    implementation(Compose.constraintLayout)
-
-    implementation(ComposeCollapsingToolbar.coposeCollapsingToolbar)
+    // Jetpack Navigation
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.navigation.compose)
 
     // Accompanist
-    implementation(Accompanist.pager)
+    implementation(libs.accompanist.pager)
 
     // Dagger/Hilt
-    implementation(DaggerHilt.hiltAndroid)
-    kapt(DaggerHilt.hiltCompiler)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
 
     // Coil
-    implementation(Coil.coil)
-    implementation(Coil.coilCompose)
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
 
-    // Material
-    implementation(Google.material)
-
-    // Retrofit
-    implementation(Retrofit.okHttp)
-    implementation(Retrofit.retrofit)
-    implementation(Retrofit.okHttpLoggingInterceptor)
-    implementation(Retrofit.moshiConverter)
 
     // Room
-    kapt(Room.roomCompiler)
-    implementation(Room.roomKtx)
-    implementation(Room.roomRuntime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+
+    // Collapsing Toolbar
+    implementation(libs.toolbar.compose)
 
     // Test
-    testImplementation(Testing.junit4)
-    testImplementation(Testing.junitAndroidExt)
-    testImplementation(Testing.truth)
-    testImplementation(Testing.coroutines)
-    testImplementation(Testing.turbine)
-    testImplementation(Compose.composeUiTest)
-    testImplementation(Testing.mockk)
-    testImplementation(Testing.mockWebServer)
+    testImplementation(libs.junit4)
+    testImplementation(libs.androidx.test.runner)
+    testImplementation(libs.androidx.test.ext.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockk)
+    testImplementation(libs.mockk.android)
 
-    androidTestImplementation(platform(Compose.composeBom))
-    androidTestImplementation(Testing.junit4)
-    androidTestImplementation(Testing.junitAndroidExt)
-    androidTestImplementation(Testing.truth)
-    androidTestImplementation(Testing.coroutines)
-    androidTestImplementation(Testing.turbine)
-    androidTestImplementation(Compose.composeUiTest)
-    androidTestImplementation(Testing.mockkAndroid)
-    androidTestImplementation(Testing.mockWebServer)
-    androidTestImplementation(Testing.hiltTesting)
-    kaptAndroidTest(DaggerHilt.hiltCompiler)
-    androidTestImplementation(Testing.testRunner)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.junit4)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockk)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.android.compiler)
+    androidTestImplementation(libs.androidx.test.runner)
 
-    debugImplementation(Compose.uiTooling)
-    debugImplementation(Compose.testManifest)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
