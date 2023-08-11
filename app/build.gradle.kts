@@ -88,7 +88,7 @@ dependencies {
     coreLibraryDesugaring(libs.desugar)
 
     // Kotlin
-    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.stdlib.jdk8)
 
     // AndroidX
     implementation(libs.androidx.core.ktx)
