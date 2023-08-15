@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.jingom.seizetheday.domain.model.*
@@ -32,12 +34,47 @@ import com.jingom.seizetheday.presentation.write.SelectedFeeling
 import java.time.LocalDate
 import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PageThanksScreen(viewModel: PageThanksViewModel = hiltViewModel()) {
-	val pagingState = viewModel.thanksRecordWithImagesPagingData.collectAsLazyPagingItems()
-	val startIndex by viewModel.startIndex.collectAsStateWithLifecycle()
+fun PageThanksScreen(
+	startThanksId: Long? = null,
+	viewModel: PageThanksViewModel = hiltViewModel()
+) {
+	LaunchedEffect(startThanksId) {
+		viewModel.init(startThanksId)
+	}
 
+	Surface(
+		modifier = Modifier.fillMaxSize(),
+		color = MaterialTheme.colors.surface.copy(alpha = 0.1f)
+	) {
+		val pagingState = viewModel.thanksRecordWithImagesPagingData.collectAsLazyPagingItems()
+		val startIndex by viewModel.startIndex.collectAsStateWithLifecycle()
+
+		if (startIndex == PageThanksViewModel.INVALID_START_INDEX) {
+			LoadingScreen()
+		} else {
+			PageThanksScreen(
+				startIndex = startIndex,
+				pagingState = pagingState
+			)
+		}
+	}
+}
+
+@Composable
+private fun LoadingScreen() {
+	Box(Modifier.fillMaxSize()) {
+		CircularProgressIndicator(
+			modifier = Modifier
+				.size(300.dp)
+				.align(Alignment.Center)
+		)
+	}
+}
+
+@Composable
+@OptIn(ExperimentalFoundationApi::class)
+private fun PageThanksScreen(startIndex: Int, pagingState: LazyPagingItems<ThanksRecordWithImages>) {
 	val pagerState = rememberPagerState(
 		initialPage = startIndex,
 		initialPageOffsetFraction = 0f
@@ -45,43 +82,38 @@ fun PageThanksScreen(viewModel: PageThanksViewModel = hiltViewModel()) {
 		pagingState.itemCount
 	}
 
-	Surface(
-		modifier = Modifier.fillMaxSize(),
-		color = MaterialTheme.colors.surface.copy(alpha = 0.1f)
-	) {
-		HorizontalPager(
-			modifier = Modifier,
-			state = pagerState,
-			pageSpacing = 0.dp,
-			userScrollEnabled = true,
-			reverseLayout = false,
-			contentPadding = PaddingValues(horizontal = 30.dp),
-			beyondBoundsPageCount = 0,
-			key = null
-		) { page ->
-			pagingState[page]?.let {
-				DayThanksPage(
-					thanksRecordWithImages = it,
-					modifier = Modifier.graphicsLayer {
-						val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
+	HorizontalPager(
+		modifier = Modifier,
+		state = pagerState,
+		pageSpacing = 0.dp,
+		userScrollEnabled = true,
+		reverseLayout = false,
+		contentPadding = PaddingValues(horizontal = 30.dp),
+		beyondBoundsPageCount = 0,
+		key = null
+	) { page ->
+		pagingState[page]?.let {
+			DayThanksPage(
+				thanksRecordWithImages = it,
+				modifier = Modifier.graphicsLayer {
+					val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
 
-						lerp(
-							start = 0.85f,
-							stop = 1f,
-							fraction = 1f - pageOffset.coerceIn(0f, 1f)
-						).also { scale ->
-							scaleX = scale
-							scaleY = scale
-						}
-
-						alpha = lerp(
-							start = 0.5f,
-							stop = 1f,
-							fraction = 1f - pageOffset.coerceIn(0f, 1f)
-						)
+					lerp(
+						start = 0.85f,
+						stop = 1f,
+						fraction = 1f - pageOffset.coerceIn(0f, 1f)
+					).also { scale ->
+						scaleX = scale
+						scaleY = scale
 					}
-				)
-			}
+
+					alpha = lerp(
+						start = 0.5f,
+						stop = 1f,
+						fraction = 1f - pageOffset.coerceIn(0f, 1f)
+					)
+				}
+			)
 		}
 	}
 }

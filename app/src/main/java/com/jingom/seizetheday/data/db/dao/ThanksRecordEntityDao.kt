@@ -61,7 +61,7 @@ interface ThanksRecordEntityDao {
 		"""
 		SELECT COUNT(id)
 		FROM thanks_record_entity
-		WHERE date < :thanksRecordDate AND id < :thanksRecordId
+		WHERE date >= :thanksRecordDate AND id > :thanksRecordId
 		"""
 	)
 	suspend fun getThanksRecordRowIndex(thanksRecordId: Long, thanksRecordDate: String): Int

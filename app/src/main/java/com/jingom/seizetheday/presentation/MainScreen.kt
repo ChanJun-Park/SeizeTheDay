@@ -31,7 +31,8 @@ fun MainScreen() {
 			route = "${Route.PAGE_THANKS_SCREEN}?startThanksId={startThanksId}",
 			arguments = listOf(navArgument("startThanksId") { nullable = true })
 		) {
-			PageThanksScreen()
+			val startThanksId = it.arguments?.getString("startThanksId")?.toLongOrNull()
+			PageThanksScreen(startThanksId = startThanksId)
 		}
 
 		composable(Route.WRITING_THANKS_SCREEN) {
