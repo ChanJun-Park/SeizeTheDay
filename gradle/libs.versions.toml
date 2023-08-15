@@ -18,7 +18,7 @@ paingCompose = "1.0.0-alpha17"
 room = "2.4.0"
 
 #compose
-composeBom = "2023.01.00"
+composeBom = "2023.08.00"
 composeCompiler = "1.4.2"
 
 #kotlin
@@ -49,10 +49,6 @@ mockk = "1.10.0"
 turbine = "0.7.0"
 mockWebServer = "4.9.3"
 testRunner = "1.4.0"
-
-#thrid party
-#accompanist
-accompanist = "0.28.0"
 
 #compose collapsing toolbar
 composeCollapsingToolbar = "2.3.5"
@@ -111,7 +107,6 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "daggerHilt" }
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "daggerHilt" }
 
-accompanist-pager = { group = "com.google.accompanist", name = "accompanist-pager", version.ref = "accompanist" }
 toolbar-compose = { group = "me.onebone", name = "toolbar-compose", version.ref = "composeCollapsingToolbar" }
 
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }

@@ -123,9 +123,6 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.navigation.compose)
 
-    // Accompanist
-    implementation(libs.accompanist.pager)
-
     // Dagger/Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)

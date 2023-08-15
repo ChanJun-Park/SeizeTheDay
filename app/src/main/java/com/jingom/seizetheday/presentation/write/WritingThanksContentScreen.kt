@@ -1,8 +1,10 @@
 package com.jingom.seizetheday.presentation.write
 
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -12,13 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
 import com.jingom.seizetheday.core.ui.LocalImagePickerActivity
 import com.jingom.seizetheday.core.ui.SimpleToolBar
 import com.jingom.seizetheday.core.ui.VerticalScrollableContainer
@@ -113,15 +112,21 @@ fun WritingThanksContentScreen(
 	}
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AttachedImageLayer(
 	modifier: Modifier = Modifier,
 	imageList: List<AttachedImage> = emptyList()
 ) {
 	HorizontalPager(
-		count = imageList.size,
-		modifier = modifier.clip(RoundedCornerShape(5.dp))
+		modifier = modifier.clip(RoundedCornerShape(5.dp)),
+		state = rememberPagerState { imageList.size },
+		pageSpacing = 0.dp,
+		userScrollEnabled = true,
+		reverseLayout = false,
+		contentPadding = PaddingValues(0.dp),
+		beyondBoundsPageCount = 0,
+		key = null,
 	) { pageIndex ->
 		val attachedImage = imageList.getImageForIndex(pageIndex) ?: return@HorizontalPager
 

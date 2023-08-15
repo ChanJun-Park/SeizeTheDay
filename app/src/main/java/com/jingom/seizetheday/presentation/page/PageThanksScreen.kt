@@ -4,6 +4,8 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -25,34 +27,43 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
-import com.google.accompanist.pager.*
 import com.jingom.seizetheday.domain.model.*
 import com.jingom.seizetheday.presentation.write.SelectedFeeling
 import java.time.LocalDate
 import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PageThanksScreen(viewModel: PageThanksViewModel = hiltViewModel()) {
 	val pagingState = viewModel.thanksRecordWithImagesPagingData.collectAsLazyPagingItems()
 	val startIndex by viewModel.startIndex.collectAsStateWithLifecycle()
 
-	val pagerState = rememberPagerState(startIndex)
+	val pagerState = rememberPagerState(
+		initialPage = startIndex,
+		initialPageOffsetFraction = 0f
+	) {
+		pagingState.itemCount
+	}
 
 	Surface(
 		modifier = Modifier.fillMaxSize(),
 		color = MaterialTheme.colors.surface.copy(alpha = 0.1f)
 	) {
 		HorizontalPager(
-			count = pagingState.itemCount,
+			modifier = Modifier,
+			state = pagerState,
+			pageSpacing = 0.dp,
+			userScrollEnabled = true,
+			reverseLayout = false,
 			contentPadding = PaddingValues(horizontal = 30.dp),
-			state = pagerState
-		) { index ->
-			pagingState[index]?.let {
+			beyondBoundsPageCount = 0,
+			key = null
+		) { page ->
+			pagingState[page]?.let {
 				DayThanksPage(
 					thanksRecordWithImages = it,
 					modifier = Modifier.graphicsLayer {
-						val pageOffset = calculateCurrentOffsetForPage(index).absoluteValue
+						val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
 
 						lerp(
 							start = 0.85f,

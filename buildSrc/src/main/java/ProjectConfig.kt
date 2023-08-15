@@ -1,8 +1,8 @@
 object ProjectConfig {
     const val appId = "com.jingom.seizetheday"
-    const val compileSdk = 33
+    const val compileSdk = 34
     const val minSdk = 23
-    const val targetSdk = 33
+    const val targetSdk = 34
 
     const val versionMajor = 0
     const val versionMinor = 0
