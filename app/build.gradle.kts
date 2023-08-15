@@ -6,6 +6,7 @@ plugins {
     id("kotlin-parcelize")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
+    alias(libs.plugins.ksp)
 }
 
 kapt {
@@ -132,7 +133,7 @@ dependencies {
 
 
     // Room
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
 

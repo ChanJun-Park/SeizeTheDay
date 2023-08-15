@@ -1,6 +1,7 @@
 [versions]
 #gradle plugin
 androidGradlePlugin = "8.1.0"
+ksp = "1.8.10-1.0.9"
 
 #androidx
 coreKtx = "1.7.0"
@@ -132,3 +133,4 @@ android-application = { id = "com.android.application", version.ref = "androidGr
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 android-test = { id = "com.android.test", version.ref = "androidGradlePlugin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "daggerHilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
