@@ -140,6 +140,9 @@ dependencies {
     // Collapsing Toolbar
     implementation(libs.toolbar.compose)
 
+    // Accompanist
+    implementation(libs.accompanist.permission)
+
     // Test
     testImplementation(libs.junit4)
     testImplementation(libs.androidx.test.runner)
