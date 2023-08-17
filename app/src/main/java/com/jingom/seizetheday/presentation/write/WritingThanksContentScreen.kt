@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +21,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -35,6 +35,7 @@ import com.jingom.seizetheday.domain.model.AttachedImage
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.presentation.getResourceString
 import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
+import kotlinx.coroutines.launch
 
 private const val TEMP_MAX_IMAGE_PICK_COUNT = 10
 
@@ -44,16 +45,23 @@ fun WritingThanksContentScreen(
 	viewModel: WritingThanksViewModel = hiltViewModel(),
 	onWritingContentCancel: () -> Unit = {}
 ) {
+	val scaffoldState = rememberScaffoldState()
+	val coroutineScope = rememberCoroutineScope()
 	val imagePickerLauncher = rememberLauncherForActivityResult(
 		contract = LocalImagePickerActivity.PickLocalImages(),
 		onResult = viewModel::attachSelectedImages
 	)
 
+	val imagePermissionMessage = stringResource(R.string.media_image_permission_rationale)
 	val mediaPermissionState = rememberMultiplePermissionsState(
 		permissions = PermissionRequiredAction.ReadMediaImage.getRequiredPermissions(),
 		onPermissionsResult = { resultMap ->
 			if (resultMap.allPermissionGranted()) {
 				imagePickerLauncher.launch(LocalImagePickerActivity.ImagePickOptions(TEMP_MAX_IMAGE_PICK_COUNT))
+			} else {
+				coroutineScope.launch {
+					scaffoldState.snackbarHostState.showSnackbar(imagePermissionMessage)
+				}
 			}
 		}
 	)
@@ -64,6 +72,7 @@ fun WritingThanksContentScreen(
 
 	WritingThanksContentScreen(
 		state = state,
+		scaffoldState = scaffoldState,
 		attachedImages = attachedImages,
 		onThanksContentChanged = viewModel::changeThanksContent,
 		onSaveClick = viewModel::save,
@@ -120,6 +129,7 @@ private fun ReadMediaImagePermissionDialog(
 @Composable
 fun WritingThanksContentScreen(
 	state: WritingThanksScreenState,
+	scaffoldState: ScaffoldState = rememberScaffoldState(),
 	attachedImages: List<AttachedImage> = emptyList(),
 	onThanksContentChanged: (String) -> Unit = {},
 	onSaveClick: () -> Unit = {},
@@ -130,18 +140,25 @@ fun WritingThanksContentScreen(
 		modifier = Modifier.fillMaxSize(),
 		color = MaterialTheme.colors.background
 	) {
-		Column(modifier = Modifier.fillMaxSize()) {
-			SimpleToolBar(
-				hasNavigationButton = true,
-				title = "감사일기 작성",
-				onNavigateBackClick = onWritingContentCancel,
-				modifier = Modifier
-					.height(60.dp)
-					.fillMaxWidth()
-			)
+		Scaffold(
+			topBar = {
+				SimpleToolBar(
+					hasNavigationButton = true,
+					title = "감사일기 작성",
+					onNavigateBackClick = onWritingContentCancel,
+					modifier = Modifier
+						.height(60.dp)
+						.fillMaxWidth()
+				)
+			},
+			scaffoldState = scaffoldState,
+			modifier = Modifier.fillMaxSize()
+		) {
 			VerticalScrollableContainer(
 				horizontalAlignment = Alignment.CenterHorizontally,
-				modifier = Modifier.fillMaxSize()
+				modifier = Modifier
+					.padding(it)
+					.fillMaxSize()
 			) {
 				WriteThanksContentPromptMessage()
 
