@@ -10,14 +10,24 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.MultiplePermissionsState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.jingom.seizetheday.R
+import com.jingom.seizetheday.core.permission.PermissionRequiredAction
 import com.jingom.seizetheday.core.ui.LocalImagePickerActivity
 import com.jingom.seizetheday.core.ui.SimpleToolBar
 import com.jingom.seizetheday.core.ui.VerticalScrollableContainer
@@ -28,6 +38,7 @@ import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
 
 private const val TEMP_MAX_IMAGE_PICK_COUNT = 10
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun WritingThanksContentScreen(
 	viewModel: WritingThanksViewModel = hiltViewModel(),
@@ -38,8 +49,18 @@ fun WritingThanksContentScreen(
 		onResult = viewModel::attachSelectedImages
 	)
 
+	val mediaPermissionState = rememberMultiplePermissionsState(
+		permissions = PermissionRequiredAction.ReadMediaImage.getRequiredPermissions(),
+		onPermissionsResult = { resultMap ->
+			if (resultMap.allPermissionGranted()) {
+				imagePickerLauncher.launch(LocalImagePickerActivity.ImagePickOptions(TEMP_MAX_IMAGE_PICK_COUNT))
+			}
+		}
+	)
+
 	val state by viewModel.writingThanksScreenState.collectAsState()
 	val attachedImages by viewModel.attachedImageListState.collectAsState()
+	var needToShowPermissionAlert by remember { mutableStateOf(false) }
 
 	WritingThanksContentScreen(
 		state = state,
@@ -48,8 +69,51 @@ fun WritingThanksContentScreen(
 		onSaveClick = viewModel::save,
 		onWritingContentCancel = onWritingContentCancel,
 		onImageAttachClick = {
-			imagePickerLauncher.launch(LocalImagePickerActivity.ImagePickOptions(TEMP_MAX_IMAGE_PICK_COUNT))
+			if (mediaPermissionState.allPermissionsGranted) {
+				imagePickerLauncher.launch(LocalImagePickerActivity.ImagePickOptions(TEMP_MAX_IMAGE_PICK_COUNT))
+			} else {
+				needToShowPermissionAlert = true
+			}
 		}
+	)
+
+	if (needToShowPermissionAlert) {
+		ReadMediaImagePermissionDialog(
+			mediaPermissionState = mediaPermissionState,
+			onDismissRequest = { needToShowPermissionAlert = false }
+		)
+	}
+}
+
+fun Map<String, Boolean>.allPermissionGranted() = this.values.all { it }
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+private fun ReadMediaImagePermissionDialog(
+	mediaPermissionState: MultiplePermissionsState,
+	onDismissRequest: () -> Unit = {}
+) {
+	AlertDialog(
+		text = {
+			val textToShow = if (mediaPermissionState.shouldShowRationale) {
+				stringResource(R.string.media_image_permission_rationale)
+			} else {
+				stringResource(R.string.media_image_permission_description)
+			}
+
+			Text(textToShow)
+		},
+		confirmButton = {
+			Button(
+				onClick = {
+					mediaPermissionState.launchMultiplePermissionRequest()
+					onDismissRequest()
+				}
+			) {
+				Text(stringResource(R.string.request_permission))
+			}
+		},
+		onDismissRequest = onDismissRequest
 	)
 }
 
