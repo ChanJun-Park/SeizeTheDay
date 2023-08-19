@@ -13,4 +13,6 @@
     <string name="request_permission">Request Permission</string>
     <string name="media_image_permission_rationale">You cannot attach photos without media file permission.\nPlease accept the permission in the permission request message or allow the media image permission in the app settings.</string>
     <string name="media_image_permission_description">Media file permission is required to attach a photo.</string>
+
+    <string name="content_description_thumbnail_image">Thumbnail Image for %s record.</string>
 </resources>

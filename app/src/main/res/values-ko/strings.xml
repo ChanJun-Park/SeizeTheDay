@@ -14,4 +14,6 @@
     <string name="request_permission">권한 요청</string>
     <string name="media_image_permission_rationale">미디어 파일 권한이 없으면 사진을 첨부할 수 없습니다.\n권한 요청 메시지에서 권한을 수락하거나, 앱 설정에서 미디어 이미지 권한을 허용해주세요</string>
     <string name="media_image_permission_description">사진을 첨부하기 위해서는 미디어 파일 권한이 필요합니다.</string>
+
+    <string name="content_description_thumbnail_image">%s 기록에 대한 썸네일 이미지</string>
 </resources>

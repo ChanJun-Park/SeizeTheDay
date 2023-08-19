@@ -3,15 +3,39 @@ package com.jingom.seizetheday.presentation.list
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -19,21 +43,24 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import coil.compose.AsyncImage
 import com.jingom.seizetheday.R
+import com.jingom.seizetheday.core.extensions.items
+import com.jingom.seizetheday.core.time.DateTimeFormatters
 import com.jingom.seizetheday.domain.model.AttachedImageList
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 import com.jingom.seizetheday.presentation.getResourceString
 import me.onebone.toolbar.CollapsingToolbarScaffold
+import me.onebone.toolbar.ExperimentalToolbarApi
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import java.time.LocalDate
@@ -61,6 +88,7 @@ fun ListThanksScreen(
 }
 
 // stateless
+@OptIn(ExperimentalToolbarApi::class)
 @Composable
 fun ListThanksScreen(
 	listThanksRecordUiModels: LazyPagingItems<ListThanksRecordUiState>,
@@ -105,11 +133,11 @@ fun ListThanksScreen(
 					)
 				}
 			) {
-				val listThanksState = rememberLazyListState()
+				val lazyGridState = rememberLazyGridState()
 
 				ListThanks(
 					listThanksRecordUiModels = listThanksRecordUiModels,
-					lazyListState = listThanksState,
+					lazyGridState = lazyGridState,
 					onThanksClick = onThanksClick,
 					modifier = Modifier
 						.background(
@@ -145,30 +173,30 @@ fun ListThanksScreen(
 @Composable
 fun ListThanks(
 	listThanksRecordUiModels: LazyPagingItems<ListThanksRecordUiState>,
-	lazyListState: LazyListState,
+	lazyGridState: LazyGridState,
 	modifier: Modifier = Modifier,
+	listThanksViewType: ListThanksViewType = ListThanksViewType.ContentWithBigThumbnail,
 	onThanksClick: (ThanksRecordWithImages) -> Unit = {}
 ) {
-	LazyColumn(
-		state = lazyListState,
-		modifier = modifier,
+	LazyVerticalGrid(
+		state = lazyGridState,
+		columns = listThanksViewType.gridCells(),
 		contentPadding = PaddingValues(top = 10.dp),
-		verticalArrangement = Arrangement.spacedBy(5.dp)
+		verticalArrangement = Arrangement.spacedBy(5.dp),
+		horizontalArrangement = Arrangement.spacedBy(5.dp),
+		modifier = modifier,
 	) {
 		items(
 			items = listThanksRecordUiModels,
-			key = {
-				when (it) {
-					is ListThanksRecordUiState.DateHeaderItem -> it.date
-					is ListThanksRecordUiState.ThanksRecordItemWithImages -> it.thanksRecordWithImages.thanksRecord.id
-				}
-			}
+			span = getItemSpanStrategy(listThanksRecordUiModels),
+			key = getItemKeyStrategy()
 		) { item ->
 			when (item) {
 				is ListThanksRecordUiState.DateHeaderItem -> DateHeader(item.date)
 				is ListThanksRecordUiState.ThanksRecordItemWithImages -> ThanksRecordListItem(
 					thanksRecordWithImages = item.thanksRecordWithImages,
-					onClick = onThanksClick
+					onClick = onThanksClick,
+					listThanksViewType = listThanksViewType
 				)
 				null -> { /* do nothing */
 				}
@@ -177,16 +205,31 @@ fun ListThanks(
 	}
 }
 
+private fun getItemSpanStrategy(
+	listThanksRecordUiModels: LazyPagingItems<ListThanksRecordUiState>
+): LazyGridItemSpanScope.(index: Int) -> GridItemSpan = { index ->
+	when (listThanksRecordUiModels.peek(index)) {
+		is ListThanksRecordUiState.DateHeaderItem -> GridItemSpan(maxLineSpan)
+		else -> GridItemSpan(1)
+	}
+}
+
+private fun getItemKeyStrategy(): (item: ListThanksRecordUiState) -> Any = {
+	when (it) {
+		is ListThanksRecordUiState.DateHeaderItem -> "DateHeaderItem ${it.date}"
+		is ListThanksRecordUiState.ThanksRecordItemWithImages -> "ThanksRecordItem ${it.thanksRecordWithImages.thanksRecord.id}"
+	}
+}
+
+fun ListThanksViewType.gridCells() = when (this) {
+	ListThanksViewType.Thumbnail -> GridCells.Adaptive(100.dp)
+	ListThanksViewType.ContentWithMiniThumbnail,
+	ListThanksViewType.ContentWithBigThumbnail -> GridCells.Fixed(1)
+}
+
 @Composable
-private fun DateHeader(
-	localDate: LocalDate,
-	modifier: Modifier = Modifier
-) {
-	Surface(
-		color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
-		shape = MaterialTheme.shapes.small,
-		modifier = modifier.wrapContentSize()
-	) {
+private fun DateHeader(localDate: LocalDate) {
+	Row(Modifier.fillMaxWidth()) {
 		Text(
 			text = localDate.toString(),
 			style = MaterialTheme.typography.h4.copy(
@@ -196,7 +239,13 @@ private fun DateHeader(
 					blurRadius = 0.1f
 				)
 			),
-			modifier = Modifier.padding(5.dp)
+			modifier = Modifier
+				.background(
+					color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+					shape = MaterialTheme.shapes.small
+				)
+				.wrapContentSize()
+				.padding(5.dp)
 		)
 	}
 }
@@ -227,6 +276,58 @@ fun AddThanksButton(
 
 @Composable
 fun ThanksRecordListItem(
+	thanksRecordWithImages: ThanksRecordWithImages,
+	onClick: (ThanksRecordWithImages) -> Unit = {},
+	listThanksViewType: ListThanksViewType = ListThanksViewType.ContentWithMiniThumbnail
+) {
+	when (listThanksViewType) {
+		ListThanksViewType.Thumbnail -> Thumbnail(
+			thanksRecordWithImages = thanksRecordWithImages,
+			onClick = onClick
+		)
+		ListThanksViewType.ContentWithMiniThumbnail -> ContentWithMiniThumbnail(
+			thanksRecordWithImages = thanksRecordWithImages,
+			onClick = onClick
+		)
+		ListThanksViewType.ContentWithBigThumbnail -> ContentWithBigThumbnail(
+			thanksRecordWithImages = thanksRecordWithImages,
+			onClick = onClick
+		)
+	}
+}
+
+@Composable
+private fun Thumbnail(
+	thanksRecordWithImages: ThanksRecordWithImages,
+	modifier: Modifier = Modifier,
+	onClick: (ThanksRecordWithImages) -> Unit = {}
+) {
+	val thumbnailImage = thanksRecordWithImages.attachedImageList.fistImage()
+	val localizedDateString = thanksRecordWithImages.thanksRecord.date.format(DateTimeFormatters.localizedDate)
+	val imageModifier = Modifier
+		.fillMaxWidth()
+		.aspectRatio(1f)
+		.clickable { onClick(thanksRecordWithImages) }
+
+	if (thumbnailImage != null) {
+		AsyncImage(
+			model = thumbnailImage.imageUri,
+			contentDescription = stringResource(R.string.content_description_thumbnail_image, localizedDateString),
+			contentScale = ContentScale.Crop,
+			modifier = modifier.then(imageModifier)
+		)
+	} else {
+		Image(
+			painter = painterResource(R.drawable.main_background_9),
+			contentDescription = stringResource(R.string.content_description_thumbnail_image, localizedDateString),
+			contentScale = ContentScale.Crop,
+			modifier = modifier.then(imageModifier)
+		)
+	}
+}
+
+@Composable
+private fun ContentWithMiniThumbnail(
 	thanksRecordWithImages: ThanksRecordWithImages,
 	modifier: Modifier = Modifier,
 	onClick: (ThanksRecordWithImages) -> Unit = {}
@@ -303,6 +404,84 @@ fun ThanksRecordListItem(
 	}
 }
 
+@Composable
+private fun ContentWithBigThumbnail(
+	thanksRecordWithImages: ThanksRecordWithImages,
+	modifier: Modifier = Modifier,
+	onClick: (ThanksRecordWithImages) -> Unit = {}
+) {
+	Surface(
+		color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+		shape = MaterialTheme.shapes.medium,
+		modifier = modifier
+			.clickable { onClick(thanksRecordWithImages) }
+			.fillMaxWidth()
+			.wrapContentHeight()
+	) {
+		Column(
+			modifier = Modifier.fillMaxWidth()
+		) {
+			thanksRecordWithImages.attachedImageList.fistImage()?.let { attachedImage ->
+				AsyncImage(
+					model = attachedImage.imageUri,
+					contentDescription = null,
+					contentScale = ContentScale.Crop,
+					modifier = Modifier
+						.fillMaxWidth()
+						.aspectRatio(ratio = 2f)
+						.clip(shape = RoundedCornerShape(3.dp))
+				)
+			}
+
+			Spacer(modifier = Modifier.width(10.dp))
+
+			Column(
+				modifier = Modifier
+					.fillMaxWidth()
+					.wrapContentHeight()
+			) {
+				Text(
+					text = thanksRecordWithImages.thanksRecord.feeling.getResourceString(),
+					style = MaterialTheme.typography.subtitle1.copy(
+						shadow = Shadow(
+							color = Color.Gray.copy(alpha = 0.3f),
+							offset = Offset(x = 2f, y = 4f),
+							blurRadius = 0.1f
+						)
+					),
+					modifier = Modifier.fillMaxWidth()
+				)
+
+				Text(
+					text = thanksRecordWithImages.thanksRecord.date.format(DateTimeFormatter.ISO_DATE),
+					style = MaterialTheme.typography.subtitle2.copy(
+						shadow = Shadow(
+							color = Color.Gray.copy(alpha = 0.3f),
+							offset = Offset(x = 2f, y = 4f),
+							blurRadius = 0.1f
+						)
+					),
+					modifier = Modifier.fillMaxWidth()
+				)
+
+				Text(
+					text = thanksRecordWithImages.thanksRecord.thanksContent,
+					style = MaterialTheme.typography.body1.copy(
+						shadow = Shadow(
+							color = Color.Gray.copy(alpha = 0.3f),
+							offset = Offset(x = 2f, y = 4f),
+							blurRadius = 0.1f
+						)
+					),
+					maxLines = 3,
+					overflow = TextOverflow.Ellipsis,
+					modifier = Modifier.fillMaxWidth()
+				)
+			}
+		}
+	}
+}
+
 @Preview
 @Composable
 fun ThanksRecordListItemPreview() {
@@ -318,7 +497,6 @@ fun ThanksRecordListItemPreview() {
 	)
 
 	ThanksRecordListItem(
-		modifier = Modifier.fillMaxWidth(),
 		thanksRecordWithImages = dummyThanksRecordWithImages
 	)
 }
