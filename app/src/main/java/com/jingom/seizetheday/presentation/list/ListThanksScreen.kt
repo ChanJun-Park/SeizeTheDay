@@ -33,6 +33,10 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -96,6 +100,8 @@ fun ListThanksScreen(
 	onThanksClick: (ThanksRecordWithImages) -> Unit = {}
 ) {
 	val scaffoldState = rememberCollapsingToolbarScaffoldState()
+	val lazyGridState = rememberLazyGridState()
+	var viewTypeState by rememberSaveable { mutableStateOf(ListThanksViewType.ContentWithMiniThumbnail) }
 
 	Surface(
 		modifier = Modifier.fillMaxSize(),
@@ -133,12 +139,20 @@ fun ListThanksScreen(
 					)
 				}
 			) {
-				val lazyGridState = rememberLazyGridState()
-
 				ListThanks(
 					listThanksRecordUiModels = listThanksRecordUiModels,
 					lazyGridState = lazyGridState,
+					listThanksViewType = viewTypeState,
 					onThanksClick = onThanksClick,
+					onClickThumbnailTypeButton = {
+						viewTypeState = ListThanksViewType.Thumbnail
+					},
+					onClickContentWithMiniThumbnailButton = {
+						viewTypeState = ListThanksViewType.ContentWithMiniThumbnail
+					},
+					onClickContentWithBigThumbnailButton = {
+						viewTypeState = ListThanksViewType.ContentWithBigThumbnail
+					},
 					modifier = Modifier
 						.background(
 							brush = Brush.verticalGradient(
@@ -176,7 +190,10 @@ fun ListThanks(
 	lazyGridState: LazyGridState,
 	modifier: Modifier = Modifier,
 	listThanksViewType: ListThanksViewType = ListThanksViewType.ContentWithBigThumbnail,
-	onThanksClick: (ThanksRecordWithImages) -> Unit = {}
+	onThanksClick: (ThanksRecordWithImages) -> Unit = {},
+	onClickThumbnailTypeButton: () -> Unit = {},
+	onClickContentWithMiniThumbnailButton: () -> Unit = {},
+	onClickContentWithBigThumbnailButton: () -> Unit = {}
 ) {
 	LazyVerticalGrid(
 		state = lazyGridState,
@@ -186,6 +203,17 @@ fun ListThanks(
 		horizontalArrangement = Arrangement.spacedBy(5.dp),
 		modifier = modifier,
 	) {
+		item(
+			key = "view type button",
+			span = { GridItemSpan(maxLineSpan) }
+		) {
+			ListThanksViewTypeButtons(
+				onClickThumbnailTypeButton = onClickThumbnailTypeButton,
+				onClickContentWithMiniThumbnailButton = onClickContentWithMiniThumbnailButton,
+				onClickContentWithBigThumbnailButton = onClickContentWithBigThumbnailButton
+			)
+		}
+
 		items(
 			items = listThanksRecordUiModels,
 			span = getItemSpanStrategy(listThanksRecordUiModels),
@@ -198,8 +226,53 @@ fun ListThanks(
 					onClick = onThanksClick,
 					listThanksViewType = listThanksViewType
 				)
-				null -> { /* do nothing */
+				null -> {
+					/* do nothing */
 				}
+			}
+		}
+	}
+}
+
+@Composable
+fun ListThanksViewTypeButtons(
+	onClickThumbnailTypeButton: () -> Unit = {},
+	onClickContentWithMiniThumbnailButton: () -> Unit = {},
+	onClickContentWithBigThumbnailButton: () -> Unit = {}
+) {
+	Row(
+		horizontalArrangement = Arrangement.End,
+		verticalAlignment = Alignment.CenterVertically,
+		modifier = Modifier
+			.padding(vertical = 3.dp)
+			.fillMaxWidth()
+	) {
+		Row {
+			IconButton(onClick = onClickThumbnailTypeButton) {
+				Icon(
+					painter = painterResource(R.drawable.ic_grid),
+					contentDescription = "view in grid form",
+					tint = Color.Black,
+					modifier = Modifier.size(30.dp)
+				)
+			}
+
+			IconButton(onClick = onClickContentWithMiniThumbnailButton) {
+				Icon(
+					painter = painterResource(R.drawable.ic_content_with_mini_thumbnail),
+					contentDescription = "view in content with mini thumbnail form",
+					tint = Color.Black,
+					modifier = Modifier.size(30.dp)
+				)
+			}
+
+			IconButton(onClick = onClickContentWithBigThumbnailButton) {
+				Icon(
+					painter = painterResource(R.drawable.ic_content_wth_big_thumbnail),
+					contentDescription = "view in content with big form",
+					tint = Color.Black,
+					modifier = Modifier.size(30.dp)
+				)
 			}
 		}
 	}
@@ -285,10 +358,12 @@ fun ThanksRecordListItem(
 			thanksRecordWithImages = thanksRecordWithImages,
 			onClick = onClick
 		)
+
 		ListThanksViewType.ContentWithMiniThumbnail -> ContentWithMiniThumbnail(
 			thanksRecordWithImages = thanksRecordWithImages,
 			onClick = onClick
 		)
+
 		ListThanksViewType.ContentWithBigThumbnail -> ContentWithBigThumbnail(
 			thanksRecordWithImages = thanksRecordWithImages,
 			onClick = onClick
