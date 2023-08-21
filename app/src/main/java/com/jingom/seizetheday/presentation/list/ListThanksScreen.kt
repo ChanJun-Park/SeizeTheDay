@@ -393,26 +393,16 @@ private fun Thumbnail(
 ) {
 	val thumbnailImage = thanksRecordWithImages.attachedImageList.fistImage()
 	val localizedDateString = thanksRecordWithImages.thanksRecord.date.format(DateTimeFormatters.localizedDate)
-	val imageModifier = Modifier
-		.fillMaxWidth()
-		.aspectRatio(1f)
-		.clickable { onClick(thanksRecordWithImages) }
 
-	if (thumbnailImage != null) {
-		AsyncImage(
-			model = thumbnailImage.imageUri,
-			contentDescription = stringResource(R.string.content_description_thumbnail_image, localizedDateString),
-			contentScale = ContentScale.Crop,
-			modifier = modifier.then(imageModifier)
-		)
-	} else {
-		Image(
-			painter = painterResource(R.drawable.main_background_9),
-			contentDescription = stringResource(R.string.content_description_thumbnail_image, localizedDateString),
-			contentScale = ContentScale.Crop,
-			modifier = modifier.then(imageModifier)
-		)
-	}
+	ThumbnailImage(
+		model = thumbnailImage?.imageUri,
+		contentDescription = stringResource(R.string.content_description_thumbnail_image, localizedDateString),
+		modifier = modifier
+			.fillMaxWidth()
+			.aspectRatio(1f)
+			.clickable { onClick(thanksRecordWithImages) },
+		imageCount = thanksRecordWithImages.attachedImageList.size
+	)
 }
 
 @Composable
@@ -567,6 +557,57 @@ private fun ContentWithBigThumbnail(
 					modifier = Modifier.fillMaxWidth()
 				)
 			}
+		}
+	}
+}
+
+@Composable
+private fun ThumbnailImage(
+	model: Any?,
+	contentDescription: String,
+	modifier: Modifier = Modifier,
+	imageCount: Int = 1
+) {
+	Box(modifier) {
+		if (model != null) {
+			AsyncImage(
+				model = model,
+				contentDescription = contentDescription,
+				contentScale = ContentScale.Crop,
+				modifier = Modifier.fillMaxSize()
+			)
+		} else {
+			Image(
+				painter = painterResource(R.drawable.main_background_9),
+				contentDescription = contentDescription,
+				contentScale = ContentScale.Crop,
+				modifier = Modifier.fillMaxSize()
+			)
+		}
+
+		if (imageCount != 0) {
+			Text(
+				text = imageCount.toString(),
+				style = MaterialTheme.typography.caption.copy(
+					color = Color.White
+				),
+				modifier = Modifier
+					.padding(
+						top = 5.dp,
+						end = 5.dp
+					)
+					.align(
+						alignment = Alignment.TopEnd
+					)
+					.background(
+						color = Color.Black.copy(alpha = 0.5f),
+						shape = RoundedCornerShape(percent = 50)
+					)
+					.padding(
+						horizontal = 10.dp,
+						vertical = 2.dp
+					)
+			)
 		}
 	}
 }
