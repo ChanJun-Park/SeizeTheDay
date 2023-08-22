@@ -1,10 +1,14 @@
 package com.jingom.seizetheday.presentation.list
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,11 +35,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,12 +53,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
@@ -58,17 +71,16 @@ import coil.compose.AsyncImage
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.core.extensions.items
 import com.jingom.seizetheday.core.time.DateTimeFormatters
+import com.jingom.seizetheday.core.ui.extensions.dpToPx
 import com.jingom.seizetheday.domain.model.AttachedImageList
 import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 import com.jingom.seizetheday.presentation.getResourceString
-import me.onebone.toolbar.CollapsingToolbarScaffold
-import me.onebone.toolbar.ExperimentalToolbarApi
-import me.onebone.toolbar.ScrollStrategy
-import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.math.abs
 
 sealed interface ListThanksRecordUiState {
 	data class ThanksRecordItemWithImages(val thanksRecordWithImages: ThanksRecordWithImages) : ListThanksRecordUiState
@@ -92,14 +104,13 @@ fun ListThanksScreen(
 }
 
 // stateless
-@OptIn(ExperimentalToolbarApi::class)
 @Composable
 fun ListThanksScreen(
 	listThanksRecordUiModels: LazyPagingItems<ListThanksRecordUiState>,
 	onNewThanksClick: () -> Unit = {},
 	onThanksClick: (ThanksRecordWithImages) -> Unit = {}
 ) {
-	val scaffoldState = rememberCollapsingToolbarScaffoldState()
+	val scaffoldState = rememberScaffoldState()
 	val lazyGridState = rememberLazyGridState()
 	var viewTypeState by rememberSaveable { mutableStateOf(ListThanksViewType.ContentWithMiniThumbnail) }
 
@@ -112,32 +123,12 @@ fun ListThanksScreen(
 				painter = painterResource(id = R.drawable.main_background_1),
 				contentScale = ContentScale.Crop,
 				contentDescription = null,
-				modifier = Modifier
-					.fillMaxSize()
-					.graphicsLayer {
-						alpha = scaffoldState.toolbarState.progress
-					}
+				modifier = Modifier.fillMaxSize()
 			)
 
-			CollapsingToolbarScaffold(
+			Scaffold(
 				modifier = Modifier.fillMaxSize(),
-				state = scaffoldState,
-				scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-				enabled = true,
-				toolbar = {
-					Spacer(
-						modifier = Modifier
-							.background(color = Color.Transparent)
-							.fillMaxWidth()
-							.height(0.dp)
-					)
-
-					Spacer(
-						modifier = Modifier
-							.background(color = Color.Transparent)
-							.height(250.dp)
-					)
-				}
+				scaffoldState = scaffoldState
 			) {
 				ListThanks(
 					listThanksRecordUiModels = listThanksRecordUiModels,
@@ -154,18 +145,8 @@ fun ListThanksScreen(
 						viewTypeState = ListThanksViewType.ContentWithBigThumbnail
 					},
 					modifier = Modifier
-						.background(
-							brush = Brush.verticalGradient(
-								listOf(
-									Color.Transparent,
-									MaterialTheme.colors.surface.copy(
-										alpha = scaffoldState.toolbarState.progress
-									)
-								)
-							)
-						)
+						.padding(it)
 						.fillMaxSize()
-						.padding(horizontal = 20.dp)
 				)
 
 				AddThanksButton(
@@ -195,40 +176,150 @@ fun ListThanks(
 	onClickContentWithMiniThumbnailButton: () -> Unit = {},
 	onClickContentWithBigThumbnailButton: () -> Unit = {}
 ) {
-	LazyVerticalGrid(
-		state = lazyGridState,
-		columns = listThanksViewType.gridCells(),
-		contentPadding = PaddingValues(top = 10.dp),
-		verticalArrangement = Arrangement.spacedBy(5.dp),
-		horizontalArrangement = Arrangement.spacedBy(5.dp),
-		modifier = modifier,
-	) {
-		item(
-			key = "view type button",
-			span = { GridItemSpan(maxLineSpan) }
-		) {
-			ListThanksViewTypeButtons(
-				listThanksViewType = listThanksViewType,
-				onClickThumbnailTypeButton = onClickThumbnailTypeButton,
-				onClickContentWithMiniThumbnailButton = onClickContentWithMiniThumbnailButton,
-				onClickContentWithBigThumbnailButton = onClickContentWithBigThumbnailButton
-			)
-		}
+	BoxWithConstraints(modifier = modifier) {
+		val maxHeight = this.maxHeight
+		val decay = rememberSplineBasedDecay<Float>()
+		val coroutineScope = rememberCoroutineScope()
+		val columnOffsetY = remember { Animatable(0f) }
 
-		items(
-			items = listThanksRecordUiModels,
-			span = getItemSpanStrategy(listThanksRecordUiModels),
-			key = getItemKeyStrategy()
-		) { item ->
-			when (item) {
-				is ListThanksRecordUiState.DateHeaderItem -> DateHeader(item.date)
-				is ListThanksRecordUiState.ThanksRecordItemWithImages -> ThanksRecordListItem(
-					thanksRecordWithImages = item.thanksRecordWithImages,
-					onClick = onThanksClick,
-					listThanksViewType = listThanksViewType
+		val spacerHeight = 300.dp
+		val minimumColumnOffsetY = -spacerHeight.dpToPx()
+		val maximumColumnOffsetY = 0f
+
+		columnOffsetY.updateBounds(
+			lowerBound = minimumColumnOffsetY,
+			upperBound = 0f
+		)
+
+		Column(
+			Modifier
+				.fillMaxSize()
+				.offset { IntOffset(x = 0, y = columnOffsetY.value.toInt()) }
+				.nestedScroll(
+					object : NestedScrollConnection {
+						override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+							val delta = available.y
+							return if (delta < 0 && source == NestedScrollSource.Drag) {
+								if (abs(columnOffsetY.value - minimumColumnOffsetY) < 10f) {
+									Offset.Zero
+								} else {
+
+									val verticalDragOffset = columnOffsetY.value + delta
+									val verticalDragOffsetInRange = (columnOffsetY.value + delta).coerceIn(minimumValue = minimumColumnOffsetY, maximumValue = maximumColumnOffsetY)
+
+									coroutineScope.launch {
+										columnOffsetY.snapTo(verticalDragOffsetInRange)
+									}
+
+									val consumed = delta - (verticalDragOffset - verticalDragOffsetInRange)
+									Offset(x = 0f, y = consumed)
+								}
+							} else {
+								Offset.Zero
+							}
+						}
+
+						override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+							val delta = available.y
+							if (delta != 0f) {
+								val verticalDragOffset = columnOffsetY.value + delta
+
+								coroutineScope.launch {
+									columnOffsetY.snapTo(verticalDragOffset)
+								}
+							}
+
+							return Offset(x = 0f, y = delta)
+						}
+
+						override suspend fun onPreFling(available: Velocity): Velocity {
+							val toFling = available.y
+							return if (toFling < 0) {
+								if ((columnOffsetY.value - minimumColumnOffsetY) < 10f) {
+									Velocity.Zero
+								} else {
+									coroutineScope.launch {
+										columnOffsetY.animateDecay(
+											initialVelocity = toFling,
+											animationSpec = decay
+										)
+									}
+									Velocity(x = 0f, y = toFling)
+								}
+							} else {
+								Velocity.Zero
+							}
+						}
+
+						override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+							val toFling = available.y
+							if (toFling != 0f) {
+								coroutineScope.launch {
+									coroutineScope.launch {
+										columnOffsetY.animateDecay(
+											initialVelocity = toFling,
+											animationSpec = decay
+										)
+									}
+								}
+							}
+							return Velocity(x = 0f, y = toFling)
+						}
+					}
 				)
-				null -> {
-					/* do nothing */
+		) {
+			Spacer(
+				modifier = Modifier
+					.background(
+						brush = Brush.verticalGradient(
+							colors = listOf(
+								Color.Transparent,
+								MaterialTheme.colors.surface
+							)
+						)
+					)
+					.height(spacerHeight)
+					.fillMaxWidth()
+			)
+			LazyVerticalGrid(
+				state = lazyGridState,
+				columns = listThanksViewType.gridCells(),
+				contentPadding = PaddingValues(top = 10.dp),
+				verticalArrangement = Arrangement.spacedBy(5.dp),
+				horizontalArrangement = Arrangement.spacedBy(5.dp),
+				modifier = Modifier
+					.fillMaxWidth()
+					.height(maxHeight),
+			) {
+				item(
+					key = "view type button",
+					span = { GridItemSpan(maxLineSpan) }
+				) {
+					ListThanksViewTypeButtons(
+						listThanksViewType = listThanksViewType,
+						onClickThumbnailTypeButton = onClickThumbnailTypeButton,
+						onClickContentWithMiniThumbnailButton = onClickContentWithMiniThumbnailButton,
+						onClickContentWithBigThumbnailButton = onClickContentWithBigThumbnailButton
+					)
+				}
+
+				items(
+					items = listThanksRecordUiModels,
+					span = getItemSpanStrategy(listThanksRecordUiModels),
+					key = getItemKeyStrategy()
+				) { item ->
+					when (item) {
+						is ListThanksRecordUiState.DateHeaderItem -> DateHeader(item.date)
+						is ListThanksRecordUiState.ThanksRecordItemWithImages -> ThanksRecordListItem(
+							thanksRecordWithImages = item.thanksRecordWithImages,
+							onClick = onThanksClick,
+							listThanksViewType = listThanksViewType
+						)
+
+						null -> {
+							/* do nothing */
+						}
+					}
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-package com.jingom.seizetheday.core
+package com.jingom.seizetheday.core.ui.extensions
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode

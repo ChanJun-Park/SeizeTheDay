@@ -38,7 +38,7 @@ import coil.compose.AsyncImage
 import com.jingom.seizetheday.R
 import com.jingom.seizetheday.core.BackPressHandler
 import com.jingom.seizetheday.core.UIText
-import com.jingom.seizetheday.core.isInspectionMode
+import com.jingom.seizetheday.core.ui.extensions.isInspectionMode
 import com.jingom.seizetheday.domain.LocalMediaImageLoader
 import com.jingom.seizetheday.domain.model.media.MediaImage
 import com.jingom.seizetheday.domain.model.media.MediaImageAlbum
