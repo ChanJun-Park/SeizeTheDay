@@ -12,4 +12,6 @@
     <color name="red_a100dark">#FFA35751</color>
 
     <color name="status_bar_color">@color/red_a100</color>
+
+    <color name="sub_info">#7d7f85</color>
 </resources>

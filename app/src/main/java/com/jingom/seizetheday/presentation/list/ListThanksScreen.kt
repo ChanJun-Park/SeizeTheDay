@@ -423,14 +423,16 @@ private fun ContentWithMiniThumbnail(
 			modifier = Modifier
 				.fillMaxWidth()
 				.heightIn(min = 100.dp)
-				.padding(horizontal = 16.dp, vertical = 5.dp)
+				.padding(16.dp)
 		) {
 			thanksRecordWithImages.attachedImageList.fistImage()?.let { attachedImage ->
 				AsyncImage(
 					model = attachedImage.imageUri,
 					contentDescription = null,
 					contentScale = ContentScale.Crop,
-					modifier = Modifier.size(100.dp)
+					modifier = Modifier
+						.size(100.dp)
+						.clip(shape = RoundedCornerShape(size = 5.dp))
 				)
 			}
 
@@ -444,6 +446,7 @@ private fun ContentWithMiniThumbnail(
 				Text(
 					text = thanksRecordWithImages.thanksRecord.feeling.getResourceString(),
 					style = MaterialTheme.typography.subtitle1.copy(
+						color = Color.White,
 						shadow = Shadow(
 							color = Color.Gray.copy(alpha = 0.3f),
 							offset = Offset(x = 2f, y = 4f),
@@ -456,6 +459,7 @@ private fun ContentWithMiniThumbnail(
 				Text(
 					text = thanksRecordWithImages.thanksRecord.date.format(DateTimeFormatter.ISO_DATE),
 					style = MaterialTheme.typography.subtitle2.copy(
+						color = Color.White,
 						shadow = Shadow(
 							color = Color.Gray.copy(alpha = 0.3f),
 							offset = Offset(x = 2f, y = 4f),
@@ -468,6 +472,7 @@ private fun ContentWithMiniThumbnail(
 				Text(
 					text = thanksRecordWithImages.thanksRecord.thanksContent,
 					style = MaterialTheme.typography.body1.copy(
+						color = Color.White,
 						shadow = Shadow(
 							color = Color.Gray.copy(alpha = 0.3f),
 							offset = Offset(x = 2f, y = 4f),
