@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,7 +45,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -114,9 +114,6 @@ fun ListThanksScreen(
 				contentDescription = null,
 				modifier = Modifier
 					.fillMaxSize()
-					.graphicsLayer {
-						alpha = scaffoldState.toolbarState.progress
-					}
 			)
 
 			CollapsingToolbarScaffold(
@@ -125,6 +122,9 @@ fun ListThanksScreen(
 				scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
 				enabled = true,
 				toolbar = {
+					// Collapsing toolbar collapses its size as small as the that of
+					// a smallest child. To make the toolbar collapse to 0dp, we create
+					// a dummy Spacer composable.
 					Spacer(
 						modifier = Modifier
 							.background(color = Color.Transparent)
@@ -132,10 +132,24 @@ fun ListThanksScreen(
 							.height(0.dp)
 					)
 
+					// Collapsing toolbar expands its size as large as the that of
+					// a largest child. To make the toolbar expand to maxToolbarHeight, we create
+					// a dummy Spacer composable.
+					val maxToolbarHeight = 400.dp
 					Spacer(
 						modifier = Modifier
-							.background(color = Color.Transparent)
-							.height(250.dp)
+							.offset(y = maxToolbarHeight * (scaffoldState.toolbarState.progress - 1))
+							.background(
+								brush = Brush.verticalGradient(
+									colors = listOf(
+										Color.Transparent,
+										MaterialTheme.colors.surface
+									),
+									startY = 70f
+								)
+							)
+							.fillMaxWidth()
+							.height(maxToolbarHeight)
 					)
 				}
 			) {
@@ -154,16 +168,7 @@ fun ListThanksScreen(
 						viewTypeState = ListThanksViewType.ContentWithBigThumbnail
 					},
 					modifier = Modifier
-						.background(
-							brush = Brush.verticalGradient(
-								listOf(
-									Color.Transparent,
-									MaterialTheme.colors.surface.copy(
-										alpha = scaffoldState.toolbarState.progress
-									)
-								)
-							)
-						)
+						.background(color = MaterialTheme.colors.surface)
 						.fillMaxSize()
 						.padding(horizontal = 20.dp)
 				)
