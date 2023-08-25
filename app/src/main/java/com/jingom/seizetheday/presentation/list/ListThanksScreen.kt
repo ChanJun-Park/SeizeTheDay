@@ -109,7 +109,7 @@ fun ListThanksScreen(
 	) {
 		Box(modifier = Modifier.fillMaxSize()) {
 			Image(
-				painter = painterResource(id = R.drawable.main_background_1),
+				painter = painterResource(id = R.drawable.main_background_9),
 				contentScale = ContentScale.Crop,
 				contentDescription = null,
 				modifier = Modifier
@@ -143,7 +143,9 @@ fun ListThanksScreen(
 								brush = Brush.verticalGradient(
 									colors = listOf(
 										Color.Transparent,
-										MaterialTheme.colors.surface
+										MaterialTheme.colors.surface.copy(
+											alpha = 0.9f
+										)
 									),
 									startY = 70f
 								)
@@ -168,7 +170,11 @@ fun ListThanksScreen(
 						viewTypeState = ListThanksViewType.ContentWithBigThumbnail
 					},
 					modifier = Modifier
-						.background(color = MaterialTheme.colors.surface)
+						.background(
+							color = MaterialTheme.colors.surface.copy(
+								alpha = 0.9f
+							)
+						)
 						.fillMaxSize()
 						.padding(horizontal = 20.dp)
 				)
@@ -451,7 +457,6 @@ private fun ContentWithMiniThumbnail(
 				Text(
 					text = thanksRecordWithImages.thanksRecord.feeling.getResourceString(),
 					style = MaterialTheme.typography.subtitle1.copy(
-						color = Color.White,
 						shadow = Shadow(
 							color = Color.Gray.copy(alpha = 0.3f),
 							offset = Offset(x = 2f, y = 4f),
@@ -464,7 +469,6 @@ private fun ContentWithMiniThumbnail(
 				Text(
 					text = thanksRecordWithImages.thanksRecord.date.format(DateTimeFormatter.ISO_DATE),
 					style = MaterialTheme.typography.subtitle2.copy(
-						color = Color.White,
 						shadow = Shadow(
 							color = Color.Gray.copy(alpha = 0.3f),
 							offset = Offset(x = 2f, y = 4f),
@@ -477,7 +481,6 @@ private fun ContentWithMiniThumbnail(
 				Text(
 					text = thanksRecordWithImages.thanksRecord.thanksContent,
 					style = MaterialTheme.typography.body1.copy(
-						color = Color.White,
 						shadow = Shadow(
 							color = Color.Gray.copy(alpha = 0.3f),
 							offset = Offset(x = 2f, y = 4f),
