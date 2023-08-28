@@ -39,3 +39,5 @@ val PurpleA100Dark = Color(0xFF904E9C)
 val PurpleA200 = Color(0xFFE040FB)
 val PurpleA400 = Color(0xFFD500F9)
 val PurpleA700 = Color(0xFFAA00FF)
+
+val Green800 = Color(0xFF1E593D)

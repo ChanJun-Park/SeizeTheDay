@@ -63,6 +63,7 @@ import com.jingom.seizetheday.domain.model.Feeling
 import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 import com.jingom.seizetheday.presentation.getResourceString
+import com.jingom.seizetheday.presentation.ui.theme.Green800
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ExperimentalToolbarApi
 import me.onebone.toolbar.ScrollStrategy
@@ -107,90 +108,99 @@ fun ListThanksScreen(
 		modifier = Modifier.fillMaxSize(),
 		color = MaterialTheme.colors.background
 	) {
-		Box(modifier = Modifier.fillMaxSize()) {
-			Image(
-				painter = painterResource(id = R.drawable.main_background_9),
-				contentScale = ContentScale.Crop,
-				contentDescription = null,
-				modifier = Modifier
-					.fillMaxSize()
-			)
+		CollapsingToolbarScaffold(
+			modifier = Modifier.fillMaxSize(),
+			state = scaffoldState,
+			scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
+			enabled = true,
+			toolbar = {
+				// Collapsing toolbar collapses its size as small as the that of
+				// a smallest child. To make the toolbar collapse to 0dp, we create
+				// a dummy Spacer composable.
+				Spacer(
+					modifier = Modifier
+						.background(color = Color.Transparent)
+						.fillMaxWidth()
+						.height(0.dp)
+				)
 
-			CollapsingToolbarScaffold(
-				modifier = Modifier.fillMaxSize(),
-				state = scaffoldState,
-				scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-				enabled = true,
-				toolbar = {
-					// Collapsing toolbar collapses its size as small as the that of
-					// a smallest child. To make the toolbar collapse to 0dp, we create
-					// a dummy Spacer composable.
-					Spacer(
-						modifier = Modifier
-							.background(color = Color.Transparent)
-							.fillMaxWidth()
-							.height(0.dp)
-					)
+				// Collapsing toolbar expands its size as large as the that of
+				// a largest child. To make the toolbar expand to maxToolbarHeight, we create
+				// a dummy Spacer composable.
+				val maxToolbarHeight = 400.dp
+				Image(
+					painter = painterResource(id = R.drawable.main_background_9),
+					contentScale = ContentScale.Crop,
+					contentDescription = null,
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(maxToolbarHeight)
+				)
 
-					// Collapsing toolbar expands its size as large as the that of
-					// a largest child. To make the toolbar expand to maxToolbarHeight, we create
-					// a dummy Spacer composable.
-					val maxToolbarHeight = 400.dp
-					Spacer(
+				Box(
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(maxToolbarHeight)
+				) {
+					Text(
+						text = stringResource(R.string.app_name),
+						style = MaterialTheme.typography.h4.copy(
+							color = Color.White
+						),
 						modifier = Modifier
-							.offset(y = maxToolbarHeight * (scaffoldState.toolbarState.progress - 1))
-							.background(
-								brush = Brush.verticalGradient(
-									colors = listOf(
-										Color.Transparent,
-										MaterialTheme.colors.surface.copy(
-											alpha = 0.9f
-										)
-									),
-									startY = 70f
-								)
-							)
-							.fillMaxWidth()
-							.height(maxToolbarHeight)
+							.padding(top = 40.dp)
+							.align(Alignment.TopCenter)
 					)
 				}
-			) {
-				ListThanks(
-					listThanksRecordUiModels = listThanksRecordUiModels,
-					lazyGridState = lazyGridState,
-					listThanksViewType = viewTypeState,
-					onThanksClick = onThanksClick,
-					onClickThumbnailTypeButton = {
-						viewTypeState = ListThanksViewType.Thumbnail
-					},
-					onClickContentWithMiniThumbnailButton = {
-						viewTypeState = ListThanksViewType.ContentWithMiniThumbnail
-					},
-					onClickContentWithBigThumbnailButton = {
-						viewTypeState = ListThanksViewType.ContentWithBigThumbnail
-					},
+
+				Spacer(
 					modifier = Modifier
+						.offset(y = maxToolbarHeight * (scaffoldState.toolbarState.progress - 1))
 						.background(
-							color = MaterialTheme.colors.surface.copy(
-								alpha = 0.9f
+							brush = Brush.verticalGradient(
+								colors = listOf(
+									Color.Transparent,
+									Green800
+								),
+								startY = 70f
 							)
 						)
-						.fillMaxSize()
-						.padding(horizontal = 20.dp)
-				)
-
-				AddThanksButton(
-					onClick = onNewThanksClick,
-					modifier = Modifier
-						.padding(20.dp)
-						.background(
-							color = MaterialTheme.colors.primary,
-							shape = CircleShape
-						)
-						.size(48.dp)
-						.align(Alignment.BottomEnd)
+						.fillMaxWidth()
+						.height(maxToolbarHeight)
 				)
 			}
+		) {
+			ListThanks(
+				listThanksRecordUiModels = listThanksRecordUiModels,
+				lazyGridState = lazyGridState,
+				listThanksViewType = viewTypeState,
+				onThanksClick = onThanksClick,
+				onClickThumbnailTypeButton = {
+					viewTypeState = ListThanksViewType.Thumbnail
+				},
+				onClickContentWithMiniThumbnailButton = {
+					viewTypeState = ListThanksViewType.ContentWithMiniThumbnail
+				},
+				onClickContentWithBigThumbnailButton = {
+					viewTypeState = ListThanksViewType.ContentWithBigThumbnail
+				},
+				modifier = Modifier
+					.background(color = Green800)
+					.fillMaxSize()
+					.padding(horizontal = 20.dp)
+			)
+
+			AddThanksButton(
+				onClick = onNewThanksClick,
+				modifier = Modifier
+					.padding(20.dp)
+					.background(
+						color = MaterialTheme.colors.primary,
+						shape = CircleShape
+					)
+					.size(48.dp)
+					.align(Alignment.BottomEnd)
+			)
 		}
 	}
 }
@@ -238,6 +248,7 @@ fun ListThanks(
 					onClick = onThanksClick,
 					listThanksViewType = listThanksViewType
 				)
+
 				null -> {
 					/* do nothing */
 				}
