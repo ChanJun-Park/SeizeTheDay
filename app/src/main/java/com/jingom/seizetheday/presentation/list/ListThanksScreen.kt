@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
@@ -64,6 +65,8 @@ import com.jingom.seizetheday.domain.model.ThanksRecord
 import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 import com.jingom.seizetheday.presentation.getResourceString
 import com.jingom.seizetheday.presentation.ui.theme.Green800
+import com.jingom.seizetheday.presentation.ui.theme.SeizeTheDayTheme
+import kotlinx.coroutines.flow.flowOf
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ExperimentalToolbarApi
 import me.onebone.toolbar.ScrollStrategy
@@ -200,6 +203,57 @@ fun ListThanksScreen(
 					)
 					.size(48.dp)
 					.align(Alignment.BottomEnd)
+			)
+		}
+	}
+}
+
+@Preview
+@Composable
+fun ListThanksScreenPreview() {
+	SeizeTheDayTheme {
+		Surface(modifier = Modifier.fillMaxSize()) {
+			val data = PagingData.from(
+				listOf(
+					ListThanksRecordUiState.DateHeaderItem(date = LocalDate.of(2023, 8, 28)),
+					ListThanksRecordUiState.ThanksRecordItemWithImages(
+						ThanksRecordWithImages(
+							thanksRecord = ThanksRecord(
+								id = 1L,
+								feeling = Feeling.Thanks,
+								thanksContent = "감사합니다.",
+								date = LocalDate.of(2023, 8, 28)
+							),
+							attachedImageList = AttachedImageList.emptyAttachedImageList()
+						)
+					),
+					ListThanksRecordUiState.ThanksRecordItemWithImages(
+						ThanksRecordWithImages(
+							thanksRecord = ThanksRecord(
+								id = 2L,
+								feeling = Feeling.Thanks,
+								thanksContent = "행복합니다..",
+								date = LocalDate.of(2023, 8, 28)
+							),
+							attachedImageList = AttachedImageList.emptyAttachedImageList()
+						)
+					),
+					ListThanksRecordUiState.ThanksRecordItemWithImages(
+						ThanksRecordWithImages(
+							thanksRecord = ThanksRecord(
+								id = 3L,
+								feeling = Feeling.Thanks,
+								thanksContent = "난 행복합니다.",
+								date = LocalDate.of(2023, 8, 28)
+							),
+							attachedImageList = AttachedImageList.emptyAttachedImageList()
+						)
+					)
+				)
+			)
+			val lazyPagingItems = flowOf(data).collectAsLazyPagingItems()
+			ListThanksScreen(
+				listThanksRecordUiModels = lazyPagingItems
 			)
 		}
 	}
