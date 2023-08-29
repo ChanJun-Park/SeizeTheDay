@@ -14,3 +14,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "SeizeTheDay"
 include(":app")
+include(":wear")
