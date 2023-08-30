@@ -18,7 +18,7 @@ paingCompose = "1.0.0-alpha17"
 room = "2.4.0"
 
 #compose
-composeBom = "2023.08.00"
+composeBom = "2023.05.01"
 composeCompiler = "1.4.2"
 
 #kotlin
