@@ -8,7 +8,7 @@ import com.jingom.seizetheday.domain.model.ThanksRecordWithImages
 
 class ThanksRecordWithImagesPagingSource(
 	private val thanksRecordEntityDao: ThanksRecordEntityDao,
-	private val pageConfigSize: Int = 15,
+	private val pageConfigSize: Int = 15
 ) : PagingSource<Int, ThanksRecordWithImages>() {
 
 	private var isInitialized: Boolean = false
@@ -43,12 +43,12 @@ class ThanksRecordWithImagesPagingSource(
 		}
 	}
 
-	private fun init() {
+	private suspend fun init() {
 		initTotalRecordCount()
 		initTotalPageCount()
 	}
 
-	private fun initTotalRecordCount() {
+	private suspend fun initTotalRecordCount() {
 		totalRecordCount = thanksRecordEntityDao.selectThanksRecordCount()
 	}
 

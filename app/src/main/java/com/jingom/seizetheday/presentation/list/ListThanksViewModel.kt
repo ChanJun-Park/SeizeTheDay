@@ -15,22 +15,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListThanksViewModel @Inject constructor(
-	getThanksRecordWitImagesPagingDataFlow: GetThanksRecordWithImagesPagingDataFlowUseCase,
-	@IoDispatcher private val ioDispatcher: CoroutineDispatcher
+	getThanksRecordWitImagesPagingDataFlow: GetThanksRecordWithImagesPagingDataFlowUseCase
 ) : ViewModel() {
 
-	private val _thanksRecordsPagingData = MutableStateFlow<PagingData<ListThanksRecordUiState>>(PagingData.empty())
-	val thanksRecordsPagingData: StateFlow<PagingData<ListThanksRecordUiState>> = _thanksRecordsPagingData
-
-	init {
-		viewModelScope.launch {
-			getThanksRecordWitImagesPagingDataFlow()
-				.cachedIn(viewModelScope + ioDispatcher)
-				.collectLatest { pagingData ->
-					_thanksRecordsPagingData.update { insertDateSeparators(mapToUiModels(pagingData)) }
-				}
-		}
-	}
+	val thanksRecordsPagingData = getThanksRecordWitImagesPagingDataFlow()
+		.map { pagingData -> mapToUiModels(pagingData) }
+		.cachedIn(viewModelScope)
+		.map { pagingData -> insertDateSeparators(pagingData) }
 
 	private fun mapToUiModels(pagingData: PagingData<ThanksRecordWithImages>) =
 		pagingData.map { thanksRecord ->

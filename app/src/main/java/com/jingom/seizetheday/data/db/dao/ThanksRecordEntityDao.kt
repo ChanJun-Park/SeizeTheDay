@@ -72,7 +72,7 @@ interface ThanksRecordEntityDao {
 		FROM thanks_record_entity
 		"""
 	)
-	fun selectThanksRecordCount(): Int
+	suspend fun selectThanksRecordCount(): Int
 
 	@Query("""
 		SELECT id
