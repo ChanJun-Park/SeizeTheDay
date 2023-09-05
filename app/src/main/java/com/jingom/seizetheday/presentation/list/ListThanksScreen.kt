@@ -272,8 +272,8 @@ fun ListThanks(
 	LazyVerticalGrid(
 		state = lazyGridState,
 		columns = listThanksViewType.gridCells(),
-		contentPadding = PaddingValues(top = 10.dp),
-		verticalArrangement = Arrangement.spacedBy(5.dp),
+		contentPadding = PaddingValues(top = 10.dp, bottom = 70.dp),
+		verticalArrangement = verticalArrangement(listThanksViewType),
 		horizontalArrangement = Arrangement.spacedBy(5.dp),
 		modifier = modifier,
 	) {
@@ -308,6 +308,12 @@ fun ListThanks(
 			}
 		}
 	}
+}
+
+private fun verticalArrangement(listThanksViewType: ListThanksViewType) = if (listThanksViewType == ListThanksViewType.ContentWithBigThumbnail) {
+	Arrangement.spacedBy(20.dp)
+} else {
+	Arrangement.spacedBy(5.dp)
 }
 
 @Composable
