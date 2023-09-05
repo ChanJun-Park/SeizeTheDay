@@ -331,9 +331,9 @@ fun ListThanksViewTypeButtons(
 					painter = painterResource(R.drawable.ic_grid),
 					contentDescription = "view in grid form",
 					tint = if (listThanksViewType == ListThanksViewType.Thumbnail) {
-						Color.Black
+						Color.White
 					} else {
-						Color.Black.copy(alpha = 0.3f)
+						Color.White.copy(alpha = 0.3f)
 					},
 					modifier = Modifier.size(30.dp)
 				)
@@ -344,9 +344,9 @@ fun ListThanksViewTypeButtons(
 					painter = painterResource(R.drawable.ic_content_with_mini_thumbnail),
 					contentDescription = "view in content with mini thumbnail form",
 					tint = if (listThanksViewType == ListThanksViewType.ContentWithMiniThumbnail) {
-						Color.Black
+						Color.White
 					} else {
-						Color.Black.copy(alpha = 0.3f)
+						Color.White.copy(alpha = 0.3f)
 					},
 					modifier = Modifier.size(30.dp)
 				)
@@ -357,9 +357,9 @@ fun ListThanksViewTypeButtons(
 					painter = painterResource(R.drawable.ic_content_wth_big_thumbnail),
 					contentDescription = "view in content with big form",
 					tint = if (listThanksViewType == ListThanksViewType.ContentWithBigThumbnail) {
-						Color.Black
+						Color.White
 					} else {
-						Color.Black.copy(alpha = 0.3f)
+						Color.White.copy(alpha = 0.3f)
 					},
 					modifier = Modifier.size(30.dp)
 				)
