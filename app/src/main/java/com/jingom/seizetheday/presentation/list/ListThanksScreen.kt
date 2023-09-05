@@ -2,6 +2,7 @@ package com.jingom.seizetheday.presentation.list
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -396,17 +397,9 @@ private fun DateHeader(localDate: LocalDate) {
 		Text(
 			text = localDate.toString(),
 			style = MaterialTheme.typography.h4.copy(
-				shadow = Shadow(
-					color = Color.Gray.copy(alpha = 0.3f),
-					offset = Offset(x = 2f, y = 4f),
-					blurRadius = 0.1f
-				)
+				color = Color.White.copy(alpha = 0.8f)
 			),
 			modifier = Modifier
-				.background(
-					color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
-					shape = MaterialTheme.shapes.small
-				)
 				.wrapContentSize()
 				.padding(5.dp)
 		)
@@ -488,9 +481,14 @@ private fun ContentWithMiniThumbnail(
 	onClick: (ThanksRecordWithImages) -> Unit = {}
 ) {
 	Surface(
-		color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+		color = Color.Transparent,
 		shape = MaterialTheme.shapes.medium,
 		modifier = modifier
+			.border(
+				width = 2.dp,
+				color = Color.White.copy(alpha = 0.3f),
+				shape = MaterialTheme.shapes.medium
+			)
 			.clickable { onClick(thanksRecordWithImages) }
 			.fillMaxWidth()
 			.wrapContentHeight()
@@ -522,11 +520,7 @@ private fun ContentWithMiniThumbnail(
 				Text(
 					text = thanksRecordWithImages.thanksRecord.feeling.getResourceString(),
 					style = MaterialTheme.typography.subtitle1.copy(
-						shadow = Shadow(
-							color = Color.Gray.copy(alpha = 0.3f),
-							offset = Offset(x = 2f, y = 4f),
-							blurRadius = 0.1f
-						)
+						color = Color.White.copy(alpha = 0.8f)
 					),
 					modifier = Modifier.fillMaxWidth()
 				)
@@ -534,11 +528,7 @@ private fun ContentWithMiniThumbnail(
 				Text(
 					text = thanksRecordWithImages.thanksRecord.date.format(DateTimeFormatter.ISO_DATE),
 					style = MaterialTheme.typography.subtitle2.copy(
-						shadow = Shadow(
-							color = Color.Gray.copy(alpha = 0.3f),
-							offset = Offset(x = 2f, y = 4f),
-							blurRadius = 0.1f
-						)
+						color = Color.White.copy(alpha = 0.8f)
 					),
 					modifier = Modifier.fillMaxWidth()
 				)
@@ -546,11 +536,7 @@ private fun ContentWithMiniThumbnail(
 				Text(
 					text = thanksRecordWithImages.thanksRecord.thanksContent,
 					style = MaterialTheme.typography.body1.copy(
-						shadow = Shadow(
-							color = Color.Gray.copy(alpha = 0.3f),
-							offset = Offset(x = 2f, y = 4f),
-							blurRadius = 0.1f
-						)
+						color = Color.White.copy(alpha = 0.8f)
 					),
 					maxLines = 3,
 					overflow = TextOverflow.Ellipsis,
