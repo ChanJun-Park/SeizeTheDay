@@ -42,10 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -554,7 +552,7 @@ private fun ContentWithBigThumbnail(
 	onClick: (ThanksRecordWithImages) -> Unit = {}
 ) {
 	Surface(
-		color = MaterialTheme.colors.surface.copy(alpha = 0.3f),
+		color = Color.Transparent,
 		shape = MaterialTheme.shapes.medium,
 		modifier = modifier
 			.clickable { onClick(thanksRecordWithImages) }
@@ -572,7 +570,7 @@ private fun ContentWithBigThumbnail(
 					modifier = Modifier
 						.fillMaxWidth()
 						.aspectRatio(ratio = 2f)
-						.clip(shape = RoundedCornerShape(3.dp))
+						.clip(shape = RoundedCornerShape(10.dp))
 				)
 			}
 
@@ -586,39 +584,33 @@ private fun ContentWithBigThumbnail(
 				Text(
 					text = thanksRecordWithImages.thanksRecord.feeling.getResourceString(),
 					style = MaterialTheme.typography.subtitle1.copy(
-						shadow = Shadow(
-							color = Color.Gray.copy(alpha = 0.3f),
-							offset = Offset(x = 2f, y = 4f),
-							blurRadius = 0.1f
-						)
+						color = Color.White.copy(alpha = 0.8f)
 					),
-					modifier = Modifier.fillMaxWidth()
+					modifier = Modifier
+						.padding(start = 5.dp)
+						.fillMaxWidth()
 				)
 
 				Text(
 					text = thanksRecordWithImages.thanksRecord.date.format(DateTimeFormatter.ISO_DATE),
 					style = MaterialTheme.typography.subtitle2.copy(
-						shadow = Shadow(
-							color = Color.Gray.copy(alpha = 0.3f),
-							offset = Offset(x = 2f, y = 4f),
-							blurRadius = 0.1f
-						)
+						color = Color.White.copy(alpha = 0.8f)
 					),
-					modifier = Modifier.fillMaxWidth()
+					modifier = Modifier
+						.padding(start = 5.dp)
+						.fillMaxWidth()
 				)
 
 				Text(
 					text = thanksRecordWithImages.thanksRecord.thanksContent,
 					style = MaterialTheme.typography.body1.copy(
-						shadow = Shadow(
-							color = Color.Gray.copy(alpha = 0.3f),
-							offset = Offset(x = 2f, y = 4f),
-							blurRadius = 0.1f
-						)
+						color = Color.White.copy(alpha = 0.8f)
 					),
 					maxLines = 3,
 					overflow = TextOverflow.Ellipsis,
-					modifier = Modifier.fillMaxWidth()
+					modifier = Modifier
+						.padding(start = 5.dp)
+						.fillMaxWidth()
 				)
 			}
 		}
