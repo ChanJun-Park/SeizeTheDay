@@ -497,16 +497,17 @@ private fun ContentWithMiniThumbnail(
 				.heightIn(min = 100.dp)
 				.padding(16.dp)
 		) {
-			thanksRecordWithImages.attachedImageList.fistImage()?.let { attachedImage ->
-				AsyncImage(
-					model = attachedImage.imageUri,
-					contentDescription = null,
-					contentScale = ContentScale.Crop,
-					modifier = Modifier
-						.size(100.dp)
-						.clip(shape = RoundedCornerShape(size = 5.dp))
-				)
-			}
+			val thumbnailImage = thanksRecordWithImages.attachedImageList.fistImage()
+			val localizedDateString = thanksRecordWithImages.thanksRecord.date.format(DateTimeFormatters.localizedDate)
+
+			ThumbnailImage(
+				model = thumbnailImage?.imageUri,
+				contentDescription = stringResource(R.string.content_description_thumbnail_image, localizedDateString),
+				modifier = modifier
+					.size(100.dp)
+					.clip(shape = RoundedCornerShape(size = 5.dp)),
+				imageCount = thanksRecordWithImages.attachedImageList.size
+			)
 
 			Spacer(modifier = Modifier.width(10.dp))
 
@@ -562,17 +563,18 @@ private fun ContentWithBigThumbnail(
 		Column(
 			modifier = Modifier.fillMaxWidth()
 		) {
-			thanksRecordWithImages.attachedImageList.fistImage()?.let { attachedImage ->
-				AsyncImage(
-					model = attachedImage.imageUri,
-					contentDescription = null,
-					contentScale = ContentScale.Crop,
-					modifier = Modifier
-						.fillMaxWidth()
-						.aspectRatio(ratio = 2f)
-						.clip(shape = RoundedCornerShape(10.dp))
-				)
-			}
+			val thumbnailImage = thanksRecordWithImages.attachedImageList.fistImage()
+			val localizedDateString = thanksRecordWithImages.thanksRecord.date.format(DateTimeFormatters.localizedDate)
+
+			ThumbnailImage(
+				model = thumbnailImage?.imageUri,
+				contentDescription = stringResource(R.string.content_description_thumbnail_image, localizedDateString),
+				modifier = modifier
+					.fillMaxWidth()
+					.aspectRatio(ratio = 2f)
+					.clip(shape = RoundedCornerShape(10.dp)),
+				imageCount = thanksRecordWithImages.attachedImageList.size
+			)
 
 			Spacer(modifier = Modifier.width(10.dp))
 
