@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -492,7 +493,7 @@ private fun ContentWithMiniThumbnail(
 			.border(
 				width = 2.dp,
 				color = Color.White.copy(alpha = 0.3f),
-				shape = MaterialTheme.shapes.medium
+				shape = MaterialTheme.shapes.medium.copy(all = CornerSize(20.dp))
 			)
 			.clickable { onClick(thanksRecordWithImages) }
 			.fillMaxWidth()
