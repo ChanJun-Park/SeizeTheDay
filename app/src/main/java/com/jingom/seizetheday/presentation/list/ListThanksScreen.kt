@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -151,6 +152,7 @@ fun ListThanksScreen(
 						),
 						modifier = Modifier
 							.padding(top = 40.dp)
+							.border(1.dp, color = Color.Blue)
 							.align(Alignment.TopCenter)
 					)
 				}
@@ -405,6 +407,7 @@ private fun DateHeader(localDate: LocalDate) {
 			),
 			modifier = Modifier
 				.wrapContentSize()
+				.border(1.dp, Color.Blue)
 				.padding(5.dp)
 		)
 	}
@@ -491,7 +494,7 @@ private fun ContentWithMiniThumbnail(
 			.border(
 				width = 2.dp,
 				color = Color.White.copy(alpha = 0.3f),
-				shape = MaterialTheme.shapes.medium
+				shape = MaterialTheme.shapes.medium.copy(all = CornerSize(20.dp))
 			)
 			.clickable { onClick(thanksRecordWithImages) }
 			.fillMaxWidth()
