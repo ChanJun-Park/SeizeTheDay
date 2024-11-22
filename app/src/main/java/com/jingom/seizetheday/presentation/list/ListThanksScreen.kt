@@ -407,6 +407,7 @@ private fun DateHeader(localDate: LocalDate) {
 			),
 			modifier = Modifier
 				.wrapContentSize()
+				.border(1.dp, Color.Blue)
 				.padding(5.dp)
 		)
 	}
