@@ -151,6 +151,7 @@ fun ListThanksScreen(
 						),
 						modifier = Modifier
 							.padding(top = 40.dp)
+							.border(1.dp, color = Color.Blue)
 							.align(Alignment.TopCenter)
 					)
 				}
